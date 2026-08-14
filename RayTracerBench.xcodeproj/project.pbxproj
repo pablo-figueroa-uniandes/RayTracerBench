@@ -7,94 +7,94 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		188F75FB2DE30893CC0FC315 /* ZERO_CHECK */ = {
+		A9B64125C28D078E4BA75B0A /* ALL_BUILD */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = A6FC1F22C25D46C0A323BED5 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildConfigurationList = 638C4EE58D80494FA85694CE /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
 			buildPhases = (
-				2EBCD7E540AFDDF5311B5B47 /* Generate CMakeFiles/ZERO_CHECK */,
+				D4B3650316E8912A69AD9476 /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				3F7B0607CDCE45CAAF7CE6CC /* PBXTargetDependency */,
+				6C30DD80319E4302ADF4AD37 /* PBXTargetDependency */,
+				A640E544E08742978A4A1D83 /* PBXTargetDependency */,
+				0705D31037194A21BD623A7D /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		B2938A4BA632584630810D99 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D5F35D18131041698D991C2E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				94BC6A88D064CE11A5947369 /* Generate CMakeFiles/ZERO_CHECK */,
 			);
 			dependencies = (
 			);
 			name = ZERO_CHECK;
 			productName = ZERO_CHECK;
 		};
-		6160310100838AFEDF04FEBB /* RaytracerMetalLib */ = {
+		DBD2F4CB4DB09A04C419C7A1 /* RaytracerMetalLib */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = CD23B0A51A654EA1B7F7ADC9 /* Build configuration list for PBXAggregateTarget "RaytracerMetalLib" */;
+			buildConfigurationList = 18576E8F81104C85B5AE1949 /* Build configuration list for PBXAggregateTarget "RaytracerMetalLib" */;
 			buildPhases = (
-				7E5952054A7212BCF02F1A3A /* Generate Raytracer.metallib */,
-				914B4931B74AAD6C86A20CC5 /* Generate CMakeFiles/RaytracerMetalLib */,
+				0B03A3C84576D50B45762A5E /* Generate Raytracer.metallib */,
+				9111D3B00AD8F165E44C4BF2 /* Generate CMakeFiles/RaytracerMetalLib */,
 			);
 			dependencies = (
-				371F7FE87DB849AD9D9A9ADB /* PBXTargetDependency */,
+				E8335A74591D4B08A3598060 /* PBXTargetDependency */,
 			);
 			name = RaytracerMetalLib;
 			productName = RaytracerMetalLib;
 		};
-		7A0676D228CD86FBA8D75A02 /* ALL_BUILD */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 745191043F234DD5B29ED5F1 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
-			buildPhases = (
-				D6486C99CEF476CB408429B8 /* Generate CMakeFiles/ALL_BUILD */,
-			);
-			dependencies = (
-				C111F9611D834FA4A95BA9D6 /* PBXTargetDependency */,
-				CCEC4E9F99094C5F9A5ACD57 /* PBXTargetDependency */,
-				8FA5633AD20C43FF911A890D /* PBXTargetDependency */,
-				6665B5A7648D4917B3F3BB75 /* PBXTargetDependency */,
-			);
-			name = ALL_BUILD;
-			productName = ALL_BUILD;
-		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		088BF4EEF17848D488FA7D98 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = CD9CB8E8C7F94E8AA1E12901 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */; };
-		0DE43C88DDBC4AB3A88E68E0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */ = {isa = PBXBuildFile; fileRef = 53CBC64A600C4B4B9B784CF2 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */; };
-		176C643B0F08408180581DED /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */ = {isa = PBXBuildFile; fileRef = F3C99D5319BF4A13B6CC3243 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */; };
-		1A43925DE2F34E37AD79F5EA /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXBuildFile; fileRef = 7B18AC3EDC4C48629197BE20 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */; };
-		267CB5C422814D1B9742773B /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */ = {isa = PBXBuildFile; fileRef = D6CF7A6271F642799C72059E /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */; };
-		2E1EE640E3344FFB9094C731 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */ = {isa = PBXBuildFile; fileRef = 3A5FE22351384EC9AB94B47C /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */; };
-		371D87EBB2FF45A8BBD2CAD2 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */ = {isa = PBXBuildFile; fileRef = 0F26976ED9FD4172A389D9CA /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */; };
-		44736B6E4C684110912A0668 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */ = {isa = PBXBuildFile; fileRef = D00905F68E364943A5556E07 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */; };
-		55F2E3083C3A45FB87D06F91 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */ = {isa = PBXBuildFile; fileRef = 74C31C90ADD34D1B9CDA6F11 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */; };
-		715F5FBB64004E288B2797D0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */ = {isa = PBXBuildFile; fileRef = AB7B9B50CB7A48FD8FB8A047 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */; };
-		726BE76E17A94BDA86F977A4 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */ = {isa = PBXBuildFile; fileRef = 04A9E478A0F0432EAC51FDA1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */; };
-		74EB6F55B42E4604BE499FB7 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 59745685FF8649B78C23AC86 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */; };
-		7B0B9B1728044333A3E8D60C /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */ = {isa = PBXBuildFile; fileRef = 3BC0A36FE33444579254AB70 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */; };
-		7FB296A68E39413C923F587A /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */ = {isa = PBXBuildFile; fileRef = 818A1F7E7E924FD0832450E8 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */; };
-		84E84C4D86F442A1B882368F /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */ = {isa = PBXBuildFile; fileRef = 9AE240C8E62641B18125BF0B /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */; };
-		A950A3AB77E147D09F91EBD2 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */ = {isa = PBXBuildFile; fileRef = D796ED36F4C742A59D8C1E43 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */; };
-		BC65517ACEA4466D85FB0891 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */ = {isa = PBXBuildFile; fileRef = 924C885D32D540948B38EFA0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */; };
-		C9DD267790794DBDAD47A6B5 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */ = {isa = PBXBuildFile; fileRef = A710F32D8C844D88A0829B7E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */; };
-		D17FEF31C76740E5B5886D2A /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */ = {isa = PBXBuildFile; fileRef = 208FAA8663BF4642A5E784DD /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */; };
-		D5820E81DA1D4C11BF517DC3 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 4FF37E014FD74A89A48D18FC /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */; };
-		D91EF6B53D484E3F84B761AF /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXBuildFile; fileRef = EE88A8AD6EBF465BBE8F3FC1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */; };
+		02625A8E99744D0C95F5BCE9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXBuildFile; fileRef = 7BD7BA7E36D94FE38C5ABA1C /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */; };
+		0BDBE890DD3C4CF2BCF4DAF4 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 3C9344430BA1443AB812198F /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */; };
+		1395D97359F84B66A2ADE625 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */ = {isa = PBXBuildFile; fileRef = 0A081F58B4D0479E9349C979 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */; };
+		19574C710A2C46068E17F13A /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */ = {isa = PBXBuildFile; fileRef = 8EF6F9A55AD848848AF995EE /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */; };
+		2D4D48514814442084B3A6F1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */ = {isa = PBXBuildFile; fileRef = B73D970B834846FD90B0E505 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */; };
+		2F840A7CAED046B3B6593541 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */ = {isa = PBXBuildFile; fileRef = 51273210E0E7474E95C0E9C1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */; };
+		328545BF647D4DBE84DF08A7 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 4F5EBB4493C349DF96118ABB /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */; };
+		391422C1714C4C78A9C3F56F /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 8B5F0162CF5A4E96AF1F67E2 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */; };
+		47BE4EBE627642E98AABCE8E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */ = {isa = PBXBuildFile; fileRef = 3B6B31FC0AC64B9599DC831D /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */; };
+		623B095B45AD43388A4F3049 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */ = {isa = PBXBuildFile; fileRef = 5E54AB7D7FE8474E9289D2C9 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */; };
+		669A74E2ECFE4952A26823C8 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */ = {isa = PBXBuildFile; fileRef = 399101E929AA47548299180E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */; };
+		760BCE55C0CD493B8D2AAEDE /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */ = {isa = PBXBuildFile; fileRef = 680225C48FA04840A676AAF9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */; };
+		83C4E7E71B7D47A2827FF904 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */ = {isa = PBXBuildFile; fileRef = CF04E7D99BB443C393458E92 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */; };
+		A70B8F775A5A48D78147F4E0 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */ = {isa = PBXBuildFile; fileRef = F3374D73A23142F1B23DC881 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */; };
+		AAB92433E85445C697F14138 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */ = {isa = PBXBuildFile; fileRef = A74BEDE68E044924AC1170FA /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */; };
+		ABDAC0C7DA2247759DE5C9D6 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */ = {isa = PBXBuildFile; fileRef = 4CAAC747C5594CD680EEC28D /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */; };
+		B36CC5FDBC144C6E818ECF0F /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */ = {isa = PBXBuildFile; fileRef = 62D3A9DF20F0471993E6F3EF /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */; };
+		B8324CC52C9244BAB124CD7C /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */ = {isa = PBXBuildFile; fileRef = 793B5937FB7F4C8ABB3D1FC5 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */; };
+		CF4B91FD743B44A5A924B29D /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */ = {isa = PBXBuildFile; fileRef = 82F00E92F8A3452580E433DB /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */; };
+		D5866793C1DA4D9BB30D0A56 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXBuildFile; fileRef = 373883382C884ED8A3107469 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */; };
+		FB5720509D6043778C4813F9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */ = {isa = PBXBuildFile; fileRef = C1F9B9F23F434A0382338520 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildStyle section */
-		17D812252A3A4F24BA21ADBE /* Release */ = {
+		2E26E55905C841109DFBE239 /* Release */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = Release;
 		};
-		B381580073EA4993A48521DC /* Debug */ = {
+		9DCB77A929A5448C80CB1387 /* Debug */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = Debug;
 		};
-		D276E7F3D45541B0A697DFF7 /* MinSizeRel */ = {
+		D0AC99E864484F5C8FCA59A9 /* MinSizeRel */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = MinSizeRel;
 		};
-		E9568C59B0674B158030EFBC /* RelWithDebInfo */ = {
+		FB7DF8F6594C4E4BA1FD79FA /* RelWithDebInfo */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
@@ -104,137 +104,137 @@
 /* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
-		12D4EB0EF7724E72B507BE29 /* PBXContainerItemProxy */ = {
+		2791F01B2C744564949815C8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DF5250E39CD35AB4C2C12CA0;
 			remoteInfo = RayTracerCore;
 		};
-		16B9A966DC0D466BAB42CB2A /* PBXContainerItemProxy */ = {
+		7D227F1A12174723B25480F8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DBD2F4CB4DB09A04C419C7A1;
+			remoteInfo = RaytracerMetalLib;
+		};
+		89ED00AB27294548AEFCC732 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DBD2F4CB4DB09A04C419C7A1;
+			remoteInfo = RaytracerMetalLib;
+		};
+		A58F6AA9027E46C389BDEA80 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7B980AD8EE54CF5286C1009D;
 			remoteInfo = RayTracerBenchTests;
 		};
-		1CBAC3ECE30F49CA86BB5A39 /* PBXContainerItemProxy */ = {
+		A7A24A1362934EBBB2221E10 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B2938A4BA632584630810D99;
+			remoteInfo = ZERO_CHECK;
+		};
+		A890C00739974342859FF010 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF5250E39CD35AB4C2C12CA0;
+			remoteInfo = RayTracerCore;
+		};
+		B88A063A463E41B9822971EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = E52156C122F6627A622B57D5;
 			remoteInfo = RayTracerBench;
 		};
-		1CEDDC3F5351479B9A587AD5 /* PBXContainerItemProxy */ = {
+		BE876487A8684DEC93232314 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 188F75FB2DE30893CC0FC315;
+			remoteGlobalIDString = B2938A4BA632584630810D99;
 			remoteInfo = ZERO_CHECK;
 		};
-		2D28AD35C1AC40DE9BD23CDF /* PBXContainerItemProxy */ = {
+		CA8895BD01744A2E9D5FBAAE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 188F75FB2DE30893CC0FC315;
+			remoteGlobalIDString = B2938A4BA632584630810D99;
 			remoteInfo = ZERO_CHECK;
 		};
-		2DC9782684314B9299632E75 /* PBXContainerItemProxy */ = {
+		CCE093BB79324FD18520477A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B2938A4BA632584630810D99;
+			remoteInfo = ZERO_CHECK;
+		};
+		DD3C7F372EEA49288E6BFFAB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DF5250E39CD35AB4C2C12CA0;
 			remoteInfo = RayTracerCore;
 		};
-		85108EF691304FF39397983E /* PBXContainerItemProxy */ = {
+		F15A99D4643F4D23AA50FFE7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
+			containerPortal = 1E66E00105214B958C0788CC /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DF5250E39CD35AB4C2C12CA0;
-			remoteInfo = RayTracerCore;
-		};
-		A558C9484F8547D4BB1100C8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 6160310100838AFEDF04FEBB;
-			remoteInfo = RaytracerMetalLib;
-		};
-		A5E91529028A4AB7973B3685 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 188F75FB2DE30893CC0FC315;
+			remoteGlobalIDString = B2938A4BA632584630810D99;
 			remoteInfo = ZERO_CHECK;
-		};
-		B7F1EC5A3EDB4891B0B131F4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 188F75FB2DE30893CC0FC315;
-			remoteInfo = ZERO_CHECK;
-		};
-		B82DD20E86D7432987DDB8A8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 188F75FB2DE30893CC0FC315;
-			remoteInfo = ZERO_CHECK;
-		};
-		FBEB4AB1E130485FACB1D432 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 21324ACC36D343ACBB2F8353 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 6160310100838AFEDF04FEBB;
-			remoteInfo = RaytracerMetalLib;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		04A9E478A0F0432EAC51FDA1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = CPURenderer.cpp; path = RayTracerBench/CPU/CPURenderer.cpp; sourceTree = SOURCE_ROOT; };
-		067F2E0C70C944D0872F4A0E /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		0F26976ED9FD4172A389D9CA /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		208FAA8663BF4642A5E784DD /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = Scene.cpp; path = RayTracerBench/Core/Scene.cpp; sourceTree = SOURCE_ROOT; };
-		3A5FE22351384EC9AB94B47C /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = AboutAlert.cpp; path = RayTracerBench/App/AboutAlert.cpp; sourceTree = SOURCE_ROOT; };
-		3BC0A36FE33444579254AB70 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = RayTraceCoreTests.cpp; path = RayTracerBenchTests/RayTraceCoreTests.cpp; sourceTree = SOURCE_ROOT; };
-		4FF37E014FD74A89A48D18FC /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		52A477B032784C27A96D4A17 /* RayTracerCore */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRayTracerCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		53CBC64A600C4B4B9B784CF2 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ResultsPanel.cpp; path = RayTracerBench/App/ResultsPanel.cpp; sourceTree = SOURCE_ROOT; };
-		59745685FF8649B78C23AC86 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		6CB32B11A1E048A282086975 /* RayTracerBenchTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = RayTracerBenchTests; sourceTree = BUILT_PRODUCTS_DIR; };
-		74C31C90ADD34D1B9CDA6F11 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = "<absolute>"; };
-		7B18AC3EDC4C48629197BE20 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = GPURenderer.cpp; path = RayTracerBench/GPU/GPURenderer.cpp; sourceTree = SOURCE_ROOT; };
-		818A1F7E7E924FD0832450E8 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = DeterministicParityTests.cpp; path = RayTracerBenchTests/DeterministicParityTests.cpp; sourceTree = SOURCE_ROOT; };
-		924C885D32D540948B38EFA0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ControlsPanel.cpp; path = RayTracerBench/App/ControlsPanel.cpp; sourceTree = SOURCE_ROOT; };
-		979383C553AD4846A7B13A4A /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		9AE240C8E62641B18125BF0B /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
-		A710F32D8C844D88A0829B7E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = AppDelegate.cpp; path = RayTracerBench/App/AppDelegate.cpp; sourceTree = SOURCE_ROOT; };
-		AB7B9B50CB7A48FD8FB8A047 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = main.cpp; path = RayTracerBenchTests/main.cpp; sourceTree = SOURCE_ROOT; };
-		CD9CB8E8C7F94E8AA1E12901 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		D00905F68E364943A5556E07 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = main.cpp; path = RayTracerBench/main.cpp; sourceTree = SOURCE_ROOT; };
-		D5B35DE6A07F4D58AB7F2B77 /* RayTracerBench */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = RayTracerBench; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6CF7A6271F642799C72059E /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Metal.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework; sourceTree = "<absolute>"; };
-		D796ED36F4C742A59D8C1E43 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ImageDisplayView.cpp; path = RayTracerBench/App/ImageDisplayView.cpp; sourceTree = SOURCE_ROOT; };
-		EE88A8AD6EBF465BBE8F3FC1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = GPURenderer.cpp; path = RayTracerBench/GPU/GPURenderer.cpp; sourceTree = SOURCE_ROOT; };
-		F3C99D5319BF4A13B6CC3243 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		0A081F58B4D0479E9349C979 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = main.cpp; path = RayTracerBenchTests/main.cpp; sourceTree = SOURCE_ROOT; };
+		373883382C884ED8A3107469 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = GPURenderer.cpp; path = RayTracerBench/GPU/GPURenderer.cpp; sourceTree = SOURCE_ROOT; };
+		399101E929AA47548299180E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = Scene.cpp; path = RayTracerBench/Core/Scene.cpp; sourceTree = SOURCE_ROOT; };
+		3B6B31FC0AC64B9599DC831D /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ControlsPanel.cpp; path = RayTracerBench/App/ControlsPanel.cpp; sourceTree = SOURCE_ROOT; };
+		3C9344430BA1443AB812198F /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		4CAAC747C5594CD680EEC28D /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ResultsPanel.cpp; path = RayTracerBench/App/ResultsPanel.cpp; sourceTree = SOURCE_ROOT; };
+		4CDAEA73B007482EBE72B028 /* RayTracerBench */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = RayTracerBench; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F5EBB4493C349DF96118ABB /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		51273210E0E7474E95C0E9C1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = DeterministicParityTests.cpp; path = RayTracerBenchTests/DeterministicParityTests.cpp; sourceTree = SOURCE_ROOT; };
+		5E54AB7D7FE8474E9289D2C9 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = "<absolute>"; };
+		62D3A9DF20F0471993E6F3EF /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = main.cpp; path = RayTracerBench/main.cpp; sourceTree = SOURCE_ROOT; };
+		680225C48FA04840A676AAF9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = AppDelegate.cpp; path = RayTracerBench/App/AppDelegate.cpp; sourceTree = SOURCE_ROOT; };
+		6C1629300BF64FF4B21E9FA5 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		793B5937FB7F4C8ABB3D1FC5 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Metal.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework; sourceTree = "<absolute>"; };
+		7BD7BA7E36D94FE38C5ABA1C /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = GPURenderer.cpp; path = RayTracerBench/GPU/GPURenderer.cpp; sourceTree = SOURCE_ROOT; };
+		82F00E92F8A3452580E433DB /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		8734D8D1AC1448BCAE302C71 /* RayTracerCore */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRayTracerCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8AF9563D8186415B9B7F20EB /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		8B5F0162CF5A4E96AF1F67E2 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		8EF6F9A55AD848848AF995EE /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = CPURenderer.cpp; path = RayTracerBench/CPU/CPURenderer.cpp; sourceTree = SOURCE_ROOT; };
+		A02869B510974E1D836D42F9 /* RayTracerBenchTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = RayTracerBenchTests; sourceTree = BUILT_PRODUCTS_DIR; };
+		A74BEDE68E044924AC1170FA /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		B73D970B834846FD90B0E505 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = AboutAlert.cpp; path = RayTracerBench/App/AboutAlert.cpp; sourceTree = SOURCE_ROOT; };
+		C1F9B9F23F434A0382338520 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ImageDisplayView.cpp; path = RayTracerBench/App/ImageDisplayView.cpp; sourceTree = SOURCE_ROOT; };
+		CF04E7D99BB443C393458E92 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = RayTraceCoreTests.cpp; path = RayTracerBenchTests/RayTraceCoreTests.cpp; sourceTree = SOURCE_ROOT; };
+		F3374D73A23142F1B23DC881 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		4E32D4252A6548EC8FC03090 /* Frameworks */ = {
+		54C299D10F5A4EC5ABF14E74 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A69661DE1D664B04B0790CEF /* Frameworks */ = {
+		81B81C374F1E496291483A8B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C841438DCCCB4749AACCFC94 /* Frameworks */ = {
+		A3FB5266C3FF44FB951BD375 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -244,140 +244,140 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		02187C9D458743EA9AAFE171 /* ALL_BUILD */ = {
+		1C07EF38786D4EFC935772D2 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
-				B7F44E949FCD4A60A6EE0162 /* CMake Rules */,
-				979383C553AD4846A7B13A4A /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
+				B73D970B834846FD90B0E505 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */,
+				680225C48FA04840A676AAF9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */,
+				3B6B31FC0AC64B9599DC831D /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */,
+				C1F9B9F23F434A0382338520 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */,
+				4CAAC747C5594CD680EEC28D /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */,
+				7BD7BA7E36D94FE38C5ABA1C /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
+				62D3A9DF20F0471993E6F3EF /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */,
 			);
-			name = ALL_BUILD;
+			name = "Source Files";
 			sourceTree = "<group>";
 		};
-		067ECEB157D340B9BDBCC7B6 /* CMake Rules */ = {
+		36D5DC82DCC94706A3ECCE2E /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				8EF6F9A55AD848848AF995EE /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */,
+				399101E929AA47548299180E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */,
 			);
-			name = "CMake Rules";
+			name = "Source Files";
 			sourceTree = "<group>";
 		};
-		1A72D99FC2E84B77A8ECAE62 /* RayTracerBench */ = {
+		42012576918B46628C05E7EC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				66EC51DAEB8440B4BD65A43E /* Source Files */,
-				59745685FF8649B78C23AC86 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
-			);
-			name = RayTracerBench;
-			sourceTree = "<group>";
-		};
-		34CA92B9482E4301AC167539 /* RayTracerCore */ = {
-			isa = PBXGroup;
-			children = (
-				59A9101A593A41408610AC53 /* Source Files */,
-				4FF37E014FD74A89A48D18FC /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
-			);
-			name = RayTracerCore;
-			sourceTree = "<group>";
-		};
-		394418937F644C56859D7643 = {
-			isa = PBXGroup;
-			children = (
-				34CA92B9482E4301AC167539 /* RayTracerCore */,
-				1A72D99FC2E84B77A8ECAE62 /* RayTracerBench */,
-				770A20FF64644DAEB5F3E815 /* RaytracerMetalLib */,
-				AF4346E8C8044F2D876FE3FE /* RayTracerBenchTests */,
-				02187C9D458743EA9AAFE171 /* ALL_BUILD */,
-				5444BE9774484EFDBFF8FA6E /* Products */,
-				7A504AC150FA4FD0B0DD0EB3 /* Frameworks */,
-				F37FC3EEF67D488090B60800 /* Resources */,
-			);
-			sourceTree = "<group>";
-		};
-		5444BE9774484EFDBFF8FA6E /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D5B35DE6A07F4D58AB7F2B77 /* RayTracerBench */,
-				6CB32B11A1E048A282086975 /* RayTracerBenchTests */,
-				52A477B032784C27A96D4A17 /* RayTracerCore */,
+				4CDAEA73B007482EBE72B028 /* RayTracerBench */,
+				A02869B510974E1D836D42F9 /* RayTracerBenchTests */,
+				8734D8D1AC1448BCAE302C71 /* RayTracerCore */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		59A9101A593A41408610AC53 /* Source Files */ = {
+		54C4EC421A0D4D438CBD0C6A = {
 			isa = PBXGroup;
 			children = (
-				04A9E478A0F0432EAC51FDA1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */,
-				208FAA8663BF4642A5E784DD /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */,
+				EF1B54223D1C4837B937237E /* RayTracerCore */,
+				EA53E5A6F845435A82ACB687 /* RayTracerBench */,
+				F45E587B62CF40798B03A946 /* RaytracerMetalLib */,
+				C97E492A2A63440AAC6FCA01 /* RayTracerBenchTests */,
+				83D0D2A3D7664698AE22CA89 /* ALL_BUILD */,
+				42012576918B46628C05E7EC /* Products */,
+				D987D43A373A4A268E445F11 /* Frameworks */,
+				662336FC532344B29DB5BA9B /* Resources */,
 			);
-			name = "Source Files";
 			sourceTree = "<group>";
 		};
-		60F35F2C255045D28E543FAD /* Source Files */ = {
+		662336FC532344B29DB5BA9B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				EE88A8AD6EBF465BBE8F3FC1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
-				818A1F7E7E924FD0832450E8 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */,
-				3BC0A36FE33444579254AB70 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */,
-				AB7B9B50CB7A48FD8FB8A047 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */,
 			);
-			name = "Source Files";
+			name = Resources;
 			sourceTree = "<group>";
 		};
-		66EC51DAEB8440B4BD65A43E /* Source Files */ = {
-			isa = PBXGroup;
-			children = (
-				3A5FE22351384EC9AB94B47C /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */,
-				A710F32D8C844D88A0829B7E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */,
-				924C885D32D540948B38EFA0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */,
-				D796ED36F4C742A59D8C1E43 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */,
-				53CBC64A600C4B4B9B784CF2 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */,
-				7B18AC3EDC4C48629197BE20 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
-				D00905F68E364943A5556E07 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */,
-			);
-			name = "Source Files";
-			sourceTree = "<group>";
-		};
-		770A20FF64644DAEB5F3E815 /* RaytracerMetalLib */ = {
-			isa = PBXGroup;
-			children = (
-				067ECEB157D340B9BDBCC7B6 /* CMake Rules */,
-				067F2E0C70C944D0872F4A0E /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
-			);
-			name = RaytracerMetalLib;
-			sourceTree = "<group>";
-		};
-		7A504AC150FA4FD0B0DD0EB3 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				F3C99D5319BF4A13B6CC3243 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */,
-				D6CF7A6271F642799C72059E /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */,
-				74C31C90ADD34D1B9CDA6F11 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */,
-				9AE240C8E62641B18125BF0B /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */,
-				0F26976ED9FD4172A389D9CA /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		AF4346E8C8044F2D876FE3FE /* RayTracerBenchTests */ = {
-			isa = PBXGroup;
-			children = (
-				60F35F2C255045D28E543FAD /* Source Files */,
-				CD9CB8E8C7F94E8AA1E12901 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
-			);
-			name = RayTracerBenchTests;
-			sourceTree = "<group>";
-		};
-		B7F44E949FCD4A60A6EE0162 /* CMake Rules */ = {
+		74B7C5DF7B284545AA3CF00B /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
 			sourceTree = "<group>";
 		};
-		F37FC3EEF67D488090B60800 /* Resources */ = {
+		79ECD3C4396A4D339588447F /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
-			name = Resources;
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		83D0D2A3D7664698AE22CA89 /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				79ECD3C4396A4D339588447F /* CMake Rules */,
+				6C1629300BF64FF4B21E9FA5 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		C97E492A2A63440AAC6FCA01 /* RayTracerBenchTests */ = {
+			isa = PBXGroup;
+			children = (
+				EB4F5D8869604461BD008648 /* Source Files */,
+				4F5EBB4493C349DF96118ABB /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
+			);
+			name = RayTracerBenchTests;
+			sourceTree = "<group>";
+		};
+		D987D43A373A4A268E445F11 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				82F00E92F8A3452580E433DB /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Cocoa.framework */,
+				793B5937FB7F4C8ABB3D1FC5 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Metal.framework */,
+				5E54AB7D7FE8474E9289D2C9 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/MetalKit.framework */,
+				A74BEDE68E044924AC1170FA /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/QuartzCore.framework */,
+				F3374D73A23142F1B23DC881 /* /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EA53E5A6F845435A82ACB687 /* RayTracerBench */ = {
+			isa = PBXGroup;
+			children = (
+				1C07EF38786D4EFC935772D2 /* Source Files */,
+				3C9344430BA1443AB812198F /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
+			);
+			name = RayTracerBench;
+			sourceTree = "<group>";
+		};
+		EB4F5D8869604461BD008648 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				373883382C884ED8A3107469 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
+				51273210E0E7474E95C0E9C1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */,
+				CF04E7D99BB443C393458E92 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */,
+				0A081F58B4D0479E9349C979 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		EF1B54223D1C4837B937237E /* RayTracerCore */ = {
+			isa = PBXGroup;
+			children = (
+				36D5DC82DCC94706A3ECCE2E /* Source Files */,
+				8B5F0162CF5A4E96AF1F67E2 /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
+			);
+			name = RayTracerCore;
+			sourceTree = "<group>";
+		};
+		F45E587B62CF40798B03A946 /* RaytracerMetalLib */ = {
+			isa = PBXGroup;
+			children = (
+				74B7C5DF7B284545AA3CF00B /* CMake Rules */,
+				8AF9563D8186415B9B7F20EB /* /Users/pablo-us/Development/cvi26-3/CMakeLists.txt */,
+			);
+			name = RaytracerMetalLib;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -385,123 +385,126 @@
 /* Begin PBXNativeTarget section */
 		7B980AD8EE54CF5286C1009D /* RayTracerBenchTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 666B352171BB4D7FA7BEA929 /* Build configuration list for PBXNativeTarget "RayTracerBenchTests" */;
+			buildConfigurationList = 8BE457A4A1CB42068034BF4B /* Build configuration list for PBXNativeTarget "RayTracerBenchTests" */;
 			buildPhases = (
-				9F067240EDF846399ACE28FE /* Sources */,
-				4E32D4252A6548EC8FC03090 /* Frameworks */,
+				31190FF71F8347F182EF9456 /* Sources */,
+				54C299D10F5A4EC5ABF14E74 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				075A4ACA20224ABDA5B0D94D /* PBXTargetDependency */,
-				C4A4B7009613469F9C99CFB7 /* PBXTargetDependency */,
-				653573BBC90342289E708571 /* PBXTargetDependency */,
+				C5824638249240FE967366AD /* PBXTargetDependency */,
+				AD9A78441B184403ACA69335 /* PBXTargetDependency */,
+				1054CB3EED65496B9D73F29D /* PBXTargetDependency */,
 			);
 			name = RayTracerBenchTests;
 			productName = RayTracerBenchTests;
-			productReference = 6CB32B11A1E048A282086975 /* RayTracerBenchTests */;
+			productReference = A02869B510974E1D836D42F9 /* RayTracerBenchTests */;
 			productType = "com.apple.product-type.tool";
 		};
 		DF5250E39CD35AB4C2C12CA0 /* RayTracerCore */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D5FBF6202C9E495C8A5CAC46 /* Build configuration list for PBXNativeTarget "RayTracerCore" */;
+			buildConfigurationList = 0E8CCEF21B1C4BA8A8EF4ACC /* Build configuration list for PBXNativeTarget "RayTracerCore" */;
 			buildPhases = (
-				7881F0EFCCCF435B95B2D891 /* Sources */,
-				A69661DE1D664B04B0790CEF /* Frameworks */,
+				4D51500421E74E7A84EBE6CE /* Sources */,
+				A3FB5266C3FF44FB951BD375 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				27BED329905A4B6BBEED146F /* PBXTargetDependency */,
+				EE90020C8EFB4A7A80C5A902 /* PBXTargetDependency */,
 			);
 			name = RayTracerCore;
 			productName = RayTracerCore;
-			productReference = 52A477B032784C27A96D4A17 /* RayTracerCore */;
+			productReference = 8734D8D1AC1448BCAE302C71 /* RayTracerCore */;
 			productType = "com.apple.product-type.library.static";
 		};
 		E52156C122F6627A622B57D5 /* RayTracerBench */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 093B1195ED0E4ED1BA56AFB7 /* Build configuration list for PBXNativeTarget "RayTracerBench" */;
+			buildConfigurationList = 163643A45AE447838C441618 /* Build configuration list for PBXNativeTarget "RayTracerBench" */;
 			buildPhases = (
-				DBFD5918870149518CCE62BD /* Sources */,
-				C841438DCCCB4749AACCFC94 /* Frameworks */,
+				513C0D0AD7894F2BBB9DAE58 /* Sources */,
+				81B81C374F1E496291483A8B /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				E7534CB9B6654A2A96C683CF /* PBXTargetDependency */,
-				955E00239E6E4BEFAA1C79C6 /* PBXTargetDependency */,
-				9296084A3C3E4BA8893D2180 /* PBXTargetDependency */,
+				2407E81121734B8CAA853BA7 /* PBXTargetDependency */,
+				AC30258B83474248A859CE2F /* PBXTargetDependency */,
+				88B303105FC64FC586496BCA /* PBXTargetDependency */,
 			);
 			name = RayTracerBench;
 			productName = RayTracerBench;
-			productReference = D5B35DE6A07F4D58AB7F2B77 /* RayTracerBench */;
+			productReference = 4CDAEA73B007482EBE72B028 /* RayTracerBench */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		21324ACC36D343ACBB2F8353 /* Project object */ = {
+		1E66E00105214B958C0788CC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2620;
 			};
-			buildConfigurationList = 7A5F5DF397B74BB98694B348 /* Build configuration list for PBXProject "RayTracerBench" */;
+			buildConfigurationList = FC2CF1D7DCC9423BB2C6C445 /* Build configuration list for PBXProject "RayTracerBench" */;
 			buildSettings = {
 			};
 			buildStyles = (
-				B381580073EA4993A48521DC /* Debug */,
-				17D812252A3A4F24BA21ADBE /* Release */,
-				D276E7F3D45541B0A697DFF7 /* MinSizeRel */,
-				E9568C59B0674B158030EFBC /* RelWithDebInfo */,
+				9DCB77A929A5448C80CB1387 /* Debug */,
+				2E26E55905C841109DFBE239 /* Release */,
+				D0AC99E864484F5C8FCA59A9 /* MinSizeRel */,
+				FB7DF8F6594C4E4BA1FD79FA /* RelWithDebInfo */,
 			);
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
-			mainGroup = 394418937F644C56859D7643;
+			mainGroup = 54C4EC421A0D4D438CBD0C6A;
 			projectDirPath = "/Users/pablo-us/Development/cvi26-3";
 			projectRoot = "";
 			targets = (
-				7A0676D228CD86FBA8D75A02 /* ALL_BUILD */,
+				A9B64125C28D078E4BA75B0A /* ALL_BUILD */,
 				E52156C122F6627A622B57D5 /* RayTracerBench */,
 				7B980AD8EE54CF5286C1009D /* RayTracerBenchTests */,
 				DF5250E39CD35AB4C2C12CA0 /* RayTracerCore */,
-				6160310100838AFEDF04FEBB /* RaytracerMetalLib */,
-				188F75FB2DE30893CC0FC315 /* ZERO_CHECK */,
+				DBD2F4CB4DB09A04C419C7A1 /* RaytracerMetalLib */,
+				B2938A4BA632584630810D99 /* ZERO_CHECK */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2EBCD7E540AFDDF5311B5B47 /* Generate CMakeFiles/ZERO_CHECK */ = {
+		0B03A3C84576D50B45762A5E /* Generate Raytracer.metallib */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-			);
-			name = "Generate CMakeFiles/ZERO_CHECK";
+"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/RayTraceCore.h","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/ShaderTypes.h","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal"			);
+			name = "Generate Raytracer.metallib";
 			outputPaths = (
-"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeFiles/ZERO_CHECK"			);
+"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib"			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e
 if test \"$CONFIGURATION\" = \"Debug\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  make -f /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeScripts/ReRunCMake.make
+  cd /Users/pablo-us/Development/cvi26-3/build
+  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.air
+  xcrun -sdk macosx metallib /Users/pablo-us/Development/cvi26-3/build/Raytracer.air -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib
 fi
 if test \"$CONFIGURATION\" = \"Release\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  make -f /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeScripts/ReRunCMake.make
+  cd /Users/pablo-us/Development/cvi26-3/build
+  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.air
+  xcrun -sdk macosx metallib /Users/pablo-us/Development/cvi26-3/build/Raytracer.air -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib
 fi
 if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  make -f /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeScripts/ReRunCMake.make
+  cd /Users/pablo-us/Development/cvi26-3/build
+  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.air
+  xcrun -sdk macosx metallib /Users/pablo-us/Development/cvi26-3/build/Raytracer.air -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib
 fi
 if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  make -f /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeScripts/ReRunCMake.make
+  cd /Users/pablo-us/Development/cvi26-3/build
+  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.air
+  xcrun -sdk macosx metallib /Users/pablo-us/Development/cvi26-3/build/Raytracer.air -o /Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib
 fi
 ";
 			showEnvVarsInLog = 0;
@@ -521,42 +524,6 @@ fi
 exit 0";
 			showEnvVarsInLog = 0;
 		};
-		7E5952054A7212BCF02F1A3A /* Generate Raytracer.metallib */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/RayTraceCore.h","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/ShaderTypes.h","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal"			);
-			name = "Generate Raytracer.metallib";
-			outputPaths = (
-"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib"			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e
-if test \"$CONFIGURATION\" = \"Debug\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air
-  xcrun -sdk macosx metallib /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib
-fi
-if test \"$CONFIGURATION\" = \"Release\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air
-  xcrun -sdk macosx metallib /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib
-fi
-if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air
-  xcrun -sdk macosx metallib /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib
-fi
-if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
-  xcrun -sdk macosx metal -c /Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders/Raytracer.metal -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air
-  xcrun -sdk macosx metallib /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.air -o /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib
-fi
-";
-			showEnvVarsInLog = 0;
-		};
 		8F1263EF9F49EC2B16AE137E = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -572,31 +539,64 @@ fi
 exit 0";
 			showEnvVarsInLog = 0;
 		};
-		914B4931B74AAD6C86A20CC5 /* Generate CMakeFiles/RaytracerMetalLib */ = {
+		9111D3B00AD8F165E44C4BF2 /* Generate CMakeFiles/RaytracerMetalLib */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib"			);
+"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib"			);
 			name = "Generate CMakeFiles/RaytracerMetalLib";
 			outputPaths = (
-"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeFiles/RaytracerMetalLib"			);
+"/Users/pablo-us/Development/cvi26-3/build/CMakeFiles/RaytracerMetalLib"			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e
 if test \"$CONFIGURATION\" = \"Debug\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
 fi
 if test \"$CONFIGURATION\" = \"Release\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
 fi
 if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
 fi
 if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		94BC6A88D064CE11A5947369 /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+"/Users/pablo-us/Development/cvi26-3/build/CMakeFiles/ZERO_CHECK"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/pablo-us/Development/cvi26-3/build
+  make -f /Users/pablo-us/Development/cvi26-3/build/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/pablo-us/Development/cvi26-3/build
+  make -f /Users/pablo-us/Development/cvi26-3/build/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/pablo-us/Development/cvi26-3/build
+  make -f /Users/pablo-us/Development/cvi26-3/build/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/pablo-us/Development/cvi26-3/build
+  make -f /Users/pablo-us/Development/cvi26-3/build/CMakeScripts/ReRunCMake.make
 fi
 ";
 			showEnvVarsInLog = 0;
@@ -616,7 +616,7 @@ fi
 exit 0";
 			showEnvVarsInLog = 0;
 		};
-		D6486C99CEF476CB408429B8 /* Generate CMakeFiles/ALL_BUILD */ = {
+		D4B3650316E8912A69AD9476 /* Generate CMakeFiles/ALL_BUILD */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -626,24 +626,24 @@ exit 0";
 			);
 			name = "Generate CMakeFiles/ALL_BUILD";
 			outputPaths = (
-"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/CMakeFiles/ALL_BUILD"			);
+"/Users/pablo-us/Development/cvi26-3/build/CMakeFiles/ALL_BUILD"			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e
 if test \"$CONFIGURATION\" = \"Debug\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
   echo Build\\ all\\ projects
 fi
 if test \"$CONFIGURATION\" = \"Release\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
   echo Build\\ all\\ projects
 fi
 if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
   echo Build\\ all\\ projects
 fi
 if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
-  cd /tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build
+  cd /Users/pablo-us/Development/cvi26-3/build
   echo Build\\ all\\ projects
 fi
 ";
@@ -652,271 +652,216 @@ fi
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		7881F0EFCCCF435B95B2D891 /* Sources */ = {
+		31190FF71F8347F182EF9456 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				726BE76E17A94BDA86F977A4 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */,
-				D17FEF31C76740E5B5886D2A /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */,
+				D5866793C1DA4D9BB30D0A56 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
+				2F840A7CAED046B3B6593541 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */,
+				83C4E7E71B7D47A2827FF904 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */,
+				1395D97359F84B66A2ADE625 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9F067240EDF846399ACE28FE /* Sources */ = {
+		4D51500421E74E7A84EBE6CE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D91EF6B53D484E3F84B761AF /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
-				7FB296A68E39413C923F587A /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/DeterministicParityTests.cpp */,
-				7B0B9B1728044333A3E8D60C /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/RayTraceCoreTests.cpp */,
-				715F5FBB64004E288B2797D0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBenchTests/main.cpp */,
+				19574C710A2C46068E17F13A /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU/CPURenderer.cpp */,
+				669A74E2ECFE4952A26823C8 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/Core/Scene.cpp */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DBFD5918870149518CCE62BD /* Sources */ = {
+		513C0D0AD7894F2BBB9DAE58 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2E1EE640E3344FFB9094C731 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */,
-				C9DD267790794DBDAD47A6B5 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */,
-				BC65517ACEA4466D85FB0891 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */,
-				A950A3AB77E147D09F91EBD2 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */,
-				0DE43C88DDBC4AB3A88E68E0 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */,
-				1A43925DE2F34E37AD79F5EA /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
-				44736B6E4C684110912A0668 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */,
+				2D4D48514814442084B3A6F1 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AboutAlert.cpp */,
+				760BCE55C0CD493B8D2AAEDE /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/AppDelegate.cpp */,
+				47BE4EBE627642E98AABCE8E /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ControlsPanel.cpp */,
+				FB5720509D6043778C4813F9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ImageDisplayView.cpp */,
+				ABDAC0C7DA2247759DE5C9D6 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/App/ResultsPanel.cpp */,
+				02625A8E99744D0C95F5BCE9 /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU/GPURenderer.cpp */,
+				B36CC5FDBC144C6E818ECF0F /* /Users/pablo-us/Development/cvi26-3/RayTracerBench/main.cpp */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		075A4ACA20224ABDA5B0D94D /* PBXTargetDependency */ = {
+		0705D31037194A21BD623A7D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B2938A4BA632584630810D99 /* ZERO_CHECK */;
+			targetProxy = CA8895BD01744A2E9D5FBAAE /* PBXContainerItemProxy */;
+		};
+		1054CB3EED65496B9D73F29D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B2938A4BA632584630810D99 /* ZERO_CHECK */;
+			targetProxy = CCE093BB79324FD18520477A /* PBXContainerItemProxy */;
+		};
+		2407E81121734B8CAA853BA7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DF5250E39CD35AB4C2C12CA0 /* RayTracerCore */;
-			targetProxy = 85108EF691304FF39397983E /* PBXContainerItemProxy */;
+			targetProxy = DD3C7F372EEA49288E6BFFAB /* PBXContainerItemProxy */;
 		};
-		27BED329905A4B6BBEED146F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 188F75FB2DE30893CC0FC315 /* ZERO_CHECK */;
-			targetProxy = 1CEDDC3F5351479B9A587AD5 /* PBXContainerItemProxy */;
-		};
-		371F7FE87DB849AD9D9A9ADB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 188F75FB2DE30893CC0FC315 /* ZERO_CHECK */;
-			targetProxy = 2D28AD35C1AC40DE9BD23CDF /* PBXContainerItemProxy */;
-		};
-		653573BBC90342289E708571 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 188F75FB2DE30893CC0FC315 /* ZERO_CHECK */;
-			targetProxy = A5E91529028A4AB7973B3685 /* PBXContainerItemProxy */;
-		};
-		6665B5A7648D4917B3F3BB75 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 188F75FB2DE30893CC0FC315 /* ZERO_CHECK */;
-			targetProxy = B82DD20E86D7432987DDB8A8 /* PBXContainerItemProxy */;
-		};
-		8FA5633AD20C43FF911A890D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 7B980AD8EE54CF5286C1009D /* RayTracerBenchTests */;
-			targetProxy = 16B9A966DC0D466BAB42CB2A /* PBXContainerItemProxy */;
-		};
-		9296084A3C3E4BA8893D2180 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 188F75FB2DE30893CC0FC315 /* ZERO_CHECK */;
-			targetProxy = B7F1EC5A3EDB4891B0B131F4 /* PBXContainerItemProxy */;
-		};
-		955E00239E6E4BEFAA1C79C6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 6160310100838AFEDF04FEBB /* RaytracerMetalLib */;
-			targetProxy = FBEB4AB1E130485FACB1D432 /* PBXContainerItemProxy */;
-		};
-		C111F9611D834FA4A95BA9D6 /* PBXTargetDependency */ = {
+		3F7B0607CDCE45CAAF7CE6CC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DF5250E39CD35AB4C2C12CA0 /* RayTracerCore */;
-			targetProxy = 2DC9782684314B9299632E75 /* PBXContainerItemProxy */;
+			targetProxy = A890C00739974342859FF010 /* PBXContainerItemProxy */;
 		};
-		C4A4B7009613469F9C99CFB7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 6160310100838AFEDF04FEBB /* RaytracerMetalLib */;
-			targetProxy = A558C9484F8547D4BB1100C8 /* PBXContainerItemProxy */;
-		};
-		CCEC4E9F99094C5F9A5ACD57 /* PBXTargetDependency */ = {
+		6C30DD80319E4302ADF4AD37 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E52156C122F6627A622B57D5 /* RayTracerBench */;
-			targetProxy = 1CBAC3ECE30F49CA86BB5A39 /* PBXContainerItemProxy */;
+			targetProxy = B88A063A463E41B9822971EE /* PBXContainerItemProxy */;
 		};
-		E7534CB9B6654A2A96C683CF /* PBXTargetDependency */ = {
+		88B303105FC64FC586496BCA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B2938A4BA632584630810D99 /* ZERO_CHECK */;
+			targetProxy = F15A99D4643F4D23AA50FFE7 /* PBXContainerItemProxy */;
+		};
+		A640E544E08742978A4A1D83 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7B980AD8EE54CF5286C1009D /* RayTracerBenchTests */;
+			targetProxy = A58F6AA9027E46C389BDEA80 /* PBXContainerItemProxy */;
+		};
+		AC30258B83474248A859CE2F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DBD2F4CB4DB09A04C419C7A1 /* RaytracerMetalLib */;
+			targetProxy = 7D227F1A12174723B25480F8 /* PBXContainerItemProxy */;
+		};
+		AD9A78441B184403ACA69335 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DBD2F4CB4DB09A04C419C7A1 /* RaytracerMetalLib */;
+			targetProxy = 89ED00AB27294548AEFCC732 /* PBXContainerItemProxy */;
+		};
+		C5824638249240FE967366AD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DF5250E39CD35AB4C2C12CA0 /* RayTracerCore */;
-			targetProxy = 12D4EB0EF7724E72B507BE29 /* PBXContainerItemProxy */;
+			targetProxy = 2791F01B2C744564949815C8 /* PBXContainerItemProxy */;
+		};
+		E8335A74591D4B08A3598060 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B2938A4BA632584630810D99 /* ZERO_CHECK */;
+			targetProxy = BE876487A8684DEC93232314 /* PBXContainerItemProxy */;
+		};
+		EE90020C8EFB4A7A80C5A902 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B2938A4BA632584630810D99 /* ZERO_CHECK */;
+			targetProxy = A7A24A1362934EBBB2221E10 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		107F656DC265404E8D61C1C4 /* MinSizeRel */ = {
+		1A51D37D8089484DB33CF825 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
 				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/MinSizeRel";
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/Release";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
 				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
-				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/Release/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerCore;
+				PRODUCT_NAME = RayTracerBench;
 				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		235BE970629945988398C2F0 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RaytracerMetalLib;
+				SECTORDER_FLAGS = "";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
 			name = MinSizeRel;
 		};
-		15206152F2504CB683952C82 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SYMROOT = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build";
-			};
-			name = RelWithDebInfo;
-		};
-		187788B65AC743EDAFDBAF2E /* RelWithDebInfo */ = {
+		25527AB209BB4868B4EC3B4D /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
 				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/RelWithDebInfo";
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/MinSizeRel";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/MinSizeRel/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerBench;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		35DCC157DE044131B179E6AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/Debug";
 				EXECUTABLE_PREFIX = "";
 				EXECUTABLE_SUFFIX = "";
 				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
 				INSTALL_PATH = "";
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/RelWithDebInfo/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
+				OTHER_CPLUSPLUSFLAGS = "   '-std=c++17' ";
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/Debug/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = RayTracerBenchTests;
 				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		1B0527A34BA645D288EBF9B8 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/MinSizeRel";
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/MinSizeRel/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerBench;
-				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		241278BC34CE49D08837AD34 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/RelWithDebInfo";
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/RelWithDebInfo/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerBench;
-				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		2BC7755BAFF945AFB864D22B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
-				SYMROOT = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build";
 			};
 			name = Debug;
 		};
-		3805BB7941E747B08DE48475 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/MinSizeRel";
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/MinSizeRel/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerBenchTests;
-				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		3CAF1E166FDD4921824DA321 /* RelWithDebInfo */ = {
+		3A9DA1EED4A746C795763F50 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -936,251 +881,44 @@ fi
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = RelWithDebInfo;
-		};
-		3E223E85A7D6433D921DEC18 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RaytracerMetalLib;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		40ABF63B163C440F94465FE6 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RaytracerMetalLib;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		45B52E6509544A1390599021 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Debug";
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "   '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Debug/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerBench;
-				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
 			name = Debug;
 		};
-		4DA90CBA60D04405AF3E18AC /* Release */ = {
+		4ED6D2A450B643F3A36ECCC9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		6184EE5C42BC4FDA856D16FD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		733FCB277BA246A6B1343C32 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Release";
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/Release";
 				EXECUTABLE_PREFIX = "";
 				EXECUTABLE_SUFFIX = "";
 				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
 				INSTALL_PATH = "";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Release/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/Release/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = RayTracerBenchTests;
 				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
 			name = Release;
 		};
-		7A6D0AA6C82040018DEB0B5A /* Debug */ = {
+		54F445338008422DB486A3F0 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
 				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Debug";
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "   '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Debug/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerBenchTests;
-				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		7B35DB7056194960AD20D92A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RaytracerMetalLib;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		8C009637FB3045768CB2EB69 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SYMROOT = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build";
-			};
-			name = MinSizeRel;
-		};
-		8CADF396EF4C4450AAF63ECC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Release";
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
-				OTHER_LIBTOOLFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerCore;
-				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		92210E9F58884F8BBA843BCC /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/RelWithDebInfo";
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/RelWithDebInfo";
 				EXECUTABLE_PREFIX = lib;
 				EXECUTABLE_SUFFIX = .a;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1197,42 +935,64 @@ fi
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = RayTracerCore;
 				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
 			name = RelWithDebInfo;
 		};
-		9552F92ADCE04B01AC2D797B /* Debug */ = {
+		59981972003244598A12B659 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
 				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Debug";
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
 				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "   '-std=c++17' ";
-				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_LDFLAGS = ("","$(inherited)");
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerCore;
+				PRODUCT_NAME = ALL_BUILD;
 				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = Debug;
+			name = Release;
 		};
-		975967ECFE8C46419D9C8720 /* MinSizeRel */ = {
+		5E5F90FFF57246BB941C2F12 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/RelWithDebInfo";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG '-std=c++17' ";
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/RelWithDebInfo/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerBenchTests;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		6157DA477DEE49B895DA073D /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1254,7 +1014,154 @@ fi
 			};
 			name = MinSizeRel;
 		};
-		AD9DC64BF0064539AE210084 /* MinSizeRel */ = {
+		65F479CE45874EFC9BD5AD5E /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RaytracerMetalLib;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		70C3F413F94E41AF892D536D /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SYMROOT = "/Users/pablo-us/Development/cvi26-3/build";
+			};
+			name = RelWithDebInfo;
+		};
+		71D84932CFF64BF187DE4062 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		7225AE9C32F745E8823A7AEB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SYMROOT = "/Users/pablo-us/Development/cvi26-3/build";
+			};
+			name = Release;
+		};
+		8E7FC92B21614AB5995434EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		8FA20369719446F083A81BC9 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SYMROOT = "/Users/pablo-us/Development/cvi26-3/build";
+			};
+			name = MinSizeRel;
+		};
+		952987A6D6FB4E3E8A466B0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RaytracerMetalLib;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		A412B53996EC4180AD98F74F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/Release";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerCore;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		B04ACE2ADA0A40F0B9AB38D7 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1276,7 +1183,167 @@ fi
 			};
 			name = MinSizeRel;
 		};
-		B20AEFD8E9294930BB688260 /* Release */ = {
+		B38DB8A0235F4B8E9FA21E24 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/RelWithDebInfo";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG '-std=c++17' ";
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/RelWithDebInfo/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerBench;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		B792A9C4E47249D9B431F1D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/Debug";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "   '-std=c++17' ";
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/Debug/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerBench;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		C2D829BD20CA4668B5A575EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/Debug";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "   '-std=c++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerCore;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		C9496198B3AB4049AF9F753C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		D0534D23F542427A81363E15 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		D826117DCBC9486CBB1F4216 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/MinSizeRel";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RayTracerCore;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerCore.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		E4DD708438BB4EAC8B5BB36F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1298,192 +1365,125 @@ fi
 			};
 			name = Release;
 		};
-		B50B54BB89B74543A305909F /* Debug */ = {
+		E9658D08E8F74D899B82EC01 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
+				SYMROOT = "/Users/pablo-us/Development/cvi26-3/build";
 			};
 			name = Debug;
 		};
-		C22E7BF8EA6544B7A19CAB16 /* Release */ = {
+		FB3949CA65B54AAEA708E212 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = arm64;
 				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Release";
+				CONFIGURATION_BUILD_DIR = "/Users/pablo-us/Development/cvi26-3/build/MinSizeRel";
 				EXECUTABLE_PREFIX = "";
 				EXECUTABLE_SUFFIX = "";
 				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks,"$(inherited)");
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_SHADERS_DIR=\"/Users/pablo-us/Development/cvi26-3/RayTracerBench/Shaders\"'","'RT_RAYTRACER_METALLIB=\"/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Raytracer.metallib\"'","$(inherited)");
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","'RT_RAYTRACER_METALLIB=\"/Users/pablo-us/Development/cvi26-3/build/Raytracer.metallib\"'","$(inherited)");
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp-extensions","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
+				HEADER_SEARCH_PATHS = ("/Users/pablo-us/Development/cvi26-3/ThirdParty/metal-cpp","/Users/pablo-us/Development/cvi26-3/RayTracerBench/GPU","/Users/pablo-us/Development/cvi26-3/RayTracerBench/Core","/Users/pablo-us/Development/cvi26-3/RayTracerBench/CPU","$(inherited)");
 				INSTALL_PATH = "";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=c++17' ";
-				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/Release/libRayTracerCore.a","-framework Cocoa","-framework Metal","-framework MetalKit","-framework QuartzCore","-framework Foundation","$(inherited)");
+				OTHER_LDFLAGS = (" -Wl,-search_paths_first -Wl,-headerpad_max_install_names","/Users/pablo-us/Development/cvi26-3/build/MinSizeRel/libRayTracerCore.a","-framework Metal","-framework Foundation","$(inherited)");
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RayTracerBench;
+				PRODUCT_NAME = RayTracerBenchTests;
 				SECTORDER_FLAGS = "";
-				TARGET_TEMP_DIR = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build/RayTracerBench.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				TARGET_TEMP_DIR = "/Users/pablo-us/Development/cvi26-3/build/build/RayTracerBenchTests.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = Release;
-		};
-		DA8FC70A55B744E1B3B840B4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SYMROOT = "/tmp/claude-503/-Users-pablo-us-Development-cvi26-3/e7eec5ca-3295-4623-90cd-27485d41179e/scratchpad/cmake-xcode-build/build";
-			};
-			name = Release;
-		};
-		E48C2FFDD2A04023BDF1222D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		F0FF081675134B5488D72E89 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
+			name = MinSizeRel;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		093B1195ED0E4ED1BA56AFB7 /* Build configuration list for PBXNativeTarget "RayTracerBench" */ = {
+		0E8CCEF21B1C4BA8A8EF4ACC /* Build configuration list for PBXNativeTarget "RayTracerCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				45B52E6509544A1390599021 /* Debug */,
-				C22E7BF8EA6544B7A19CAB16 /* Release */,
-				1B0527A34BA645D288EBF9B8 /* MinSizeRel */,
-				241278BC34CE49D08837AD34 /* RelWithDebInfo */,
+				C2D829BD20CA4668B5A575EB /* Debug */,
+				A412B53996EC4180AD98F74F /* Release */,
+				D826117DCBC9486CBB1F4216 /* MinSizeRel */,
+				54F445338008422DB486A3F0 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		666B352171BB4D7FA7BEA929 /* Build configuration list for PBXNativeTarget "RayTracerBenchTests" */ = {
+		163643A45AE447838C441618 /* Build configuration list for PBXNativeTarget "RayTracerBench" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7A6D0AA6C82040018DEB0B5A /* Debug */,
-				733FCB277BA246A6B1343C32 /* Release */,
-				3805BB7941E747B08DE48475 /* MinSizeRel */,
-				187788B65AC743EDAFDBAF2E /* RelWithDebInfo */,
+				B792A9C4E47249D9B431F1D3 /* Debug */,
+				1A51D37D8089484DB33CF825 /* Release */,
+				25527AB209BB4868B4EC3B4D /* MinSizeRel */,
+				B38DB8A0235F4B8E9FA21E24 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		745191043F234DD5B29ED5F1 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+		18576E8F81104C85B5AE1949 /* Build configuration list for PBXAggregateTarget "RaytracerMetalLib" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6184EE5C42BC4FDA856D16FD /* Debug */,
-				E48C2FFDD2A04023BDF1222D /* Release */,
-				975967ECFE8C46419D9C8720 /* MinSizeRel */,
-				F0FF081675134B5488D72E89 /* RelWithDebInfo */,
+				952987A6D6FB4E3E8A466B0D /* Debug */,
+				E4DD708438BB4EAC8B5BB36F /* Release */,
+				235BE970629945988398C2F0 /* MinSizeRel */,
+				65F479CE45874EFC9BD5AD5E /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		7A5F5DF397B74BB98694B348 /* Build configuration list for PBXProject "RayTracerBench" */ = {
+		638C4EE58D80494FA85694CE /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2BC7755BAFF945AFB864D22B /* Debug */,
-				DA8FC70A55B744E1B3B840B4 /* Release */,
-				8C009637FB3045768CB2EB69 /* MinSizeRel */,
-				15206152F2504CB683952C82 /* RelWithDebInfo */,
+				8E7FC92B21614AB5995434EC /* Debug */,
+				59981972003244598A12B659 /* Release */,
+				6157DA477DEE49B895DA073D /* MinSizeRel */,
+				71D84932CFF64BF187DE4062 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		A6FC1F22C25D46C0A323BED5 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+		8BE457A4A1CB42068034BF4B /* Build configuration list for PBXNativeTarget "RayTracerBenchTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B50B54BB89B74543A305909F /* Debug */,
-				4DA90CBA60D04405AF3E18AC /* Release */,
-				AD9DC64BF0064539AE210084 /* MinSizeRel */,
-				3CAF1E166FDD4921824DA321 /* RelWithDebInfo */,
+				35DCC157DE044131B179E6AC /* Debug */,
+				4ED6D2A450B643F3A36ECCC9 /* Release */,
+				FB3949CA65B54AAEA708E212 /* MinSizeRel */,
+				5E5F90FFF57246BB941C2F12 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		CD23B0A51A654EA1B7F7ADC9 /* Build configuration list for PBXAggregateTarget "RaytracerMetalLib" */ = {
+		D5F35D18131041698D991C2E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B35DB7056194960AD20D92A /* Debug */,
-				B20AEFD8E9294930BB688260 /* Release */,
-				3E223E85A7D6433D921DEC18 /* MinSizeRel */,
-				40ABF63B163C440F94465FE6 /* RelWithDebInfo */,
+				3A9DA1EED4A746C795763F50 /* Debug */,
+				C9496198B3AB4049AF9F753C /* Release */,
+				B04ACE2ADA0A40F0B9AB38D7 /* MinSizeRel */,
+				D0534D23F542427A81363E15 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		D5FBF6202C9E495C8A5CAC46 /* Build configuration list for PBXNativeTarget "RayTracerCore" */ = {
+		FC2CF1D7DCC9423BB2C6C445 /* Build configuration list for PBXProject "RayTracerBench" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9552F92ADCE04B01AC2D797B /* Debug */,
-				8CADF396EF4C4450AAF63ECC /* Release */,
-				107F656DC265404E8D61C1C4 /* MinSizeRel */,
-				92210E9F58884F8BBA843BCC /* RelWithDebInfo */,
+				E9658D08E8F74D899B82EC01 /* Debug */,
+				7225AE9C32F745E8823A7AEB /* Release */,
+				8FA20369719446F083A81BC9 /* MinSizeRel */,
+				70C3F413F94E41AF892D536D /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 21324ACC36D343ACBB2F8353 /* Project object */;
+	rootObject = 1E66E00105214B958C0788CC /* Project object */;
 }

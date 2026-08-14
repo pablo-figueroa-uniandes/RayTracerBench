@@ -9,6 +9,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Pin build products to <repo>/build regardless of where `cmake -B <dir>` is actually invoked from
+# (its own default otherwise nests an extra "build" subfolder under whatever -B path is given, and
+# ties the product location to that scratch directory rather than a fixed, predictable one). This
+# must be set before any target is created — CMAKE_XCODE_ATTRIBUTE_<attr> only seeds the
+# XCODE_ATTRIBUTE_<attr> property's default on targets as they're added, not retroactively.
+# build/ is gitignored; the binary itself is never checked in.
+set(CMAKE_XCODE_ATTRIBUTE_SYMROOT "${CMAKE_SOURCE_DIR}/build")
+
 # RayTraceCore.h and ShaderTypes.h are header-only and dual-compiled into
 # Shaders/Raytracer.metal directly (not through this library) once the GPU
 # renderer exists. CPURenderer.cpp is framework-free C++17 like Core/, so it
