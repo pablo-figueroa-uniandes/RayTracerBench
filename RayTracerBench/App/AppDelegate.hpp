@@ -29,6 +29,12 @@ class AppDelegate : public NS::ApplicationDelegate
 
 		NS::Menu* createMenuBar();
 
+		// Magnifying-glass loupe: a local NS::EventMaskMouseMoved monitor (installed once, at
+		// launch) reports the same normalized UV position to both ImageDisplayViews whenever the
+		// mouse is over either preview, so hovering one image zooms the matching detail in both —
+		// the actual point of the feature being to compare CPU vs. GPU output at high zoom.
+		void handleMouseMoved( NS::Event* pEvent );
+
 		NS::Window*       _pWindow = nullptr;
 		MTL::Device*      _pDevice = nullptr;
 		ControlsPanel*    _pControlsPanel = nullptr;

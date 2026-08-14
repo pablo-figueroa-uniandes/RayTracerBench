@@ -49,6 +49,11 @@ namespace NS
 			void		 addSubview( const View* pSubview );
 			void		 setWantsLayer( bool wantsLayer );
 			void		 setLayer( const void* pLayer );
+
+			// pFromView == nullptr converts from the window's own coordinate system, per Cocoa's
+			// documented convertPoint:fromView: behavior — used for hit-testing mouse events
+			// against a specific view without needing that view to be a real event responder.
+			CGPoint		 convertPoint( CGPoint point, const View* pFromView ) const;
 	};
 }
 
@@ -75,4 +80,9 @@ _NS_INLINE void NS::View::setWantsLayer( bool wantsLayer )
 _NS_INLINE void NS::View::setLayer( const void* pLayer )
 {
 	Object::sendMessage< void >( this, sel_registerName( "setLayer:" ), pLayer );
+}
+
+_NS_INLINE CGPoint NS::View::convertPoint( CGPoint point, const NS::View* pFromView ) const
+{
+	return Object::sendMessage< CGPoint >( this, sel_registerName( "convertPoint:fromView:" ), point, pFromView );
 }

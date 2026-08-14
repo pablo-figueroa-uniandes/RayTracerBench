@@ -31,12 +31,16 @@ namespace
 
 ImageDisplayView::ImageDisplayView( MTL::Device* pDevice, CGRect frame )
 	: _pDevice( pDevice->retain() )
+	, _viewSize( frame.size )
 	, _pOwnedTexture( nullptr )
 	, _ownedTextureWidth( 0 )
 	, _ownedTextureHeight( 0 )
 	, _pCurrentTexture( nullptr )
+	, _magnifier{ 0.5f, 0.5f, 1.0f, 0.18f, 4.0f, 0 }
 {
 	using NS::StringEncoding::UTF8StringEncoding;
+
+	_magnifier.viewAspect = (float)( frame.size.width / frame.size.height );
 
 	_pView = NS::View::alloc()->init( frame );
 	_pView->setWantsLayer( true );
@@ -130,6 +134,18 @@ void ImageDisplayView::displayTexture( MTL::Texture* pTexture )
 	render();
 }
 
+void ImageDisplayView::setMagnifier( bool active, float centerU, float centerV, float zoomFactor, float radius )
+{
+	_magnifier.active = active ? 1 : 0;
+	_magnifier.centerU = centerU;
+	_magnifier.centerV = centerV;
+	_magnifier.zoom = zoomFactor;
+	_magnifier.radius = radius;
+
+	if ( _pCurrentTexture )
+		render();
+}
+
 void ImageDisplayView::render()
 {
 	CA::MetalDrawable* pDrawable = _pMetalLayer->nextDrawable();
@@ -147,6 +163,7 @@ void ImageDisplayView::render()
 	MTL::RenderCommandEncoder* pEncoder = pCommandBuffer->renderCommandEncoder( pPassDesc );
 	pEncoder->setRenderPipelineState( _pPipelineState );
 	pEncoder->setFragmentTexture( _pCurrentTexture, 0 );
+	pEncoder->setFragmentBytes( &_magnifier, sizeof( _magnifier ), 0 );
 	pEncoder->drawPrimitives( MTL::PrimitiveTypeTriangle, ( NS::UInteger )0, ( NS::UInteger )6 );
 	pEncoder->endEncoding();
 

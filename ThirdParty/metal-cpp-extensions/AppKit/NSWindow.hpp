@@ -44,6 +44,11 @@ namespace NS
 			void				makeKeyAndOrderFront( const Object* pSender );
 			void				setTitle( const String* pTitle );
 
+			// Needed for the magnifier feature: mouseMoved: events (and thus local event monitors
+			// for NS::EventMaskMouseMoved) are only delivered while the mouse button is up if the
+			// window opts in.
+			void				setAcceptsMouseMovedEvents( bool accepts );
+
 			void				close();
 	};
 
@@ -78,4 +83,9 @@ _NS_INLINE void NS::Window::setTitle( const String* pTitle )
 _NS_INLINE void NS::Window::close()
 {
 	Object::sendMessage< void >( this, _APPKIT_PRIVATE_SEL( close ) );
+}
+
+_NS_INLINE void NS::Window::setAcceptsMouseMovedEvents( bool accepts )
+{
+	Object::sendMessage< void >( this, sel_registerName( "setAcceptsMouseMovedEvents:" ), accepts );
 }

@@ -27,7 +27,26 @@ class ImageDisplayView
 		// must outlive this call, but this view never retains or releases it.
 		void displayTexture( MTL::Texture* pTexture );
 
+		CGSize size() const { return _viewSize; }
+
+		// centerU/centerV: lens center in the same normalized [0,1] UV convention as the source
+		// texture (V=0 at the top row — see Blit.metal). Re-renders immediately against whichever
+		// texture was last shown, so the lens updates live as the mouse moves without needing new
+		// pixel data.
+		void setMagnifier( bool active, float centerU, float centerV, float zoomFactor = 4.0f, float radius = 0.18f );
+
 	private:
+		// KEEP IN SYNC with the identical struct in Shaders/Blit.metal.
+		struct MagnifierUniforms
+		{
+			float centerU;
+			float centerV;
+			float viewAspect;
+			float radius;
+			float zoom;
+			int   active;
+		};
+
 		void rebuildOwnedTextureIfNeeded( uint32_t width, uint32_t height );
 		void render();
 
@@ -36,10 +55,12 @@ class ImageDisplayView
 		NS::View*                 _pView;
 		MTL::CommandQueue*        _pCommandQueue;
 		MTL::RenderPipelineState* _pPipelineState;
+		CGSize                    _viewSize;
 
 		MTL::Texture* _pOwnedTexture; // created/uploaded by updatePixels(); released in the destructor
 		uint32_t      _ownedTextureWidth;
 		uint32_t      _ownedTextureHeight;
 
-		MTL::Texture* _pCurrentTexture; // whichever of the above (or an external texture) render() should sample
+		MTL::Texture*      _pCurrentTexture; // whichever of the above (or an external texture) render() should sample
+		MagnifierUniforms  _magnifier;
 };

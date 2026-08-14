@@ -86,6 +86,7 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 		NS::BackingStoreBuffered,
 		false );
 	_pWindow->setTitle( NS::String::string( "RayTracerBench", UTF8StringEncoding ) );
+	_pWindow->setAcceptsMouseMovedEvents( true );
 
 	const CGRect contentFrame = ( CGRect ){ { 0.0, 0.0 }, windowFrame.size };
 	NS::View* pContentView = NS::View::alloc()->init( contentFrame );
@@ -112,6 +113,45 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	_pWindow->makeKeyAndOrderFront( nullptr );
 
 	pApp->activateIgnoringOtherApps( true );
+
+	NS::Event::addLocalMonitorForEventsMatchingMask( NS::EventMaskMouseMoved, ^NS::Event*( NS::Event* pEvent ) {
+		handleMouseMoved( pEvent );
+		return pEvent;
+	} );
+}
+
+void AppDelegate::handleMouseMoved( NS::Event* pEvent )
+{
+	if ( pEvent->window() != _pWindow )
+		return;
+
+	const CGPoint windowPoint = pEvent->locationInWindow();
+
+	const CGPoint cpuLocal = _pCPUImageView->view()->convertPoint( windowPoint, nullptr );
+	const CGSize  cpuSize = _pCPUImageView->size();
+	const bool    overCPU = cpuLocal.x >= 0.0 && cpuLocal.x <= cpuSize.width && cpuLocal.y >= 0.0 && cpuLocal.y <= cpuSize.height;
+
+	const CGPoint gpuLocal = _pGPUImageView->view()->convertPoint( windowPoint, nullptr );
+	const CGSize  gpuSize = _pGPUImageView->size();
+	const bool    overGPU = gpuLocal.x >= 0.0 && gpuLocal.x <= gpuSize.width && gpuLocal.y >= 0.0 && gpuLocal.y <= gpuSize.height;
+
+	if ( !overCPU && !overGPU )
+	{
+		_pCPUImageView->setMagnifier( false, 0.5f, 0.5f );
+		_pGPUImageView->setMagnifier( false, 0.5f, 0.5f );
+		return;
+	}
+
+	const CGPoint local = overCPU ? cpuLocal : gpuLocal;
+	const CGSize  size = overCPU ? cpuSize : gpuSize;
+
+	// AppKit view coordinates are Y-up (0 at the bottom); the source texture's V convention is
+	// Y-down (V=0 at the top row — see Blit.metal / CPURenderer.hpp), hence the flip.
+	const float u = (float)( local.x / size.width );
+	const float v = 1.0f - (float)( local.y / size.height );
+
+	_pCPUImageView->setMagnifier( true, u, v );
+	_pGPUImageView->setMagnifier( true, u, v );
 }
 
 void AppDelegate::startCPURender( const RenderSettings& settings )
