@@ -4,32 +4,29 @@
 #include "../Core/Scene.hpp"
 
 #include <cstdio>
+#include <dispatch/dispatch.h>
+#include <thread>
 
 namespace
 {
-	// registerActionCallback's IMP must decay to a plain function pointer, so the click handlers
-	// can't capture `this` by closure — they reach the delegate through a file-local pointer set
-	// once at launch, same pattern as the Milestone 1 spike.
-	AppDelegate* gAppDelegate = nullptr;
+	// image-width is the only user-facing size control (per CLAUDE.md); height is always derived
+	// from this fixed aspect ratio, matching Scene::buildDefaultScene's own design.
+	constexpr float kAspectRatio = 16.0f / 9.0f;
 
-	void onCPURenderButtonClicked( void*, SEL, const NS::Object* )
+	double raysPerSecond( const RenderParams& params, double milliseconds )
 	{
-		gAppDelegate->renderCPUButtonClicked();
-	}
-
-	void onGPURenderButtonClicked( void*, SEL, const NS::Object* )
-	{
-		gAppDelegate->renderGPUButtonClicked();
+		double rays = (double)params.width * (double)params.height * (double)params.samplesPerPixel;
+		return rays / ( milliseconds / 1000.0 );
 	}
 }
 
 AppDelegate::~AppDelegate()
 {
 	delete _pGPURenderer;
+	delete _pResultsPanel;
 	delete _pGPUImageView;
 	delete _pCPUImageView;
-	_pGPUButton->release();
-	_pCPUButton->release();
+	delete _pControlsPanel;
 	_pWindow->release();
 	_pDevice->release();
 }
@@ -38,12 +35,10 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 {
 	using NS::StringEncoding::UTF8StringEncoding;
 
-	gAppDelegate = this;
-
 	_pDevice = MTL::CreateSystemDefaultDevice();
 	_pGPURenderer = new GPURenderer( _pDevice );
 
-	const CGRect windowFrame = ( CGRect ){ { 100.0, 100.0 }, { 860.0, 310.0 } };
+	const CGRect windowFrame = ( CGRect ){ { 100.0, 100.0 }, { 860.0, 460.0 } };
 	_pWindow = NS::Window::alloc()->init(
 		windowFrame,
 		NS::WindowStyleMaskClosable | NS::WindowStyleMaskTitled,
@@ -54,31 +49,23 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	const CGRect contentFrame = ( CGRect ){ { 0.0, 0.0 }, windowFrame.size };
 	NS::View* pContentView = NS::View::alloc()->init( contentFrame );
 
-	// Left column: CPU preview + button. Right column: GPU preview + button.
-	const CGRect cpuImageFrame = ( CGRect ){ { 10.0, 70.0 }, { 400.0, 225.0 } };
-	const CGRect gpuImageFrame = ( CGRect ){ { 430.0, 70.0 }, { 400.0, 225.0 } };
-	const CGRect cpuButtonFrame = ( CGRect ){ { 10.0, 15.0 }, { 180.0, 40.0 } };
-	const CGRect gpuButtonFrame = ( CGRect ){ { 430.0, 15.0 }, { 180.0, 40.0 } };
+	// Top to bottom: controls, two side-by-side previews, results.
+	_pControlsPanel = new ControlsPanel( ( CGRect ){ { 10.0, 390.0 }, { 840.0, 60.0 } } );
+	pContentView->addSubview( _pControlsPanel->view() );
 
+	const CGRect cpuImageFrame = ( CGRect ){ { 10.0, 155.0 }, { 400.0, 225.0 } };
+	const CGRect gpuImageFrame = ( CGRect ){ { 430.0, 155.0 }, { 400.0, 225.0 } };
 	_pCPUImageView = new ImageDisplayView( _pDevice, cpuImageFrame );
 	pContentView->addSubview( _pCPUImageView->view() );
-
 	_pGPUImageView = new ImageDisplayView( _pDevice, gpuImageFrame );
 	pContentView->addSubview( _pGPUImageView->view() );
 
-	_pCPUButton = NS::Button::alloc()->init( cpuButtonFrame );
-	_pCPUButton->setTitle( NS::String::string( "Render CPU", UTF8StringEncoding ) );
-	SEL cpuClickSel = NS::MenuItem::registerActionCallback( "renderCPUButtonClicked", onCPURenderButtonClicked );
-	_pCPUButton->setTarget( _pCPUButton );
-	_pCPUButton->setAction( cpuClickSel );
-	pContentView->addSubview( _pCPUButton );
+	_pResultsPanel = new ResultsPanel( ( CGRect ){ { 10.0, 15.0 }, { 840.0, 70.0 } } );
+	pContentView->addSubview( _pResultsPanel->view() );
 
-	_pGPUButton = NS::Button::alloc()->init( gpuButtonFrame );
-	_pGPUButton->setTitle( NS::String::string( "Render GPU", UTF8StringEncoding ) );
-	SEL gpuClickSel = NS::MenuItem::registerActionCallback( "renderGPUButtonClicked", onGPURenderButtonClicked );
-	_pGPUButton->setTarget( _pGPUButton );
-	_pGPUButton->setAction( gpuClickSel );
-	pContentView->addSubview( _pGPUButton );
+	_pControlsPanel->onRenderCPU = [ this ]() { startCPURender( _pControlsPanel->currentSettings() ); };
+	_pControlsPanel->onRenderGPU = [ this ]() { startGPURender( _pControlsPanel->currentSettings() ); };
+	_pControlsPanel->onCompare = [ this ]() { startCompare( _pControlsPanel->currentSettings() ); };
 
 	_pWindow->setContentView( pContentView );
 	_pWindow->makeKeyAndOrderFront( nullptr );
@@ -87,26 +74,119 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	pApp->activateIgnoringOtherApps( true );
 }
 
-void AppDelegate::renderCPUButtonClicked()
+void AppDelegate::startCPURender( const RenderSettings& settings )
 {
-	SceneDescription scene = buildDefaultScene( 1234u, 400, 400.0f / 225.0f, 20, 20 );
-	CPURenderResult  result = renderCPU( scene, CPUThreading::MultiThreaded );
+	_pControlsPanel->setControlsEnabled( false );
 
-	_pCPUImageView->updatePixels( result.pixels.data(), scene.params.width, scene.params.height );
+	std::thread( [ this, settings ]()
+	{
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth );
+		CPURenderResult  result = renderCPU( scene, settings.cpuMode );
+		double           rps = raysPerSecond( scene.params, result.renderTime.count() );
 
-	std::printf( "CPU render: %.1f ms\n", result.renderTime.count() );
-	std::fflush( stdout );
+		dispatch_async( dispatch_get_main_queue(), ^{
+			_pCPUImageView->updatePixels( result.pixels.data(), scene.params.width, scene.params.height );
+
+			char buf[ 160 ];
+			std::snprintf( buf, sizeof( buf ), "CPU (%s): %.1f ms | %.2fM rays/s",
+				settings.cpuMode == CPUThreading::MultiThreaded ? "multi" : "single",
+				result.renderTime.count(), rps / 1.0e6 );
+			_pResultsPanel->setCPULine( buf );
+
+			_lastCPUTimeMs = result.renderTime.count();
+			updateSpeedupIfPossible();
+
+			_pControlsPanel->setControlsEnabled( true );
+			std::printf( "CPU render: %.1f ms\n", result.renderTime.count() );
+			std::fflush( stdout );
+		} );
+	} ).detach();
 }
 
-void AppDelegate::renderGPUButtonClicked()
+void AppDelegate::startGPURender( const RenderSettings& settings )
 {
-	SceneDescription scene = buildDefaultScene( 1234u, 400, 400.0f / 225.0f, 20, 20 );
-	GPURenderResult  result = _pGPURenderer->render( scene );
+	_pControlsPanel->setControlsEnabled( false );
 
-	_pGPUImageView->displayTexture( result.pTexture );
+	std::thread( [ this, settings ]()
+	{
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth );
+		GPURenderResult  result = _pGPURenderer->render( scene );
+		double           rps = raysPerSecond( scene.params, result.gpuTimeMs );
 
-	std::printf( "GPU render: %.1f ms wall-clock, %.3f ms GPU-only\n", result.wallClockTime.count(), result.gpuTimeMs );
-	std::fflush( stdout );
+		dispatch_async( dispatch_get_main_queue(), ^{
+			_pGPUImageView->displayTexture( result.pTexture );
+
+			char buf[ 160 ];
+			std::snprintf( buf, sizeof( buf ), "GPU: %.1f ms wall (%.3f ms GPU) | %.2fM rays/s",
+				result.wallClockTime.count(), result.gpuTimeMs, rps / 1.0e6 );
+			_pResultsPanel->setGPULine( buf );
+
+			_lastGPUTimeMs = result.gpuTimeMs;
+			updateSpeedupIfPossible();
+
+			_pControlsPanel->setControlsEnabled( true );
+			std::printf( "GPU render: %.1f ms wall-clock, %.3f ms GPU-only\n", result.wallClockTime.count(), result.gpuTimeMs );
+			std::fflush( stdout );
+		} );
+	} ).detach();
+}
+
+void AppDelegate::startCompare( const RenderSettings& settings )
+{
+	_pControlsPanel->setControlsEnabled( false );
+
+	std::thread( [ this, settings ]()
+	{
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth );
+
+		CPURenderResult cpuResult = renderCPU( scene, settings.cpuMode );
+		GPURenderResult gpuResult = _pGPURenderer->render( scene );
+
+		double cpuRps = raysPerSecond( scene.params, cpuResult.renderTime.count() );
+		double gpuRps = raysPerSecond( scene.params, gpuResult.gpuTimeMs );
+
+		dispatch_async( dispatch_get_main_queue(), ^{
+			_pCPUImageView->updatePixels( cpuResult.pixels.data(), scene.params.width, scene.params.height );
+			_pGPUImageView->displayTexture( gpuResult.pTexture );
+
+			char cpuBuf[ 160 ];
+			char gpuBuf[ 160 ];
+			std::snprintf( cpuBuf, sizeof( cpuBuf ), "CPU (%s): %.1f ms | %.2fM rays/s",
+				settings.cpuMode == CPUThreading::MultiThreaded ? "multi" : "single",
+				cpuResult.renderTime.count(), cpuRps / 1.0e6 );
+			std::snprintf( gpuBuf, sizeof( gpuBuf ), "GPU: %.1f ms wall (%.3f ms GPU) | %.2fM rays/s",
+				gpuResult.wallClockTime.count(), gpuResult.gpuTimeMs, gpuRps / 1.0e6 );
+			_pResultsPanel->setCPULine( cpuBuf );
+			_pResultsPanel->setGPULine( gpuBuf );
+
+			_lastCPUTimeMs = cpuResult.renderTime.count();
+			_lastGPUTimeMs = gpuResult.gpuTimeMs;
+			updateSpeedupIfPossible();
+
+			_pControlsPanel->setControlsEnabled( true );
+			std::printf( "Compare: CPU %.1f ms | GPU %.3f ms GPU-only\n", cpuResult.renderTime.count(), gpuResult.gpuTimeMs );
+			std::fflush( stdout );
+		} );
+	} ).detach();
+}
+
+void AppDelegate::updateSpeedupIfPossible()
+{
+	if ( _lastCPUTimeMs < 0.0 || _lastGPUTimeMs < 0.0 )
+		return;
+
+	char buf[ 128 ];
+	if ( _lastGPUTimeMs < _lastCPUTimeMs )
+	{
+		double ratio = _lastCPUTimeMs / _lastGPUTimeMs;
+		std::snprintf( buf, sizeof( buf ), "GPU is %.1fx faster than CPU", ratio );
+	}
+	else
+	{
+		double ratio = _lastGPUTimeMs / _lastCPUTimeMs;
+		std::snprintf( buf, sizeof( buf ), "CPU is %.1fx faster than GPU", ratio );
+	}
+	_pResultsPanel->setSpeedupLine( buf );
 }
 
 bool AppDelegate::applicationShouldTerminateAfterLastWindowClosed( NS::Application* pSender )

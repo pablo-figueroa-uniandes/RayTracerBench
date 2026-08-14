@@ -26,6 +26,8 @@ target_include_directories(RayTracerCore PUBLIC
 add_executable(RayTracerBench
     RayTracerBench/main.cpp
     RayTracerBench/App/AppDelegate.cpp
+    RayTracerBench/App/ControlsPanel.cpp
+    RayTracerBench/App/ResultsPanel.cpp
     RayTracerBench/App/ImageDisplayView.cpp
     RayTracerBench/GPU/GPURenderer.cpp
 )

@@ -33,6 +33,9 @@ namespace NS
 		public:
 			void	setTarget( const Object* pTarget );
 			void	setAction( SEL pAction );
+
+			void	setEnabled( bool enabled );
+			bool	isEnabled() const;
 	};
 }
 
@@ -44,4 +47,14 @@ _NS_INLINE void NS::Control::setTarget( const NS::Object* pTarget )
 _NS_INLINE void NS::Control::setAction( SEL pAction )
 {
 	Object::sendMessage< void >( this, sel_registerName( "setAction:" ), pAction );
+}
+
+_NS_INLINE void NS::Control::setEnabled( bool enabled )
+{
+	Object::sendMessage< void >( this, sel_registerName( "setEnabled:" ), enabled );
+}
+
+_NS_INLINE bool NS::Control::isEnabled() const
+{
+	return Object::sendMessage< bool >( this, sel_registerName( "isEnabled" ) );
 }
