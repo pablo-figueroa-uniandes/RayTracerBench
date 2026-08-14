@@ -11,13 +11,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # RayTraceCore.h and ShaderTypes.h are header-only and dual-compiled into
 # Shaders/Raytracer.metal directly (not through this library) once the GPU
-# renderer exists; Scene.cpp is the one Core/ translation unit today.
+# renderer exists. CPURenderer.cpp is framework-free C++17 like Core/, so it
+# lives in the same static library rather than a separate CMake target.
 add_library(RayTracerCore STATIC
     RayTracerBench/Core/Scene.cpp
+    RayTracerBench/CPU/CPURenderer.cpp
 )
 
 target_include_directories(RayTracerCore PUBLIC
     RayTracerBench/Core
+    RayTracerBench/CPU
 )
 
 add_executable(RayTracerBench
