@@ -1,7 +1,8 @@
+// Metal/QuartzCore's own private-implementation macros (MTL_PRIVATE_IMPLEMENTATION,
+// CA_PRIVATE_IMPLEMENTATION) live in ImageDisplayView.cpp instead, since that's the one
+// translation unit that actually includes those headers — each must be defined exactly once,
+// in whichever .cpp first includes the corresponding header.
 #define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-#define MTK_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
 #include <AppKit/AppKit.hpp>
 
 #include "App/AppDelegate.hpp"

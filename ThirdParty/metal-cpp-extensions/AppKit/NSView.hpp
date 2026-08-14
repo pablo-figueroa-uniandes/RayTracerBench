@@ -28,18 +28,51 @@
 #include "AppKitPrivate.hpp"
 #include <Foundation/NSObject.hpp>
 #include <CoreGraphics/CGGeometry.h>
+#include <objc/message.h>
+#include <objc/runtime.h>
 
 namespace NS
 {
 	class View : public NS::Referencing< View >
 	{
 		public:
-			View*		init( CGRect frame );
+			// alloc() + this fixed init() are a project-local correction: Apple's
+			// original vendored init() sent initWithFrame: to the NSView *class*
+			// object instead of to an allocated instance, which crashes at runtime
+			// ("unrecognized selector sent to class") — verified by hand before
+			// fixing. addSubview()/setWantsLayer()/setLayer() are project-local
+			// additions filling in AppKit surface Apple's extensions never wrapped
+			// (see AppKit/NSControl.hpp for the same situation with NS::Button).
+			static View* alloc();
+			View*		 init( CGRect frame );
+
+			void		 addSubview( const View* pSubview );
+			void		 setWantsLayer( bool wantsLayer );
+			void		 setLayer( const void* pLayer );
 	};
 }
 
+_NS_INLINE NS::View* NS::View::alloc()
+{
+	return Object::sendMessage< View* >( _APPKIT_PRIVATE_CLS( NSView ), _NS_PRIVATE_SEL( alloc ) );
+}
 
 _NS_INLINE NS::View* NS::View::init( CGRect frame )
 {
-	return Object::sendMessage< View* >( _APPKIT_PRIVATE_CLS( NSView ), _APPKIT_PRIVATE_SEL( initWithFrame_ ), frame );
+	return Object::sendMessage< View* >( this, _APPKIT_PRIVATE_SEL( initWithFrame_ ), frame );
+}
+
+_NS_INLINE void NS::View::addSubview( const NS::View* pSubview )
+{
+	Object::sendMessage< void >( this, sel_registerName( "addSubview:" ), pSubview );
+}
+
+_NS_INLINE void NS::View::setWantsLayer( bool wantsLayer )
+{
+	Object::sendMessage< void >( this, sel_registerName( "setWantsLayer:" ), wantsLayer );
+}
+
+_NS_INLINE void NS::View::setLayer( const void* pLayer )
+{
+	Object::sendMessage< void >( this, sel_registerName( "setLayer:" ), pLayer );
 }

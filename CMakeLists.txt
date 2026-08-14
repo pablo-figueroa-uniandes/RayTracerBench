@@ -26,11 +26,19 @@ target_include_directories(RayTracerCore PUBLIC
 add_executable(RayTracerBench
     RayTracerBench/main.cpp
     RayTracerBench/App/AppDelegate.cpp
+    RayTracerBench/App/ImageDisplayView.cpp
 )
 
 target_include_directories(RayTracerBench PRIVATE
     ThirdParty/metal-cpp
     ThirdParty/metal-cpp-extensions
+)
+
+# ImageDisplayView compiles Shaders/Blit.metal from source at runtime (newLibrary(), not
+# newDefaultLibrary()) since this is deliberately a plain executable, not an app bundle with a
+# compiled default.metallib resource — see ImageDisplayView.cpp's readShaderSource() comment.
+target_compile_definitions(RayTracerBench PRIVATE
+    RT_SHADERS_DIR="${CMAKE_SOURCE_DIR}/RayTracerBench/Shaders"
 )
 
 target_link_libraries(RayTracerBench PRIVATE RayTracerCore)
