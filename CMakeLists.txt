@@ -9,6 +9,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# RayTraceCore.h and ShaderTypes.h are header-only and dual-compiled into
+# Shaders/Raytracer.metal directly (not through this library) once the GPU
+# renderer exists; Scene.cpp is the one Core/ translation unit today.
+add_library(RayTracerCore STATIC
+    RayTracerBench/Core/Scene.cpp
+)
+
+target_include_directories(RayTracerCore PUBLIC
+    RayTracerBench/Core
+)
+
 add_executable(RayTracerBench
     RayTracerBench/main.cpp
     RayTracerBench/App/AppDelegate.cpp
@@ -18,6 +29,8 @@ target_include_directories(RayTracerBench PRIVATE
     ThirdParty/metal-cpp
     ThirdParty/metal-cpp-extensions
 )
+
+target_link_libraries(RayTracerBench PRIVATE RayTracerCore)
 
 find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
