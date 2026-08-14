@@ -27,6 +27,8 @@ class AppDelegate : public NS::ApplicationDelegate
 
 		void updateSpeedupIfPossible();
 
+		NS::Menu* createMenuBar();
+
 		NS::Window*       _pWindow = nullptr;
 		MTL::Device*      _pDevice = nullptr;
 		ControlsPanel*    _pControlsPanel = nullptr;

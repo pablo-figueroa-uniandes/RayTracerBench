@@ -26,6 +26,7 @@ target_include_directories(RayTracerCore PUBLIC
 add_executable(RayTracerBench
     RayTracerBench/main.cpp
     RayTracerBench/App/AppDelegate.cpp
+    RayTracerBench/App/AboutAlert.cpp
     RayTracerBench/App/ControlsPanel.cpp
     RayTracerBench/App/ResultsPanel.cpp
     RayTracerBench/App/ImageDisplayView.cpp
@@ -86,5 +87,31 @@ target_link_libraries(RayTracerBench PRIVATE
     ${METAL_FRAMEWORK}
     ${METALKIT_FRAMEWORK}
     ${QUARTZCORE_FRAMEWORK}
+    ${FOUNDATION_FRAMEWORK}
+)
+
+# RayTracerBenchTests: a plain command-line C++ tool (no XCTest, no Objective-C) — headless, so it
+# only needs Metal + Foundation, not AppKit/metal-cpp-extensions/Cocoa.
+add_executable(RayTracerBenchTests
+    RayTracerBenchTests/main.cpp
+    RayTracerBenchTests/RayTraceCoreTests.cpp
+    RayTracerBenchTests/DeterministicParityTests.cpp
+    RayTracerBench/GPU/GPURenderer.cpp
+)
+
+target_include_directories(RayTracerBenchTests PRIVATE
+    ThirdParty/metal-cpp
+    RayTracerBench/GPU
+)
+
+target_compile_definitions(RayTracerBenchTests PRIVATE
+    RT_RAYTRACER_METALLIB="${RAYTRACER_METALLIB}"
+)
+
+add_dependencies(RayTracerBenchTests RaytracerMetalLib)
+
+target_link_libraries(RayTracerBenchTests PRIVATE
+    RayTracerCore
+    ${METAL_FRAMEWORK}
     ${FOUNDATION_FRAMEWORK}
 )

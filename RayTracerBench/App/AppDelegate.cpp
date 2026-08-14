@@ -2,6 +2,7 @@
 
 #include "../CPU/CPURenderer.hpp"
 #include "../Core/Scene.hpp"
+#include "AboutAlert.hpp"
 
 #include <cstdio>
 #include <dispatch/dispatch.h>
@@ -18,6 +19,16 @@ namespace
 		double rays = (double)params.width * (double)params.height * (double)params.samplesPerPixel;
 		return rays / ( milliseconds / 1000.0 );
 	}
+
+	void onShowAboutClicked( void*, SEL, const NS::Object* )
+	{
+		showAboutAlert();
+	}
+
+	void onQuitClicked( void*, SEL, const NS::Object* pSender )
+	{
+		NS::Application::sharedApplication()->terminate( pSender );
+	}
 }
 
 AppDelegate::~AppDelegate()
@@ -31,9 +42,39 @@ AppDelegate::~AppDelegate()
 	_pDevice->release();
 }
 
+NS::Menu* AppDelegate::createMenuBar()
+{
+	using NS::StringEncoding::UTF8StringEncoding;
+
+	NS::Menu*     pMainMenu = NS::Menu::alloc()->init();
+	NS::MenuItem* pAppMenuItem = NS::MenuItem::alloc()->init();
+	NS::Menu*     pAppMenu = NS::Menu::alloc()->init( NS::String::string( "RayTracerBench", UTF8StringEncoding ) );
+
+	SEL           aboutSel = NS::MenuItem::registerActionCallback( "appShowAbout", onShowAboutClicked );
+	NS::MenuItem* pAboutItem = pAppMenu->addItem( NS::String::string( "About RayTracerBench", UTF8StringEncoding ), aboutSel, NS::String::string( "", UTF8StringEncoding ) );
+	(void)pAboutItem;
+
+	NS::String*   appName = NS::RunningApplication::currentApplication()->localizedName();
+	NS::String*   quitTitle = NS::String::string( "Quit ", UTF8StringEncoding )->stringByAppendingString( appName );
+	SEL           quitSel = NS::MenuItem::registerActionCallback( "appQuit", onQuitClicked );
+	NS::MenuItem* pQuitItem = pAppMenu->addItem( quitTitle, quitSel, NS::String::string( "q", UTF8StringEncoding ) );
+	pQuitItem->setKeyEquivalentModifierMask( NS::EventModifierFlagCommand );
+
+	pAppMenuItem->setSubmenu( pAppMenu );
+	pMainMenu->addItem( pAppMenuItem );
+
+	pAppMenuItem->release();
+	pAppMenu->release();
+
+	return pMainMenu->autorelease();
+}
+
 void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification )
 {
 	using NS::StringEncoding::UTF8StringEncoding;
+
+	NS::Application* pApp = reinterpret_cast< NS::Application* >( pNotification->object() );
+	pApp->setMainMenu( createMenuBar() );
 
 	_pDevice = MTL::CreateSystemDefaultDevice();
 	_pGPURenderer = new GPURenderer( _pDevice );
@@ -70,7 +111,6 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	_pWindow->setContentView( pContentView );
 	_pWindow->makeKeyAndOrderFront( nullptr );
 
-	NS::Application* pApp = reinterpret_cast< NS::Application* >( pNotification->object() );
 	pApp->activateIgnoringOtherApps( true );
 }
 
