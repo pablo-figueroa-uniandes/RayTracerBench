@@ -6,10 +6,11 @@
 
 #include <cstdint>
 
-// A CAMetalLayer-backed NS::View that blits an RGBA8 buffer (the CPU renderer's output today; a
-// GPU-rendered MTL::Texture directly, once the GPU renderer exists) onto screen via a tiny
-// textured-quad shader (Shaders/Blit.metal) — deliberately not NSImageView, per CLAUDE.md's UI
-// architecture.
+// A CAMetalLayer-backed NS::View that blits a texture onto screen via a tiny textured-quad shader
+// (Shaders/Blit.metal) — deliberately not NSImageView, per CLAUDE.md's UI architecture. Used two
+// ways: updatePixels() uploads a CPU-side RGBA8 buffer into a texture this view owns; displayTexture()
+// blits an already-existing MTL::Texture (the GPU renderer's output) directly, borrowed rather than
+// owned — it stays GPURenderer's responsibility to free.
 class ImageDisplayView
 {
 	public:
@@ -22,16 +23,23 @@ class ImageDisplayView
 		// immediately renders + presents it.
 		void updatePixels( const uint8_t* pRGBA, uint32_t width, uint32_t height );
 
+		// Renders + presents an existing texture directly (e.g. GPURenderer's output). Not owned —
+		// must outlive this call, but this view never retains or releases it.
+		void displayTexture( MTL::Texture* pTexture );
+
 	private:
-		void rebuildTextureIfNeeded( uint32_t width, uint32_t height );
+		void rebuildOwnedTextureIfNeeded( uint32_t width, uint32_t height );
 		void render();
 
-		MTL::Device*          _pDevice;
-		CA::MetalLayer*       _pMetalLayer;
-		NS::View*             _pView;
-		MTL::CommandQueue*    _pCommandQueue;
+		MTL::Device*              _pDevice;
+		CA::MetalLayer*           _pMetalLayer;
+		NS::View*                 _pView;
+		MTL::CommandQueue*        _pCommandQueue;
 		MTL::RenderPipelineState* _pPipelineState;
-		MTL::Texture*         _pSourceTexture;
-		uint32_t              _textureWidth;
-		uint32_t              _textureHeight;
+
+		MTL::Texture* _pOwnedTexture; // created/uploaded by updatePixels(); released in the destructor
+		uint32_t      _ownedTextureWidth;
+		uint32_t      _ownedTextureHeight;
+
+		MTL::Texture* _pCurrentTexture; // whichever of the above (or an external texture) render() should sample
 };

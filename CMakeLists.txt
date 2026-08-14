@@ -27,6 +27,7 @@ add_executable(RayTracerBench
     RayTracerBench/main.cpp
     RayTracerBench/App/AppDelegate.cpp
     RayTracerBench/App/ImageDisplayView.cpp
+    RayTracerBench/GPU/GPURenderer.cpp
 )
 
 target_include_directories(RayTracerBench PRIVATE
@@ -37,8 +38,37 @@ target_include_directories(RayTracerBench PRIVATE
 # ImageDisplayView compiles Shaders/Blit.metal from source at runtime (newLibrary(), not
 # newDefaultLibrary()) since this is deliberately a plain executable, not an app bundle with a
 # compiled default.metallib resource — see ImageDisplayView.cpp's readShaderSource() comment.
+# Blit.metal has no local #includes, so a raw source string is fine for it.
 target_compile_definitions(RayTracerBench PRIVATE
     RT_SHADERS_DIR="${CMAKE_SOURCE_DIR}/RayTracerBench/Shaders"
+)
+
+# Raytracer.metal #includes Core/ShaderTypes.h and Core/RayTraceCore.h verbatim (the dual-compile
+# design), so it CANNOT be compiled from a raw in-memory source string the way Blit.metal is —
+# there's no file location for a relative #include to resolve against. Compile it to a real
+# .metallib at build time instead (still command-line xcrun, not an Xcode "Metal Compiler" build
+# phase, to stay consistent with this project being built headlessly), and load that compiled
+# library at runtime via newLibrary(filepath, &error) rather than newLibrary(sourceString, ...).
+set(RAYTRACER_METAL_SOURCE ${CMAKE_SOURCE_DIR}/RayTracerBench/Shaders/Raytracer.metal)
+set(RAYTRACER_METAL_AIR ${CMAKE_BINARY_DIR}/Raytracer.air)
+set(RAYTRACER_METALLIB ${CMAKE_BINARY_DIR}/Raytracer.metallib)
+
+add_custom_command(
+    OUTPUT ${RAYTRACER_METALLIB}
+    COMMAND xcrun -sdk macosx metal -c ${RAYTRACER_METAL_SOURCE} -o ${RAYTRACER_METAL_AIR}
+    COMMAND xcrun -sdk macosx metallib ${RAYTRACER_METAL_AIR} -o ${RAYTRACER_METALLIB}
+    DEPENDS
+        ${RAYTRACER_METAL_SOURCE}
+        ${CMAKE_SOURCE_DIR}/RayTracerBench/Core/ShaderTypes.h
+        ${CMAKE_SOURCE_DIR}/RayTracerBench/Core/RayTraceCore.h
+    COMMENT "Compiling Raytracer.metal -> Raytracer.metallib"
+    VERBATIM
+)
+add_custom_target(RaytracerMetalLib DEPENDS ${RAYTRACER_METALLIB})
+add_dependencies(RayTracerBench RaytracerMetalLib)
+
+target_compile_definitions(RayTracerBench PRIVATE
+    RT_RAYTRACER_METALLIB="${RAYTRACER_METALLIB}"
 )
 
 target_link_libraries(RayTracerBench PRIVATE RayTracerCore)

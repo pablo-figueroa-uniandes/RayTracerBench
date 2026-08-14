@@ -31,9 +31,10 @@ namespace
 
 ImageDisplayView::ImageDisplayView( MTL::Device* pDevice, CGRect frame )
 	: _pDevice( pDevice->retain() )
-	, _pSourceTexture( nullptr )
-	, _textureWidth( 0 )
-	, _textureHeight( 0 )
+	, _pOwnedTexture( nullptr )
+	, _ownedTextureWidth( 0 )
+	, _ownedTextureHeight( 0 )
+	, _pCurrentTexture( nullptr )
 {
 	using NS::StringEncoding::UTF8StringEncoding;
 
@@ -84,8 +85,8 @@ ImageDisplayView::ImageDisplayView( MTL::Device* pDevice, CGRect frame )
 
 ImageDisplayView::~ImageDisplayView()
 {
-	if ( _pSourceTexture )
-		_pSourceTexture->release();
+	if ( _pOwnedTexture )
+		_pOwnedTexture->release();
 	_pPipelineState->release();
 	_pCommandQueue->release();
 	_pMetalLayer->release();
@@ -93,32 +94,39 @@ ImageDisplayView::~ImageDisplayView()
 	_pDevice->release();
 }
 
-void ImageDisplayView::rebuildTextureIfNeeded( uint32_t width, uint32_t height )
+void ImageDisplayView::rebuildOwnedTextureIfNeeded( uint32_t width, uint32_t height )
 {
-	if ( _pSourceTexture && width == _textureWidth && height == _textureHeight )
+	if ( _pOwnedTexture && width == _ownedTextureWidth && height == _ownedTextureHeight )
 		return;
 
-	if ( _pSourceTexture )
-		_pSourceTexture->release();
+	if ( _pOwnedTexture )
+		_pOwnedTexture->release();
 
 	MTL::TextureDescriptor* pDesc = MTL::TextureDescriptor::texture2DDescriptor( MTL::PixelFormatRGBA8Unorm, width, height, false );
 	pDesc->setStorageMode( MTL::StorageModeShared );
 	pDesc->setUsage( MTL::TextureUsageShaderRead );
 
-	_pSourceTexture = _pDevice->newTexture( pDesc );
-	_textureWidth = width;
-	_textureHeight = height;
-
-	_pMetalLayer->setDrawableSize( CGSizeMake( width, height ) );
+	_pOwnedTexture = _pDevice->newTexture( pDesc );
+	_ownedTextureWidth = width;
+	_ownedTextureHeight = height;
 }
 
 void ImageDisplayView::updatePixels( const uint8_t* pRGBA, uint32_t width, uint32_t height )
 {
-	rebuildTextureIfNeeded( width, height );
+	rebuildOwnedTextureIfNeeded( width, height );
 
 	MTL::Region region = MTL::Region( 0, 0, 0, width, height, 1 );
-	_pSourceTexture->replaceRegion( region, 0, pRGBA, static_cast<size_t>( width ) * 4 );
+	_pOwnedTexture->replaceRegion( region, 0, pRGBA, static_cast<size_t>( width ) * 4 );
 
+	_pCurrentTexture = _pOwnedTexture;
+	_pMetalLayer->setDrawableSize( CGSizeMake( width, height ) );
+	render();
+}
+
+void ImageDisplayView::displayTexture( MTL::Texture* pTexture )
+{
+	_pCurrentTexture = pTexture;
+	_pMetalLayer->setDrawableSize( CGSizeMake( pTexture->width(), pTexture->height() ) );
 	render();
 }
 
@@ -138,7 +146,7 @@ void ImageDisplayView::render()
 	MTL::CommandBuffer* pCommandBuffer = _pCommandQueue->commandBuffer();
 	MTL::RenderCommandEncoder* pEncoder = pCommandBuffer->renderCommandEncoder( pPassDesc );
 	pEncoder->setRenderPipelineState( _pPipelineState );
-	pEncoder->setFragmentTexture( _pSourceTexture, 0 );
+	pEncoder->setFragmentTexture( _pCurrentTexture, 0 );
 	pEncoder->drawPrimitives( MTL::PrimitiveTypeTriangle, ( NS::UInteger )0, ( NS::UInteger )6 );
 	pEncoder->endEncoding();
 
