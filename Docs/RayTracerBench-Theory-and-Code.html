@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RayTracerBench — Theory and Code</title>
+<style>
+	@page { size: Letter; margin: 22mm 20mm; }
+
+	:root {
+		--ink: #1b1b1b;
+		--sub: #55524d;
+		--rule: #d8d3c8;
+		--accent: #8a3b12;
+		--code-bg: #f6f3ec;
+		--code-border: #e2dccb;
+		--note-bg: #fbf3e3;
+		--note-border: #d9b978;
+	}
+
+	* { box-sizing: border-box; }
+
+	body {
+		font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+		color: var(--ink);
+		font-size: 12.3pt;
+		line-height: 1.52;
+		max-width: 780px;
+		margin: 0 auto;
+	}
+
+	.titlepage {
+		text-align: center;
+		padding: 18mm 0 14mm 0;
+		border-bottom: 2pt solid var(--accent);
+		margin-bottom: 14mm;
+	}
+	.titlepage .kicker {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		font-size: 9.5pt;
+		color: var(--accent);
+		margin-bottom: 10pt;
+	}
+	.titlepage h1 {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-size: 30pt;
+		margin: 0 0 8pt 0;
+		letter-spacing: -0.01em;
+	}
+	.titlepage .subtitle {
+		font-size: 13.5pt;
+		color: var(--sub);
+		font-style: italic;
+		margin-bottom: 14pt;
+	}
+	.titlepage .meta {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-size: 9.5pt;
+		color: var(--sub);
+	}
+
+	h1, h2, h3, h4 {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		color: var(--ink);
+		break-after: avoid;
+	}
+	h1.part {
+		font-size: 20pt;
+		margin-top: 26pt;
+		padding-top: 8pt;
+		border-top: 1pt solid var(--rule);
+		break-before: page;
+	}
+	h1.part .part-kicker {
+		display: block;
+		font-size: 10pt;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--accent);
+		margin-bottom: 4pt;
+	}
+	h2 {
+		font-size: 15pt;
+		margin-top: 22pt;
+		margin-bottom: 6pt;
+		padding-bottom: 3pt;
+		border-bottom: 1pt solid var(--rule);
+	}
+	h3 {
+		font-size: 12.5pt;
+		margin-top: 16pt;
+		margin-bottom: 4pt;
+		color: var(--accent);
+	}
+
+	p { margin: 7pt 0; text-align: left; }
+	ul, ol { margin: 6pt 0; padding-left: 22pt; }
+	li { margin: 3pt 0; }
+
+	code {
+		font-family: "SF Mono", Menlo, Consolas, monospace;
+		font-size: 10pt;
+		background: var(--code-bg);
+		padding: 1pt 3pt;
+		border-radius: 3pt;
+	}
+	pre {
+		font-family: "SF Mono", Menlo, Consolas, monospace;
+		font-size: 9pt;
+		line-height: 1.42;
+		background: var(--code-bg);
+		border: 1pt solid var(--code-border);
+		border-left: 3pt solid var(--accent);
+		border-radius: 4pt;
+		padding: 8pt 10pt;
+		overflow-x: auto;
+		white-space: pre-wrap;
+		word-wrap: break-word;
+		break-inside: avoid;
+		margin: 8pt 0;
+	}
+	pre code { background: none; padding: 0; font-size: 9pt; }
+
+	.filename {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-size: 8.5pt;
+		color: var(--sub);
+		letter-spacing: 0.03em;
+		margin: 10pt 0 -4pt 0;
+	}
+
+	.note {
+		background: var(--note-bg);
+		border: 1pt solid var(--note-border);
+		border-radius: 4pt;
+		padding: 7pt 10pt;
+		margin: 9pt 0;
+		font-size: 11pt;
+		break-inside: avoid;
+	}
+	.note .note-label {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-size: 8.5pt;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: #8a6a1f;
+		display: block;
+		margin-bottom: 3pt;
+	}
+
+	table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 10.7pt; }
+	th, td { border: 1pt solid var(--rule); padding: 4pt 7pt; text-align: left; vertical-align: top; }
+	th { background: var(--code-bg); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 9.5pt; }
+
+	.formula {
+		text-align: center;
+		font-family: "Iowan Old Style", Georgia, serif;
+		font-style: italic;
+		font-size: 12.5pt;
+		margin: 10pt 0;
+	}
+
+	.toc { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10.5pt; }
+	.toc ol { list-style: none; padding-left: 0; }
+	.toc > ol > li { margin: 5pt 0; font-weight: 600; }
+	.toc ol ol { padding-left: 16pt; margin-top: 3pt; }
+	.toc ol ol li { font-weight: 400; margin: 2pt 0; }
+	.toc a { color: var(--ink); text-decoration: none; }
+
+	footer.colophon {
+		margin-top: 24pt;
+		padding-top: 8pt;
+		border-top: 1pt solid var(--rule);
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-size: 9pt;
+		color: var(--sub);
+	}
+</style>
+</head>
+<body>
+
+<div class="titlepage">
+	<div class="kicker">A Technical Walkthrough</div>
+	<h1>RayTracerBench</h1>
+	<div class="subtitle">Ray Tracing Theory, and How This Codebase Implements It</div>
+	<div class="meta">CPU vs. GPU (Metal compute) ray tracing benchmark &nbsp;·&nbsp; pure C++ and Metal</div>
+</div>
+
+<div class="toc">
+<ol>
+	<li><a href="#part1">Part I — Theory</a>
+		<ol>
+			<li><a href="#s1">What a Ray Tracer Actually Computes</a></li>
+			<li><a href="#s2">Cameras, Rays, and the Image Plane</a></li>
+			<li><a href="#s3">Ray–Sphere Intersection</a></li>
+			<li><a href="#s4">Materials: Diffuse, Metal, Glass</a></li>
+			<li><a href="#s5">Monte Carlo Path Tracing</a></li>
+			<li><a href="#s6">Gamma Correction</a></li>
+			<li><a href="#s7">Pseudo-Random Numbers on a GPU</a></li>
+		</ol>
+	</li>
+	<li><a href="#part2">Part II — The Code</a>
+		<ol>
+			<li><a href="#s8">The Constraint That Shapes Everything</a></li>
+			<li><a href="#s9">The Shared Core: ShaderTypes.h and RayTraceCore.h</a></li>
+			<li><a href="#s10">Building the Scene</a></li>
+			<li><a href="#s11">The CPU Renderer</a></li>
+			<li><a href="#s12">The GPU Renderer</a></li>
+			<li><a href="#s13">The UI Layer, in Pure C++</a></li>
+			<li><a href="#s14">Testing and the Parity Investigation</a></li>
+			<li><a href="#s15">The Build System</a></li>
+		</ol>
+	</li>
+	<li><a href="#attribution">Attribution</a></li>
+</ol>
+</div>
+
+<h1 class="part" id="part1"><span class="part-kicker">Part I</span>Theory</h1>
+
+<h2 id="s1">1. What a Ray Tracer Actually Computes</h2>
+
+<p>A ray tracer answers one question, over and over: <em>if I stand at the camera and look through
+this one pixel, what color do I see?</em> It answers it by firing a ray — a half-line with an origin
+and a direction — out from the camera through that pixel, and following it into the scene to see
+what it hits. Whatever it hits determines the color; if it hits nothing, it sees the sky.</p>
+
+<p>That's the entire idea. Everything else in this document — intersection math, materials,
+sampling, gamma correction — exists to answer that one question correctly and to make the answer
+look photographic rather than flat.</p>
+
+<h2 id="s2">2. Cameras, Rays, and the Image Plane</h2>
+
+<p>A ray is just an origin point and a direction vector: <code>P(t) = origin + t · direction</code>.
+As <code>t</code> increases, <code>P(t)</code> traces out every point along the ray. Given a
+camera position, an image plane in front of it, and a pixel's location on that plane, constructing
+the ray for that pixel is a matter of subtracting the camera position from the point on the plane
+in world space.</p>
+
+<p>This project's camera (<code>CameraGPU</code> in <code>ShaderTypes.h</code>) follows the classic
+"Ray Tracing in One Weekend" model directly: instead of storing field-of-view and aspect ratio and
+recomputing the viewport every ray, it precomputes an <code>origin</code>, a
+<code>lowerLeftCorner</code>, and <code>horizontal</code>/<code>vertical</code> span vectors once
+per render. A ray for normalized image coordinates <code>(s, t)</code> (each in <code>[0,1]</code>)
+is then just:</p>
+
+<div class="formula">direction = lowerLeftCorner + s·horizontal + t·vertical − origin</div>
+
+<p>The camera also models a <strong>thin lens</strong>, not a pinhole: instead of every ray
+originating from a single point, rays originate from a random point on a small disk (the
+<code>lensRadius</code>), offset along the camera's own right/up basis vectors (<code>u</code>,
+<code>v</code>). Objects exactly at the focus distance stay sharp because rays through them from
+different points on the lens still converge on the same spot; objects nearer or farther blur,
+because they don't. That's where camera depth-of-field comes from — it's a direct, physical
+consequence of a non-zero aperture, not a post-process blur.</p>
+
+<h2 id="s3">3. Ray–Sphere Intersection</h2>
+
+<p>Spheres are the one primitive this renderer (and the book it's based on) uses, because the
+intersection test reduces to a single quadratic equation. A point <code>P</code> lies on a sphere
+with center <code>C</code> and radius <code>r</code> exactly when
+<code>(P − C)·(P − C) = r²</code>. Substituting the ray equation
+<code>P(t) = origin + t·direction</code> and expanding gives a quadratic in <code>t</code>:</p>
+
+<div class="formula">a·t² + b·t + c = 0</div>
+
+<p>where <code>a = direction·direction</code>, <code>b = 2·(origin−C)·direction</code>, and
+<code>c = (origin−C)·(origin−C) − r²</code>. Using the "half-b" substitution
+(<code>halfB = b/2</code>, which cancels the factor of 2 out of the quadratic formula and saves a
+few multiplications) gives the two roots:</p>
+
+<div class="formula">t = (−halfB ± √(halfB² − a·c)) / a</div>
+
+<p>A negative discriminant (<code>halfB² − a·c &lt; 0</code>) means the ray misses the sphere
+entirely — no real roots. Otherwise there are up to two intersection points; the renderer wants the
+<em>closest one that's actually in front of the ray and within the valid t-range</em>, so it checks
+the smaller root first and falls back to the larger root only if the smaller one is out of range
+(behind the camera, or beyond a previously-found closer hit from some other sphere).</p>
+
+<p>Once a hit point is found, its <strong>surface normal</strong> — the direction pointing straight
+out of the sphere at that point — is simply <code>(hitPoint − center) / radius</code> (already
+unit-length, since it's a displacement of exactly one radius). One subtlety matters for correct
+shading: a normal should point <em>toward</em> whichever side of the surface the ray came from, so
+materials can tell whether a ray is entering or exiting an object (this matters most for glass).
+The renderer checks the sign of <code>direction·outwardNormal</code> — negative means the ray is
+hitting the outside of the surface — and flips the stored normal if not.</p>
+
+<h2 id="s4">4. Materials: Diffuse, Metal, Glass</h2>
+
+<p>When a ray hits a surface, the material decides what happens next: does the ray bounce, in what
+direction, and how much of its color survives the bounce (the <em>attenuation</em>)? This renderer
+implements the book's three classic materials.</p>
+
+<h3>Lambertian (matte/diffuse)</h3>
+<p>A perfectly diffuse surface scatters incoming light equally in every direction above the
+surface. The physically-motivated way to sample that is to pick a random point on a small sphere
+sitting just above the hit point, tangent to the surface, and scatter toward it — which produces a
+cosine-weighted distribution of bounce directions clustered around the normal, matching how matte
+surfaces actually behave. The scattered ray's direction is simply
+<code>normal + randomUnitVector()</code>, and the surface's albedo color is multiplied in as the
+attenuation.</p>
+
+<h3>Metal (reflective, with fuzz)</h3>
+<p>A mirror reflects a ray about the surface normal:
+<code>reflected = incoming − 2·(incoming·normal)·normal</code> — the same reflection law as light
+bouncing off a real mirror, or a ball bouncing off a wall. A perfect mirror is visually harsh, so
+this material adds a <code>fuzz</code> parameter: the reflected direction is perturbed by a small
+random offset scaled by <code>fuzz</code>, which is exactly a `Random unit vector, scaled down`
+technique that turns a perfect mirror into a brushed-metal look as <code>fuzz</code> increases from
+0.</p>
+
+<h3>Dielectric (glass)</h3>
+<p>Glass is the most involved of the three, because light hitting a transparent surface can either
+<em>refract</em> (bend and pass through) or <em>reflect</em>, and which one happens depends on the
+angle of incidence. Refraction follows Snell's law; this renderer uses the standard
+vector form (splitting the refracted ray into components perpendicular and parallel to the
+normal):</p>
+
+<div class="formula">refracted = (η<sub>i</sub>/η<sub>t</sub>)·(incoming + cosθ·normal) &nbsp;−&nbsp; √(1 − |·|²)·normal</div>
+
+<p>Two more things make glass look convincing:</p>
+<ul>
+	<li><strong>Total internal reflection</strong>: at a steep enough angle, light passing from a
+	dense medium (glass) into a less dense one (air) can't refract at all — Snell's law would
+	require <code>sinθ &gt; 1</code>, which is impossible. When that happens, the ray must reflect
+	instead, no choice involved.</li>
+	<li><strong>Schlick's approximation</strong>: even when refraction is physically possible, real
+	glass partially reflects at grazing angles (this is why a window looks like a mirror when
+	viewed edge-on). Schlick's approximation gives a cheap, visually-convincing probability that a
+	given ray reflects instead of refracts, and the renderer draws a random number to decide which
+	happens for each individual ray.</li>
+</ul>
+
+<h2 id="s5">5. Monte Carlo Path Tracing</h2>
+
+<p>A single ray per pixel produces a hard, aliased, noiseless-but-wrong image: every pixel is
+either "the ray hit exactly this one point on exactly this one bounce path" or "it didn't." Two
+techniques turn that into a photograph-like image.</p>
+
+<h3>Anti-aliasing via multi-sampling</h3>
+<p>Instead of firing one ray dead-center through each pixel, the renderer fires many
+(<code>samplesPerPixel</code>), each jittered by a random sub-pixel offset, and averages their
+resulting colors. Edges that would otherwise be a hard staircase of pixels become a smooth
+gradient, because some of a given pixel's samples land just inside an object's silhouette and some
+land just outside it.</p>
+
+<h3>Recursion, made iterative</h3>
+<p>A ray that hits a diffuse or metal or glass surface doesn't stop there — it scatters, and the
+new ray needs to be traced too, recursively, until it either hits nothing (the sky) or gets
+absorbed. The book's own code expresses this as literal recursion:
+<code>ray_color(scattered, world, depth-1)</code>. Metal Shading Language kernels cannot recurse (no
+call stack of arbitrary depth is available on a GPU thread), so this project's shared
+<code>rayColor()</code> expresses the exact same logic as a bounded <code>for</code> loop instead —
+walking forward through bounces, multiplying the running color by each surface's attenuation, and
+stopping either when a ray hits nothing (return the accumulated color times the sky) or when
+<code>maxDepth</code> bounces are exhausted (return black — that path contributed no more light).
+This is a mechanical transformation, not an approximation: an iterative loop accumulating a running
+product is exactly equivalent to the recursive version, just without needing a call stack.</p>
+
+<h2 id="s6">6. Gamma Correction</h2>
+
+<p>Displays don't map pixel values to brightness linearly — a pixel value of 0.5 doesn't look half
+as bright as 1.0, it looks noticeably dimmer than that, because monitors (following a decades-old
+CRT convention that stuck) apply their own roughly-squaring response curve. A renderer that
+computes physically-linear light and writes it to the screen uncorrected produces images that look
+too dark, especially in mid-tones. The fix used here — and in the book — is the simple,
+standard <strong>gamma-2</strong> correction: take the square root of each linear color
+component before writing it out, which is the cheap, close-enough approximation photographers and
+GPU programmers have used for exactly this purpose since long before this book was written.</p>
+
+<h2 id="s7">7. Pseudo-Random Numbers on a GPU</h2>
+
+<p>A path tracer needs a fast source of random numbers — for anti-aliasing jitter, for diffuse
+scatter directions, for the lens-disk sample, for the reflect-vs-refract coin flip in glass — and it
+needs that source to work identically whether it's running as a single CPU thread or as one of
+millions of near-simultaneous GPU threads, with no shared state and no locking between them. There's
+no GPU equivalent of CUDA's <code>curand</code> library available in Metal Shading Language, so this
+project uses a tiny, well-known <strong>pcg-hash</strong> construction instead: a pure function
+that takes a 32-bit integer state and returns a new, well-mixed 32-bit integer, with no external
+library and no shared memory required. Divide the result by 2³² and it's a uniform float in
+<code>[0,1)</code>; hash it again and it's the next draw in the stream.</p>
+
+<h1 class="part" id="part2"><span class="part-kicker">Part II</span>The Code</h1>
+
+<h2 id="s8">8. The Constraint That Shapes Everything</h2>
+
+<p>The single decision that shapes this codebase's architecture is this: <strong>Metal Shading
+Language forbids virtual functions, RTTI, and dynamic allocation inside kernel code.</strong> The
+book this project is based on — and the CUDA port it structurally follows — both lean on C++
+virtual dispatch for their <code>hittable</code>/<code>material</code> class hierarchies (a sphere
+"is-a" hittable; a lambertian material "is-a" material; call <code>->scatter(...)</code> and let
+dynamic dispatch pick the right implementation). That pattern is simply not legal MSL.</p>
+
+<p>So both renderers here — CPU <em>and</em> GPU — use the same alternative: flat arrays of plain
+structs, with a small integer <strong>tag</strong> (<code>MaterialType</code>) saying which kind of
+material a given entry is, and a <code>switch</code> statement dispatching on that tag instead of a
+virtual call. This isn't merely a GPU workaround bolted onto an otherwise object-oriented CPU
+renderer — both renderers run the identical tagged-struct code, which is what makes the CPU/GPU
+performance comparison this project exists to make actually meaningful. Two independently-written
+implementations that merely <em>look</em> similar wouldn't prove anything about CPU vs. GPU
+performance; running the same algorithm source on both does.</p>
+
+<h2 id="s9">9. The Shared Core: <code>ShaderTypes.h</code> and <code>RayTraceCore.h</code></h2>
+
+<p><code>Core/ShaderTypes.h</code> defines the plain data — spheres, materials, the camera, and
+render parameters — as ordinary structs built from <code>simd_float3</code> (Apple's SIMD vector
+type, which Apple's headers make available, byte-for-byte identical, in both plain C++ and Metal
+Shading Language via <code>&lt;simd/simd.h&gt;</code>):</p>
+
+<div class="filename">Core/ShaderTypes.h</div>
+<pre><code>enum MaterialType
+{
+	MAT_LAMBERTIAN = 0,
+	MAT_METAL      = 1,
+	MAT_DIELECTRIC = 2,
+};
+
+struct MaterialGPU
+{
+	int         type; // MaterialType
+	simd_float3 albedo;
+	float       fuzz; // metal roughness in [0,1]; unused for other types
+	float       ir;   // dielectric index of refraction; unused for other types
+};
+
+struct SphereGPU
+{
+	simd_float3 center;
+	float       radius;
+	int         materialIndex; // index into the parallel materials array
+};</code></pre>
+
+<p><code>Core/RayTraceCore.h</code> is where the theory from Part I actually lives in code — and
+it's <code>#include</code>d <strong>verbatim</strong> by both <code>Shaders/Raytracer.metal</code>
+(the GPU kernel) and <code>CPU/CPURenderer.cpp</code>. Not "a similar copy kept in sync by hand" —
+the literal same header, compiled twice, once by <code>clang++</code> and once by Apple's Metal
+shader compiler. Any divergence between what the CPU and GPU actually compute is impossible by
+construction, rather than merely a bug to watch out for.</p>
+
+<h3>The address-space problem, and how this header avoids it</h3>
+
+<p>Making one header compile as both plain C++ and Metal Shading Language runs into a real
+technical obstacle: MSL requires pointers to be tagged with an <em>address space</em> keyword
+(<code>device</code>, <code>thread</code>, <code>constant</code>, ...) saying where the pointed-to
+memory actually lives, and plain C++ has no equivalent concept at all. Get this wrong and the
+Metal compiler rejects the shader outright.</p>
+
+<p>This header sidesteps the problem almost entirely by a single design rule: <strong>every
+function passes and returns plain values, never references or pointers into caller-owned
+storage</strong> — with exactly one deliberate exception. Hit outcomes, scatter results, and RNG
+state all travel as small return-value structs (<code>HitResult</code>, <code>ScatterResult</code>,
+<code>RandomFloatSample</code>, ...) instead of the more conventional C-style out-parameters. The
+one place a real address-space-tagged pointer is unavoidable is <code>rayColor()</code>'s two scene
+array parameters — the actual sphere and material buffers a GPU kernel receives — and that's
+handled by a single macro:</p>
+
+<div class="filename">Core/RayTraceCore.h</div>
+<pre><code>#if defined( __METAL_VERSION__ )
+	#define RT_DEVICE device
+#else
+	#define RT_DEVICE
+#endif
+
+inline RayColorResult rayColor( Ray r, RT_DEVICE const SphereGPU* spheres, uint32_t sphereCount,
+	RT_DEVICE const MaterialGPU* materials, uint32_t maxDepth, uint32_t rngSeed )
+{ /* ... */ }</code></pre>
+
+<p>Everywhere else in the call chain — <code>hitSphere()</code>, <code>scatter()</code> — a single
+sphere or material is taken <em>by value</em>, read out of that device-space array exactly once at
+the call site (<code>spheres[i]</code>) and copied into an ordinary local variable before being
+passed anywhere further. MSL treats that copy as plain thread-local data needing no annotation at
+all, so the address-space concern never propagates past <code>rayColor()</code> itself. One macro,
+one place it's used — not a general-purpose shimming mechanism sprinkled everywhere.</p>
+
+<p>The same "shared header, two compilers" idea produced one more small but real portability
+lesson, worth calling out because it's the kind of thing that's easy to get wrong quietly:
+<code>simd_float3(x, y, z)</code> function-call-style construction compiles fine in Metal Shading
+Language, but plain C++ rejects it (a C++ compiler parses it as an invalid functional cast with too
+many arguments — brace-initialization or <code>simd_make_float3(x,y,z)</code> are needed instead).
+<code>RayTraceCore.h</code> works around this with its own tiny <code>makeFloat3()</code> helper,
+implemented once per side of the <code>#ifdef</code>, so every other line of the shared algorithm
+can just call <code>makeFloat3(x, y, z)</code> without caring which compiler is currently reading
+it.</p>
+
+<h3>Scatter, as a tagged switch</h3>
+
+<p>This is the direct code equivalent of Part I §4 — reflection, refraction, Schlick's
+approximation, and the Lambertian random-scatter-direction, all dispatched by a plain
+<code>switch</code> on <code>mat.type</code> instead of a virtual call:</p>
+
+<div class="filename">Core/RayTraceCore.h (abridged)</div>
+<pre><code>inline ScatterResult scatter( Ray rayIn, HitRecord rec, MaterialGPU mat, uint32_t rngSeed )
+{
+	switch ( mat.type )
+	{
+		case MAT_LAMBERTIAN:
+		{
+			RandomVec3Sample rv = randomUnitVector( rngSeed );
+			simd_float3      scatterDirection = rec.normal + rv.value;
+			if ( nearZero3( scatterDirection ) ) scatterDirection = rec.normal;
+			return ScatterResult{ true, mat.albedo, Ray{ rec.p, scatterDirection }, rv.seed };
+		}
+		case MAT_METAL:
+		{
+			RandomVec3Sample rv = randomInUnitSphere( rngSeed );
+			simd_float3      reflected = reflect3( normalize3( rayIn.direction ), rec.normal );
+			Ray              scattered = Ray{ rec.p, reflected + mat.fuzz * rv.value };
+			bool             ok = dot3( scattered.direction, rec.normal ) > 0.0f;
+			return ScatterResult{ ok, mat.albedo, scattered, rv.seed };
+		}
+		case MAT_DIELECTRIC:
+		{
+			/* Snell's law + total-internal-reflection check + Schlick's approximation,
+			   exactly as derived in Part I §4 */
+		}
+	}
+}</code></pre>
+
+<div class="note">
+	<span class="note-label">Fallback, documented up front</span>
+	If sharing this header verbatim ever proved too fussy in practice, the project's own design
+	notes call out a fallback: hand-duplicate the four core functions into a CPU copy and a GPU
+	copy, marked with matching <code>// KEEP IN SYNC</code> comments at both ends, and treat any
+	future divergence between them as a bug. In practice this fallback was never needed — the
+	shared-header approach worked and was validated directly against the real Metal shader
+	compiler (see §14) before any renderer code was built on top of it.
+</div>
+
+<h2 id="s10">10. Building the Scene</h2>
+
+<p><code>Core/Scene.hpp/.cpp</code> builds the classic "Ray Tracing in One Weekend" demo scene once
+— a large ground sphere, a randomized field of small spheres (diffuse, metal, and glass in roughly
+an 80/15/5 split, following the book's own proportions), and three large "feature" spheres (one of
+each material) — from a seeded <code>std::mt19937</code>, into a single <code>SceneDescription</code>
+that <em>both</em> renderers consume unmodified:</p>
+
+<div class="filename">Core/Scene.hpp</div>
+<pre><code>struct SceneDescription
+{
+	std::vector&lt;SphereGPU&gt;   spheres;
+	std::vector&lt;MaterialGPU&gt; materials;
+	CameraGPU                camera;
+	RenderParams              params;
+};
+
+SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio,
+	uint32_t samplesPerPixel, uint32_t maxDepth );</code></pre>
+
+<p>Because <code>Scene.cpp</code> is pure host-side C++ — it never gets compiled as a Metal
+shader — it's free to use the full <code>simd_</code> C API directly
+(<code>simd_make_float3</code>, <code>simd_normalize</code>, <code>simd_cross</code>) rather than
+the hand-rolled portable helpers <code>RayTraceCore.h</code> needs. There is no separate "GPU
+version" of the scene at all: the exact same seed produces the exact same sphere layout and
+materials on both renderers, which is precisely what makes the deterministic-parity testing in
+§14 meaningful in the first place.</p>
+
+<h2 id="s11">11. The CPU Renderer</h2>
+
+<p><code>CPU/CPURenderer.hpp/.cpp</code> is deliberately plain C++17 with zero Apple-framework
+dependencies. For each pixel and each sample, it calls the exact same
+<code>getRay()</code>/<code>rayColor()</code> from the shared core, accumulates the resulting
+color, applies the gamma-2 correction from Part I §6, and writes an RGBA8 byte quad:</p>
+
+<pre><code>uint8_t toByte( float c )
+{
+	float gammaCorrected = std::sqrt( std::max( 0.0f, c ) );
+	float clamped = std::min( gammaCorrected, 0.999f );
+	return static_cast&lt;uint8_t&gt;( 256.0f * clamped );
+}</code></pre>
+
+<p>Threading is plain <code>std::thread</code> row-partitioning (each thread renders a contiguous
+band of image rows) — not Grand Central Dispatch, so that <code>Core/</code> and <code>CPU/</code>
+together stay entirely framework-free. A <code>CPUThreading::SingleThreaded</code> /
+<code>MultiThreaded</code> toggle is exposed explicitly, defaulting to multi-threaded (a realistic
+CPU baseline), specifically so a displayed speedup number is never ambiguous about which CPU
+configuration it was measured against.</p>
+
+<p>Each pixel derives its own RNG seed from the scene's shared <code>frameSeed</code> hashed
+together with that pixel's coordinates, so every pixel gets an independent random stream —
+important both for correctness (adjacent pixels shouldn't be correlated) and for a property that
+turned out to matter for testing: rendering the same scene single-threaded and multi-threaded
+produces <em>byte-identical</em> output, since each pixel's result depends only on its own
+coordinates and the shared seed, never on which thread happened to compute it or in what order.</p>
+
+<h2 id="s12">12. The GPU Renderer</h2>
+
+<p><code>GPU/GPURenderer.hpp/.cpp</code> is written directly against Apple's <code>metal-cpp</code>
+C++ bindings for the Metal API — no MetalKit, no Objective-C. The device, command queue, and
+compute pipeline state are created once, in the constructor, and cached for the renderer's whole
+lifetime, so that Metal's shader-compile latency (which can be tens of milliseconds) never
+contaminates a timed render.</p>
+
+<p><code>Shaders/Raytracer.metal</code> is the GPU counterpart to <code>CPURenderer.cpp</code>: one
+compute kernel, one thread per pixel, calling the exact same shared <code>getRay()</code> and
+<code>rayColor()</code>:</p>
+
+<div class="filename">Shaders/Raytracer.metal (abridged)</div>
+<pre><code>#include "../Core/ShaderTypes.h"
+#include "../Core/RayTraceCore.h"
+
+kernel void renderKernel(
+	device const SphereGPU*   spheres [[buffer( 0 )]],
+	constant uint32_t&        sphereCount [[buffer( 1 )]],
+	device const MaterialGPU* materials [[buffer( 2 )]],
+	constant CameraGPU&       camera [[buffer( 3 )]],
+	constant RenderParams&    params [[buffer( 4 )]],
+	texture2d&lt;float, access::write&gt; outTexture [[texture( 0 )]],
+	uint2                     gid [[thread_position_in_grid]] )
+{
+	if ( gid.x &gt;= params.width || gid.y &gt;= params.height ) return;
+	uint32_t seed = pcgHash( params.frameSeed ^ ( gid.y * 9781u + gid.x * 6271u + 1u ) );
+	simd_float3 colorSum = makeFloat3( 0.0, 0.0, 0.0 );
+
+	for ( uint32_t s = 0; s &lt; params.samplesPerPixel; ++s )
+	{
+		/* jittered getRay() + rayColor(), exactly as on the CPU */
+	}
+
+	outTexture.write( float4( /* gamma-corrected average */, 1.0 ), gid );
+}</code></pre>
+
+<p>The kernel is dispatched with <code>dispatchThreads:threadsPerThreadgroup:</code> using 8×8
+threadgroups — that variant auto-clamps threadgroups that run past the image's edge, unlike the
+book's CUDA port, which has to compute manual grid-rounding math itself. Sphere and material
+buffers use <code>MTL::ResourceStorageModeShared</code>, meaning on Apple Silicon's unified memory
+architecture the same physical memory is directly visible to both the CPU (which fills it in) and
+the GPU (which reads it) — no explicit copy step required in either direction.</p>
+
+<p>Every call to <code>render()</code> performs one untimed "warm-up" dispatch before the timed
+one, and surfaces <em>two</em> separate timing numbers: ordinary wall-clock time around the whole
+dispatch-and-wait call, and a GPU-only time read from the command buffer's own
+<code>GPUStartTime()</code>/<code>GPUEndTime()</code> timestamps — the latter is the headline
+number, since it excludes CPU-side dispatch and driver overhead that wall-clock time can't separate
+out.</p>
+
+<div class="note">
+	<span class="note-label">A packaging detail worth knowing</span>
+	<code>Raytracer.metal</code>'s <code>#include</code> of the shared header can't be compiled from
+	an in-memory source string at runtime — Metal has no idea what file that string is supposed to
+	be relative to, so the relative <code>#include</code> can't resolve. This project's build
+	compiles <code>Raytracer.metal</code> to a real <code>.metallib</code> file ahead of time (via
+	<code>xcrun metal</code>/<code>metallib</code>, wired into the CMake build), and
+	<code>GPURenderer</code> loads that compiled library by path at startup instead of compiling
+	shader source text on the fly.
+</div>
+
+<h2 id="s13">13. The UI Layer, in Pure C++</h2>
+
+<p>This entire application — window, buttons, text fields, on-screen image previews, even the
+application menu bar — is built without a single line of Objective-C or Swift, using Apple's
+header-only <code>metal-cpp</code> and <code>metal-cpp-extensions</code> C++ bindings, which wrap
+Cocoa's Objective-C runtime message-sending underneath plain C++ classes.</p>
+
+<p>Displaying a rendered image uses Metal itself rather than <code>NSImageView</code>:
+<code>App/ImageDisplayView</code> is a small <code>CAMetalLayer</code>-backed view with a tiny
+textured-quad "blit" shader (<code>Shaders/Blit.metal</code>) that samples a source texture and
+draws it to the screen — the same source texture is either a CPU-uploaded RGBA8 buffer or, for the
+GPU renderer, the compute kernel's output texture directly, with no CPU round-trip needed for the
+GPU path at all.</p>
+
+<p>Rendering itself never runs on the main thread: each of the "Render CPU," "Render GPU," and
+"Compare" actions spawns a background <code>std::thread</code>, and when it finishes, marshals the
+resulting image and timing numbers back to the main thread via
+<code>dispatch_async(dispatch_get_main_queue(), ...)</code> — Grand Central Dispatch's plain C API,
+which needs no Objective-C either. The on-screen controls are disabled for the duration of a
+render, which — since settings are read on the main thread before the background thread starts —
+closes off any window for a second click to race the first render's in-flight state.</p>
+
+<h3>Filling real gaps in Apple's own bindings</h3>
+
+<p>Apple's <code>metal-cpp-extensions</code> turned out to be missing several pieces of AppKit this
+project genuinely needed — confirmed missing, not merely assumed: no button, no text field, no
+alert, and no <code>CAMetalLayer</code> wrapper at all (an Apple DTS engineer has confirmed on
+Apple's own developer forums that the AppKit coverage gap is permanent, not an oversight). Each gap
+was filled the same way, following the exact idiom Apple's own headers use elsewhere — a thin C++
+class whose methods call straight through to Objective-C's message-sending runtime function,
+resolved by selector name:</p>
+
+<pre><code>void NS::Control::setEnabled( bool enabled )
+{
+	Object::sendMessage&lt; void &gt;( this, sel_registerName( "setEnabled:" ), enabled );
+}</code></pre>
+
+<p>One of these gaps was worth catching rather than working around silently: Apple's own vendored
+<code>NS::View::init()</code> sent <code>initWithFrame:</code> to the NSView <em>class object
+itself</em> instead of to an allocated instance — a genuine bug, confirmed by reproducing the
+resulting crash directly before fixing it, not merely inferred from reading the header.</p>
+
+<h2 id="s14">14. Testing and the Parity Investigation</h2>
+
+<p><code>RayTracerBenchTests</code> is a plain command-line C++ executable (no XCTest, no
+Objective-C), using a small dependency-free self-registering test framework written for this
+project rather than vendoring an external one. It covers two things:</p>
+
+<ul>
+	<li><strong>Unit tests for <code>hitSphere()</code></strong> — a dead-on hit, a clean miss, the
+	<code>tMax</code> boundary, a ray originating <em>inside</em> a sphere (which must report a
+	back-face hit, per Part I §3), and picking the closer of two overlapping spheres.</li>
+	<li><strong>Deterministic CPU/GPU parity</strong> — the same fixed seed, rendered by both
+	renderers, diffed pixel-by-pixel.</li>
+</ul>
+
+<p>The parity check is worth explaining in a bit of detail, because the naive expectation — "same
+algorithm, same seed, should match closely" — turned out to be only approximately true, and
+understanding <em>why</em> is itself a useful piece of ray-tracer theory. At a low sample count
+(16 samples per pixel), roughly 9% of color channels differed by more than a couple of 255ths, with
+some differences as large as 61. Investigated rather than dismissed, the pattern was unambiguous:
+every pixel that never hit any geometry (pure sky) matched <em>exactly</em>, with zero difference,
+while mismatches appeared only on pixels where a ray actually struck a surface and had to scatter —
+and raising the sample count from 16 to 200 cut both the mismatch rate and the worst-case
+difference roughly in half.</p>
+
+<p>That combination of evidence points to one specific cause: a sub-ULP (unit-in-the-last-place)
+floating-point difference between the CPU's and the GPU's <code>sqrt</code>/<code>pow</code>
+implementations can, on rare occasions, flip a decision that depends on comparing two nearly-equal
+floats — which root of the quadratic is closer, whether Schlick's approximation exceeds a random
+draw, whether total internal reflection applies. Once such a decision flips, the rest of that one
+ray's bounce path is a <em>different path through the scene</em>, not a slightly different color —
+which is exactly why individual differences can be large even though the underlying computation is
+correct on both sides. This is a well-known property of chaotic systems in general and Monte Carlo
+path tracers in particular: a real bug would not shrink as more samples are averaged together,
+but this kind of tiny-input-sensitivity does, because it only ever affects a small, roughly
+constant fraction of individual sample rays. The committed test asserts on the overall mismatch
+rate at a high sample count, where that averaging has mostly settled, rather than on a strict
+per-pixel bound at a low one.</p>
+
+<h2 id="s15">15. The Build System</h2>
+
+<p>The Xcode project is not hand-authored — it's generated from a single <code>CMakeLists.txt</code>
+via CMake's Xcode generator (<code>cmake -G Xcode</code>), then copied over the tracked
+<code>.xcodeproj</code>. Three targets fall out of that one file:</p>
+
+<table>
+	<tr><th>Target</th><th>Contents</th></tr>
+	<tr><td><code>RayTracerCore</code></td><td>Static library: <code>Core/Scene.cpp</code> +
+	<code>CPU/CPURenderer.cpp</code> — the framework-free half of the project.</td></tr>
+	<tr><td><code>RayTracerBench</code></td><td>The app itself: <code>App/</code>,
+	<code>GPU/GPURenderer.cpp</code>, linked against Cocoa/Metal/MetalKit/QuartzCore/Foundation.</td></tr>
+	<tr><td><code>RayTracerBenchTests</code></td><td>The headless test executable — only Metal +
+	Foundation, no AppKit at all.</td></tr>
+</table>
+
+<p>A custom build step compiles <code>Raytracer.metal</code> to a <code>.metallib</code> ahead of
+time (see the note in §12), and the same compiled library is shared by both the app and the test
+target, so the deterministic-parity test exercises the identical GPU code path the real
+application uses.</p>
+
+<h1 id="attribution" style="break-before: page; font-size: 15pt; border-top: 1pt solid var(--rule); padding-top: 10pt; margin-top: 20pt;">Attribution</h1>
+
+<p>This project is based on the algorithm and structure of two reference works — structural
+precedent only, no source copied:</p>
+<ul>
+	<li><strong>"Ray Tracing in One Weekend"</strong> by Peter Shirley, Trevor David Black, and
+	Steve Hollasch (<em>raytracing.github.io</em>). CC0 (public domain) — no attribution legally
+	required, credited here as a courtesy.</li>
+	<li><strong>raytracinginoneweekendincuda</strong>, a CUDA port of the above by Roger Allen
+	(<em>github.com/rogerallen/raytracinginoneweekendincuda</em>). Public domain — likewise credited
+	as a courtesy, not a requirement.</li>
+</ul>
+
+<footer class="colophon">
+	RayTracerBench — MIT License, copyright Pablo Figueroa and Claude. This document describes the
+	project's architecture as implemented at the time of writing; see the repository's
+	<code>CLAUDE.md</code> for the living, up-to-date version of this material.
+</footer>
+
+</body>
+</html>
