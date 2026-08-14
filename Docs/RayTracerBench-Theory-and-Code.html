@@ -544,7 +544,7 @@ that <em>both</em> renderers consume unmodified:</p>
 };
 
 SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio,
-	uint32_t samplesPerPixel, uint32_t maxDepth );</code></pre>
+	uint32_t samplesPerPixel, uint32_t maxDepth, bool floating = false );</code></pre>
 
 <p>Because <code>Scene.cpp</code> is pure host-side C++ — it never gets compiled as a Metal
 shader — it's free to use the full <code>simd_</code> C API directly
@@ -553,6 +553,31 @@ the hand-rolled portable helpers <code>RayTraceCore.h</code> needs. There is no 
 version" of the scene at all: the exact same seed produces the exact same sphere layout and
 materials on both renderers, which is precisely what makes the deterministic-parity testing in
 §14 meaningful in the first place.</p>
+
+<h3>The "Floating?" checkbox</h3>
+
+<p>The <code>floating</code> parameter (default <code>false</code>, so every existing caller and
+test is unaffected) is the scene-side half of the UI's "Floating?" checkbox (see §13). When
+<code>true</code>, each small randomized-field sphere's height is drawn uniformly from
+<code>[radius, kMaxFloatHeight]</code> instead of resting on the ground, via one small helper:</p>
+
+<div class="filename">Core/Scene.cpp</div>
+<pre><code>float placementHeight( bool floating, float radius, float restingHeight,
+	std::mt19937&amp; rng, std::uniform_real_distribution&lt;float&gt;&amp; unit )
+{
+	if ( !floating ) return restingHeight;
+	return radius + unit( rng ) * ( kMaxFloatHeight - radius );
+}</code></pre>
+
+<p>The three large feature spheres (glass, lambertian, metal) always call this with
+<code>floating = false</code> regardless of the checkbox — an explicit design choice made after an
+initial version floated every sphere, feature spheres included, and looked worse for it.
+<code>kMaxFloatHeight</code> itself (3.0 world units) wasn't derived from the camera's field of
+view analytically — an exact per-object bound was worked out by hand from the camera's
+<code>u</code>/<code>v</code>/<code>w</code> basis vectors, but a hand-checked example didn't
+verify cleanly, so it was dropped in favor of the simpler, directly-checkable approach used
+throughout this project: render the fixed camera setup at candidate heights and confirm by eye
+that nothing leaves the frame, on both renderers.</p>
 
 <h2 id="s11">11. The CPU Renderer</h2>
 
@@ -665,6 +690,54 @@ resulting image and timing numbers back to the main thread via
 which needs no Objective-C either. The on-screen controls are disabled for the duration of a
 render, which — since settings are read on the main thread before the background thread starts —
 closes off any window for a second click to race the first render's in-flight state.</p>
+
+<p><code>ControlsPanel</code>'s <strong>"Floating?"</strong> checkbox (see §10 for the scene-side
+half) is a real <code>NSButtonTypeSwitch</code> button rather than the CPU-threading toggle's
+"push button whose title changes" trick — AppKit manages a switch button's own checked state on
+click, so no click handler is wired up at all; <code>currentSettings()</code> simply reads
+<code>state()</code> on demand when a render starts. That needed one more small addition to
+<code>NSButton.hpp</code>: <code>setButtonType()</code>, <code>setState()</code>, and
+<code>state()</code>, following the same <code>sendMessage</code> idiom as everything else in this
+section.</p>
+
+<h3>The magnifying-glass loupe</h3>
+
+<p>Both <code>ImageDisplayView</code>s support a synchronized loupe: hovering the mouse over either
+the CPU or the GPU preview zooms the <em>same</em> normalized image position in <strong>both</strong>
+previews at once, so fine per-pixel detail can be compared directly between the two renderers
+rather than just magnifying one image in isolation.</p>
+
+<p>The zoom itself is a lens effect baked directly into <code>Shaders/Blit.metal</code>'s fragment
+shader: within a circular, aspect-corrected radius around a lens center, the shader samples a
+de-magnified region of the source texture instead of the pixel directly under the cursor, with a
+thin border ring drawn at the lens's edge. Because the lens is pure fragment-shader math rather
+than a second render pass, it costs nothing beyond the existing blit.</p>
+
+<p>Mouse position reaches that shader via a local event monitor rather than the usual
+target/action wiring, since there's no discrete "click" to hook — the effect needs to track
+continuous motion:</p>
+
+<pre><code>NS::Event::addLocalMonitorForEventsMatchingMask( NS::EventMaskMouseMoved,
+	^NS::Event*( NS::Event* event )
+	{
+		/* convertPoint(event.locationInWindow, fromView: nil) into each preview's local
+		   coordinates, flip AppKit's Y-up to the texture's V-down, forward to both lenses */
+		return event;
+	} );</code></pre>
+
+<p>That block-based API, and <code>NS::View::convertPoint(point, fromView)</code> for the
+window-to-view coordinate conversion, were both missing from vendored
+<code>metal-cpp-extensions</code> and added the same way as every other gap in this section —
+Objective-C blocks pass through <code>sendMessage</code> as an ordinary argument in plain C++,
+the same as the deallocator block <code>MTL::Device::newBuffer</code> already takes elsewhere in
+metal-cpp.</p>
+
+<p>This feature was verified three separate ways rather than assumed correct: an offscreen shader
+test with a known 2px marker confirmed exact magnification with no positional drift; a
+coordinate-math test using production-matching window/view frames confirmed the
+<code>convertPoint</code> plus Y-flip math lands on the right texel; and an end-to-end test
+through the real scene/renderer/<code>Blit.metal</code> pipeline confirmed the lens zooms into
+actual, recognizable, correctly-positioned scene detail — not just a plausible-looking blur.</p>
 
 <h3>Filling real gaps in Apple's own bindings</h3>
 

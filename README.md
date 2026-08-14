@@ -8,6 +8,18 @@ Written in **pure C++ and Metal** via Apple's header-only [metal-cpp](https://de
 and metal-cpp-extensions bindings, deliberately avoiding SwiftUI/Objective-C++. There are no
 hand-written `.mm` files anywhere in this project.
 
+## Features
+
+- Adjustable image width, samples-per-pixel, max depth, and scene seed (with a randomize-seed
+  button), plus a CPU-threading toggle so the reported speedup number is never ambiguous about
+  which CPU baseline it used.
+- A **"Floating?" checkbox** — when checked, the small randomized-field spheres are placed at a
+  random height instead of resting on the ground; the three large feature spheres (glass,
+  lambertian, metal) always stay grounded either way.
+- A **magnifying-glass loupe** — hovering the mouse over either the CPU or GPU preview zooms the
+  same normalized image location in *both* previews simultaneously, for directly comparing
+  per-pixel detail between the two renderers.
+
 ## Building
 
 - Xcode GUI: open `RayTracerBench.xcodeproj`, `Product > Run`.
