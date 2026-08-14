@@ -1,0 +1,11 @@
+# Xcode / build artifacts
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# macOS
+.DS_Store
