@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This is a **greenfield project**. As of this writing, the repository contains only the planning document `based-on-the-examples-streamed-ripple.md` — no Xcode project, source files, or vendored dependencies exist yet. That document is the authoritative spec for what to build; treat it as the design doc until the described file tree actually exists, then keep this file in sync with the real structure.
+Milestone 1's AppKit spike is done: `RayTracerBench.xcodeproj` builds and runs a plain `NS::Window` + `NS::Button` wired end-to-end in pure C++ (see `RayTracerBench/main.cpp`, `RayTracerBench/App/AppDelegate.{hpp,cpp}`). `Core/`, `CPU/`, `GPU/`, and the rest of the UI described below do not exist yet — `based-on-the-examples-streamed-ripple.md` remains the authoritative spec for that work. Keep this file in sync as more of the file tree lands.
+
+`RayTracerBench.xcodeproj` is generated via CMake's Xcode generator (`cmake -S . -B <scratch-dir> -G Xcode`, then copy the resulting `.xcodeproj` to the repo root) rather than Xcode's GUI project templates, since project creation here happens headlessly. `CMakeLists.txt` is the source of truth for target/framework/include-path setup — regenerate the `.xcodeproj` from it after changing sources rather than hand-editing the project file, and re-copy over the tracked copy.
+
+`ThirdParty/metal-cpp` and `ThirdParty/metal-cpp-extensions` are vendored from Apple's `LearnMetalCPP.zip` sample bundle (not the standalone `metal-cpp` zip) to keep the base library and AppKit/MetalKit extensions from Apple's own release pairing in sync. Apple's `metal-cpp-extensions` has no `NS::Control`/`NS::Button` wrapper — this is a confirmed, permanent gap (an Apple DTS engineer said so on the developer forums), not an oversight to work around differently. `ThirdParty/metal-cpp-extensions/AppKit/NSControl.hpp` and `NSButton.hpp` are project-local additions (clearly marked as such in their headers) that fill it using the exact same `Object::sendMessage`/`class_addMethod` idiom Apple's own headers use — extend that pattern for any other missing AppKit control rather than reaching for an `.mm` shim first.
 
 ## What this project is
 
