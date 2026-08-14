@@ -36,7 +36,8 @@ class GPURenderer
 		MTL::CommandQueue*         _pCommandQueue;
 		MTL::ComputePipelineState* _pPipelineState;
 
-		MTL::Buffer*  _pSphereBuffer;
+		MTL::Buffer*  _pTransformBuffer;
+		MTL::Buffer*  _pShapeBuffer;
 		MTL::Buffer*  _pMaterialBuffer;
 		MTL::Texture* _pOutputTexture;
 		uint32_t      _textureWidth;

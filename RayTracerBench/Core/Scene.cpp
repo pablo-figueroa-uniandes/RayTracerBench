@@ -1,5 +1,6 @@
 #include "Scene.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <random>
 
@@ -46,6 +47,27 @@ namespace
 		return static_cast<int>( materials.size() - 1 );
 	}
 
+	// Spawns one entity: pushes its Transform and Shape components onto SceneDescription's
+	// parallel component arrays at the same index — the ECS analogue of "instantiate an entity
+	// with these components" (see ShaderTypes.h/Scene.hpp for the component layout).
+	void addEntity( SceneDescription& scene, TransformGPU transform, ShapeGPU shape )
+	{
+		scene.transforms.push_back( transform );
+		scene.shapes.push_back( shape );
+	}
+
+	// Spheres are rotationally symmetric, so their Transform component only ever uses `position`;
+	// `right`/`up`/`forward` are set to the identity basis and simply ignored by hitSphere().
+	TransformGPU identityTransformAt( simd_float3 position )
+	{
+		TransformGPU t;
+		t.position = position;
+		t.right = simd_make_float3( 1.0f, 0.0f, 0.0f );
+		t.up = simd_make_float3( 0.0f, 1.0f, 0.0f );
+		t.forward = simd_make_float3( 0.0f, 0.0f, 1.0f );
+		return t;
+	}
+
 	// Chosen and verified by rendering the fixed camera setup below (lookfrom (13,2,3), lookat
 	// origin, vfov 20°) at several candidate heights and confirming by eye that nothing floats out
 	// of frame — not derived from an unverified formula. Applies only to the small randomized-field
@@ -59,6 +81,66 @@ namespace
 		if ( !floating )
 			return restingHeight;
 		return radius + unit( rng ) * ( kMaxFloatHeight - radius );
+	}
+
+	// Builds an orthonormal orientation basis for a pyramid: tilt the identity "up" axis away from
+	// vertical by `tiltDegrees` around the local Z axis, then yaw the whole basis around world Y by
+	// `yawDegrees` — two independent rotations so pyramids can show genuinely different 3D
+	// orientations (some merely spun in place, some visibly tipped over), not just a spin around
+	// one axis.
+	void makeOrientedBasis( float yawDegrees, float tiltDegrees, simd_float3& outRight, simd_float3& outUp, simd_float3& outForward )
+	{
+		float tilt = tiltDegrees * kPi / 180.0f;
+		simd_float3 up = simd_make_float3( std::sin( tilt ), std::cos( tilt ), 0.0f );
+		simd_float3 right = simd_make_float3( std::cos( tilt ), -std::sin( tilt ), 0.0f );
+		simd_float3 forward = simd_make_float3( 0.0f, 0.0f, 1.0f );
+
+		float yaw = yawDegrees * kPi / 180.0f;
+		float cosY = std::cos( yaw );
+		float sinY = std::sin( yaw );
+
+		auto rotateY = [ cosY, sinY ]( simd_float3 v ) {
+			return simd_make_float3( v.x * cosY + v.z * sinY, v.y, -v.x * sinY + v.z * cosY );
+		};
+
+		outRight = rotateY( right );
+		outUp = rotateY( up );
+		outForward = rotateY( forward );
+	}
+
+	// Places a pyramid's Transform so its lowest vertex (the apex or one of the 4 base corners,
+	// whichever ends up lowest once rotated) touches `groundY` exactly, regardless of orientation —
+	// an exact closed-form computation from the 5 local vertices, unlike kMaxFloatHeight above
+	// (which needed a rendered check against the camera frustum and couldn't be solved in closed
+	// form). This is what lets every pyramid below rest flush on the ground at any tilt without a
+	// per-orientation eyeball check.
+	TransformGPU makeRestingPyramidTransform( simd_float3 groundXZ, float groundY, float yawDegrees, float tiltDegrees,
+		float baseHalfWidth, float height )
+	{
+		simd_float3 right, up, forward;
+		makeOrientedBasis( yawDegrees, tiltDegrees, right, up, forward );
+
+		const simd_float3 localVerts[ 5 ] = {
+			simd_make_float3( 0.0f, height, 0.0f ),
+			simd_make_float3( baseHalfWidth, 0.0f, baseHalfWidth ),
+			simd_make_float3( baseHalfWidth, 0.0f, -baseHalfWidth ),
+			simd_make_float3( -baseHalfWidth, 0.0f, -baseHalfWidth ),
+			simd_make_float3( -baseHalfWidth, 0.0f, baseHalfWidth ),
+		};
+
+		float minWorldY = 1.0e30f;
+		for ( const simd_float3& v : localVerts )
+		{
+			float worldY = v.x * right.y + v.y * up.y + v.z * forward.y;
+			minWorldY = std::min( minWorldY, worldY );
+		}
+
+		TransformGPU transform;
+		transform.position = simd_make_float3( groundXZ.x, groundY - minWorldY, groundXZ.z );
+		transform.right = right;
+		transform.up = up;
+		transform.forward = forward;
+		return transform;
 	}
 }
 
@@ -74,7 +156,8 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 	{
 		MaterialGPU ground{ MAT_LAMBERTIAN, simd_make_float3( 0.5f, 0.5f, 0.5f ), 0.0f, 0.0f };
 		int         groundMat = addMaterial( scene.materials, ground );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 0.0f, -1000.0f, 0.0f ), 1000.0f, groundMat } );
+		addEntity( scene, identityTransformAt( simd_make_float3( 0.0f, -1000.0f, 0.0f ) ),
+			ShapeGPU{ SHAPE_SPHERE, 1000.0f, 0.0f, 0.0f, groundMat } );
 	}
 
 	const simd_float3 featureSphereCenter = simd_make_float3( 4.0f, 0.2f, 0.0f );
@@ -109,7 +192,7 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 
 			int matIndex = addMaterial( scene.materials, mat );
 			center.y = placementHeight( floating, 0.2f, center.y, rng, unit );
-			scene.spheres.push_back( SphereGPU{ center, 0.2f, matIndex } );
+			addEntity( scene, identityTransformAt( center ), ShapeGPU{ SHAPE_SPHERE, 0.2f, 0.0f, 0.0f, matIndex } );
 		}
 	}
 
@@ -118,15 +201,54 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 	{
 		MaterialGPU glass{ MAT_DIELECTRIC, simd_make_float3( 0.0f, 0.0f, 0.0f ), 0.0f, 1.5f };
 		int         glassMat = addMaterial( scene.materials, glass );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 0.0f, 1.0f, 0.0f ), 1.0f, glassMat } );
+		addEntity( scene, identityTransformAt( simd_make_float3( 0.0f, 1.0f, 0.0f ) ), ShapeGPU{ SHAPE_SPHERE, 1.0f, 0.0f, 0.0f, glassMat } );
 
 		MaterialGPU diffuse{ MAT_LAMBERTIAN, simd_make_float3( 0.4f, 0.2f, 0.1f ), 0.0f, 0.0f };
 		int         diffuseMat = addMaterial( scene.materials, diffuse );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( -4.0f, 1.0f, 0.0f ), 1.0f, diffuseMat } );
+		addEntity( scene, identityTransformAt( simd_make_float3( -4.0f, 1.0f, 0.0f ) ),
+			ShapeGPU{ SHAPE_SPHERE, 1.0f, 0.0f, 0.0f, diffuseMat } );
 
 		MaterialGPU metal{ MAT_METAL, simd_make_float3( 0.7f, 0.6f, 0.5f ), 0.0f, 0.0f };
 		int         metalMat = addMaterial( scene.materials, metal );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 4.0f, 1.0f, 0.0f ), 1.0f, metalMat } );
+		addEntity( scene, identityTransformAt( simd_make_float3( 4.0f, 1.0f, 0.0f ) ), ShapeGPU{ SHAPE_SPHERE, 1.0f, 0.0f, 0.0f, metalMat } );
+	}
+
+	// Square pyramids, at a spread of 3D orientations — the shape group that actually exercises
+	// TransformGPU's orientation basis, since a sphere looks identical no matter how it's rotated.
+	// Always resting on the ground (via makeRestingPyramidTransform's exact per-orientation
+	// computation above), never affected by `floating`, and never dielectric: hitPyramidLocal only
+	// resolves the ray's entry face, so a ray whose origin starts inside the solid — which glass
+	// refraction requires once a ray exits the far side — isn't handled. That's an explicit,
+	// documented scope limit for this primitive, not an oversight.
+	{
+		struct PyramidSpec
+		{
+			simd_float3 groundXZ;
+			float       yawDegrees;
+			float       tiltDegrees;
+			simd_float3 albedo;
+			bool        metal;
+		};
+
+		const PyramidSpec pyramids[] = {
+			{ simd_make_float3( -2.2f, 0.0f, 1.8f ), 0.0f, 0.0f, simd_make_float3( 0.85f, 0.2f, 0.2f ), false },
+			{ simd_make_float3( 2.2f, 0.0f, 1.8f ), 40.0f, 0.0f, simd_make_float3( 0.2f, 0.8f, 0.3f ), false },
+			{ simd_make_float3( 0.0f, 0.0f, -2.0f ), 20.0f, 25.0f, simd_make_float3( 0.3f, 0.4f, 0.9f ), false },
+			{ simd_make_float3( -4.5f, 0.0f, 2.2f ), 70.0f, -20.0f, simd_make_float3( 0.75f, 0.75f, 0.2f ), false },
+			{ simd_make_float3( 4.5f, 0.0f, 2.2f ), 55.0f, 35.0f, simd_make_float3( 0.7f, 0.7f, 0.7f ), true },
+		};
+
+		const float baseHalfWidth = 0.6f;
+		const float pyramidHeight = 1.2f;
+
+		for ( const PyramidSpec& p : pyramids )
+		{
+			MaterialGPU mat = p.metal ? MaterialGPU{ MAT_METAL, p.albedo, 0.15f, 0.0f } : MaterialGPU{ MAT_LAMBERTIAN, p.albedo, 0.0f, 0.0f };
+			int         matIndex = addMaterial( scene.materials, mat );
+
+			TransformGPU transform = makeRestingPyramidTransform( p.groundXZ, 0.0f, p.yawDegrees, p.tiltDegrees, baseHalfWidth, pyramidHeight );
+			addEntity( scene, transform, ShapeGPU{ SHAPE_PYRAMID, 0.0f, baseHalfWidth, pyramidHeight, matIndex } );
+		}
 	}
 
 	scene.camera = makeCamera(

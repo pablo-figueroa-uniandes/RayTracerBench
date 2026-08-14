@@ -22,11 +22,41 @@ struct MaterialGPU
 	float       ir;   // dielectric index of refraction; unused for other types
 };
 
-struct SphereGPU
+// Geometry is organized ECS-style: an entity is just an array index into SceneDescription's
+// parallel `transforms`/`shapes` component arrays (see Scene.hpp) rather than a polymorphic
+// "Sphere : Hittable" object — the same tagged-struct idea MaterialGPU/MaterialType already uses
+// for materials, generalized to shapes. See CLAUDE.md for the full rationale.
+
+enum ShapeType
 {
-	simd_float3 center;
-	float       radius;
-	int         materialIndex; // index into the parallel materials array
+	SHAPE_SPHERE  = 0,
+	SHAPE_PYRAMID = 1,
+};
+
+// Transform component, shared by every entity regardless of shape. `position` is the entity's
+// local origin (a sphere's center; a pyramid's base-square center). `right`/`up`/`forward` are an
+// orthonormal orientation basis — the identity basis for spheres (rotationally symmetric, so
+// orientation is meaningless for them) and an arbitrary rotation for pyramids, whose `up` axis
+// points from base to apex.
+struct TransformGPU
+{
+	simd_float3 position;
+	simd_float3 right;
+	simd_float3 up;
+	simd_float3 forward;
+};
+
+// Shape component: a tagged union of per-primitive geometry parameters plus a reference to this
+// entity's Material component. Adding a new primitive means adding one more SHAPE_* tag and one
+// more field group here, dispatched by a switch (see RayTraceCore.h's hitEntity()) rather than a
+// new virtual base class — virtual dispatch is forbidden in MSL kernel code.
+struct ShapeGPU
+{
+	int   type;          // ShapeType
+	float radius;        // sphere: radius. pyramid: unused.
+	float baseHalfWidth; // pyramid: half the base square's side length. sphere: unused.
+	float height;        // pyramid: apex height above the base. sphere: unused.
+	int   materialIndex; // index into SceneDescription::materials
 };
 
 struct CameraGPU

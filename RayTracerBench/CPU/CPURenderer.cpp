@@ -23,9 +23,10 @@ namespace
 		const uint32_t samplesPerPixel = scene.params.samplesPerPixel;
 		const uint32_t maxDepth = scene.params.maxDepth;
 
-		const SphereGPU*   spheres = scene.spheres.data();
-		const uint32_t     sphereCount = static_cast<uint32_t>( scene.spheres.size() );
-		const MaterialGPU* materials = scene.materials.data();
+		const TransformGPU* transforms = scene.transforms.data();
+		const ShapeGPU*     shapes = scene.shapes.data();
+		const uint32_t      entityCount = static_cast<uint32_t>( scene.transforms.size() );
+		const MaterialGPU*  materials = scene.materials.data();
 
 		for ( uint32_t j = rowStart; j < rowEnd; ++j )
 		{
@@ -51,7 +52,7 @@ namespace
 					CameraRaySample cameraRay = getRay( scene.camera, u, v, seed );
 					seed = cameraRay.rngSeed;
 
-					RayColorResult sample = rayColor( cameraRay.ray, spheres, sphereCount, materials, maxDepth, seed );
+					RayColorResult sample = rayColor( cameraRay.ray, transforms, shapes, entityCount, materials, maxDepth, seed );
 					seed = sample.rngSeed;
 
 					colorSum = colorSum + sample.color;

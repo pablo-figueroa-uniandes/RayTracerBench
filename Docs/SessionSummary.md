@@ -43,6 +43,22 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
     randomized-field spheres up to a rendered-and-eyeballed `kMaxFloatHeight`; the three large
     feature spheres (glass/lambertian/metal) always stay grounded, per explicit follow-up feedback
     after the first pass floated everything.
+14. **Square pyramids + an ECS geometry refactor** — the scene's geometry moved from a
+    sphere-only array to an ECS-style layout: `ShaderTypes.h` gained a `TransformGPU` (position +
+    orthonormal orientation basis) and `ShapeGPU` (tagged sphere/pyramid dimensions + a
+    material-index component reference) as separate component types, and `SceneDescription` stores
+    them as parallel `transforms`/`shapes` arrays indexed by a plain entity index. `RayTraceCore.h`
+    gained `hitEntity()`, a tagged-switch "collision system" dispatching to `hitSphere()` or the new
+    `hitPyramid()`/`hitPyramidLocal()` — a square pyramid represented as 5 half-spaces (1 base + 4
+    triangular sides) solved via the Kay-Kajiya slab method, with closed-form plane equations
+    derived from the pyramid's own symmetry. Five pyramids were added to the demo scene at varied
+    yaw/tilt orientations, each placed exactly flush on the ground regardless of orientation via a
+    closed-form "lowest vertex" computation — no eyeballing needed, unlike `kMaxFloatHeight` above.
+    Pyramids are lambertian/metal only (never dielectric), since the slab test doesn't resolve a ray
+    originating inside the solid, which glass refraction would require. `RayTracerBenchTests` grew
+    six new pyramid/entity-dispatch tests (15 total, all passing), and the existing CPU/GPU parity
+    test kept passing unmodified — confirming the ECS restructuring changed neither renderer's
+    actual output.
 
 ## Notable technical decisions
 

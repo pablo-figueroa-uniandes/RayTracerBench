@@ -6,14 +6,16 @@
 //
 // Every function here passes and returns plain values (never references or
 // pointers into caller-owned storage) with one deliberate exception:
-// rayColor()'s two scene-array parameters, which must point at the
-// renderer's sphere/material buffers. On the CPU those are ordinary
+// rayColor()'s scene-array parameters, which must point at the renderer's
+// entity-component/material buffers (see ShaderTypes.h/Scene.hpp's ECS-style
+// transforms/shapes/materials arrays). On the CPU those are ordinary
 // pointers; in MSL a pointer coming from a kernel's buffer argument must be
 // annotated with the `device` address space. RT_DEVICE is the one
 // #ifdef __METAL_VERSION__ shim needed to reconcile that — every other
-// function only ever touches thread-local copies (e.g. `spheres[i]` is read
-// into a by-value SphereGPU before being passed anywhere else), which MSL
-// treats as ordinary thread-space values needing no annotation at all.
+// function only ever touches thread-local copies (e.g. `transforms[i]`/
+// `shapes[i]` are read into by-value TransformGPU/ShapeGPU structs before
+// being passed anywhere else), which MSL treats as ordinary thread-space
+// values needing no annotation at all.
 //
 // RNG state and hit/scatter outcomes are threaded through as return values
 // (RandomFloatSample, HitResult, ScatterResult, ...) rather than
@@ -204,17 +206,22 @@ struct HitResult
 	HitRecord record;
 };
 
-// `sphere` is taken by value: callers read it out of the (possibly device-space) sphere buffer
-// once, at the call site, into a plain thread-local copy — see the file header comment.
-inline HitResult hitSphere( SphereGPU sphere, Ray r, float tMin, float tMax )
+// `transform`/`shape` are taken by value: callers read them out of the (possibly device-space)
+// component arrays once, at the call site, into plain thread-local copies — see the file header
+// comment. A sphere's Transform only ever contributes `position` (its center); `right`/`up`/
+// `forward` are meaningless for a rotationally-symmetric shape and are simply ignored here.
+inline HitResult hitSphere( TransformGPU transform, ShapeGPU shape, Ray r, float tMin, float tMax )
 {
 	HitResult result;
 	result.hit = false;
 
-	simd_float3 oc = r.origin - sphere.center;
+	simd_float3 center = transform.position;
+	float       radius = shape.radius;
+
+	simd_float3 oc = r.origin - center;
 	float       a = dot3( r.direction, r.direction );
 	float       halfB = dot3( oc, r.direction );
-	float       c = dot3( oc, oc ) - sphere.radius * sphere.radius;
+	float       c = dot3( oc, oc ) - radius * radius;
 	float       discriminant = halfB * halfB - a * c;
 	if ( discriminant < 0.0f )
 		return result;
@@ -231,14 +238,141 @@ inline HitResult hitSphere( SphereGPU sphere, Ray r, float tMin, float tMax )
 	HitRecord rec;
 	rec.t = root;
 	rec.p = rayAt( r, root );
-	simd_float3 outwardNormal = ( rec.p - sphere.center ) / sphere.radius;
+	simd_float3 outwardNormal = ( rec.p - center ) / radius;
 	rec.frontFace = dot3( r.direction, outwardNormal ) < 0.0f;
 	rec.normal = rec.frontFace ? outwardNormal : -outwardNormal;
-	rec.materialIndex = sphere.materialIndex;
+	rec.materialIndex = shape.materialIndex;
 
 	result.hit = true;
 	result.record = rec;
 	return result;
+}
+
+//-------------------------------------------------------------------------------------------------
+// Square pyramid, represented as the intersection of 5 half-spaces (1 base + 4 triangular sides)
+// and solved with the Kay-Kajiya slab method — the same technique an axis-aligned box uses with
+// its 6 planes, generalized to these 5. Canonical local space: base square in the local XZ plane
+// at y=0 (corners at (+-halfWidth, 0, +-halfWidth)), apex at local (0, height, 0). Each side face's
+// plane equation falls out of the pyramid's symmetry: e.g. the +X face passes through corners
+// (halfWidth,0,+-halfWidth) and the apex, giving height*x + halfWidth*y = halfWidth*height, i.e.
+// outward normal (height, halfWidth, 0) at distance halfWidth*height from the origin; the other
+// three side faces follow by symmetry (negate x, or swap x/z for the z-facing pair).
+//-------------------------------------------------------------------------------------------------
+
+struct LocalHitResult
+{
+	bool        hit;
+	float       t;
+	simd_float3 localNormal;
+};
+
+inline LocalHitResult hitPyramidLocal( Ray localRay, float halfWidth, float height, float tMin, float tMax )
+{
+	const simd_float3 normals[ 5 ] = {
+		makeFloat3( 0.0f, -1.0f, 0.0f ),        // base
+		makeFloat3( height, halfWidth, 0.0f ),  // +X side
+		makeFloat3( -height, halfWidth, 0.0f ), // -X side
+		makeFloat3( 0.0f, halfWidth, height ),  // +Z side
+		makeFloat3( 0.0f, halfWidth, -height ), // -Z side
+	};
+	const float planeDist = halfWidth * height;
+	const float dists[ 5 ] = { 0.0f, planeDist, planeDist, planeDist, planeDist };
+
+	float tNear = tMin;
+	float tFar = tMax;
+	int   enterFace = -1;
+
+	for ( int i = 0; i < 5; ++i )
+	{
+		float denom = dot3( normals[ i ], localRay.direction );
+		float numer = dists[ i ] - dot3( normals[ i ], localRay.origin );
+
+		if ( fabs( denom ) < 1e-8f )
+		{
+			// Ray parallel to this face: if the origin is already outside its half-space, the ray
+			// can never enter the pyramid at all, regardless of the other four faces.
+			if ( numer < 0.0f )
+				return LocalHitResult{ false, 0.0f, makeFloat3( 0.0f, 0.0f, 0.0f ) };
+			continue;
+		}
+
+		float t = numer / denom;
+		if ( denom < 0.0f )
+		{
+			if ( t > tNear )
+			{
+				tNear = t;
+				enterFace = i;
+			}
+		}
+		else
+		{
+			if ( t < tFar )
+				tFar = t;
+		}
+	}
+
+	// enterFace < 0 means no face constrained tNear away from tMin — either every plane was
+	// satisfied at tMin already (ray origin outside the solid but the entry point falls before the
+	// caller's valid range) or the ray starts inside the pyramid (not handled: see Scene.cpp's note
+	// on why pyramids are never dielectric).
+	if ( enterFace < 0 || tNear > tFar )
+		return LocalHitResult{ false, 0.0f, makeFloat3( 0.0f, 0.0f, 0.0f ) };
+
+	return LocalHitResult{ true, tNear, normalize3( normals[ enterFace ] ) };
+}
+
+// Transforms the world-space ray into the pyramid's local space by projecting onto its orthonormal
+// right/up/forward basis (an orthogonal-matrix inverse is just its transpose, so no matrix inverse
+// is needed), runs the local intersection above, then maps the hit normal back to world space by
+// the same basis run forward. Because translation+rotation is an isometry, `t` is identical in
+// local and world space — the hit point itself is computed directly in world space via rayAt().
+inline HitResult hitPyramid( TransformGPU transform, ShapeGPU shape, Ray r, float tMin, float tMax )
+{
+	HitResult result;
+	result.hit = false;
+
+	simd_float3 oc = r.origin - transform.position;
+	Ray         localRay;
+	localRay.origin = makeFloat3( dot3( oc, transform.right ), dot3( oc, transform.up ), dot3( oc, transform.forward ) );
+	localRay.direction = makeFloat3(
+		dot3( r.direction, transform.right ), dot3( r.direction, transform.up ), dot3( r.direction, transform.forward ) );
+
+	LocalHitResult lh = hitPyramidLocal( localRay, shape.baseHalfWidth, shape.height, tMin, tMax );
+	if ( !lh.hit )
+		return result;
+
+	HitRecord rec;
+	rec.t = lh.t;
+	rec.p = rayAt( r, lh.t );
+	simd_float3 outwardNormal =
+		lh.localNormal.x * transform.right + lh.localNormal.y * transform.up + lh.localNormal.z * transform.forward;
+	rec.frontFace = dot3( r.direction, outwardNormal ) < 0.0f;
+	rec.normal = rec.frontFace ? outwardNormal : -outwardNormal;
+	rec.materialIndex = shape.materialIndex;
+
+	result.hit = true;
+	result.record = rec;
+	return result;
+}
+
+// The "collision system": iterates one entity's Transform + Shape components and dispatches the
+// intersection test by the Shape component's tag — the ECS analogue of scatter()'s tagged switch
+// below, and the direct replacement for a virtual Hittable::hit() call (forbidden in MSL kernels;
+// see CLAUDE.md's core correctness constraint). Adding a third primitive means one more case here,
+// not a new subclass.
+inline HitResult hitEntity( TransformGPU transform, ShapeGPU shape, Ray r, float tMin, float tMax )
+{
+	switch ( shape.type )
+	{
+		case SHAPE_SPHERE:
+			return hitSphere( transform, shape, r, tMin, tMax );
+		case SHAPE_PYRAMID:
+			return hitPyramid( transform, shape, r, tMin, tMax );
+	}
+	HitResult miss;
+	miss.hit = false;
+	return miss;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -305,7 +439,8 @@ struct RayColorResult
 	uint32_t    rngSeed;
 };
 
-inline RayColorResult rayColor( Ray r, RT_DEVICE const SphereGPU* spheres, uint32_t sphereCount,
+inline RayColorResult rayColor( Ray r,
+	RT_DEVICE const TransformGPU* transforms, RT_DEVICE const ShapeGPU* shapes, uint32_t entityCount,
 	RT_DEVICE const MaterialGPU* materials, uint32_t maxDepth, uint32_t rngSeed )
 {
 	simd_float3 accumulated = makeFloat3( 1.0f, 1.0f, 1.0f );
@@ -316,9 +451,12 @@ inline RayColorResult rayColor( Ray r, RT_DEVICE const SphereGPU* spheres, uint3
 		bool      hitAnything = false;
 		float     closestSoFar = 1.0e30f;
 
-		for ( uint32_t i = 0; i < sphereCount; ++i )
+		// The "render system": walks every entity's Transform+Shape components and keeps the
+		// closest hit, exactly like the book's world.hit() loop but over flat component arrays
+		// and a tagged dispatch (hitEntity()) instead of a virtual call per entity.
+		for ( uint32_t i = 0; i < entityCount; ++i )
 		{
-			HitResult hr = hitSphere( spheres[ i ], r, 0.001f, closestSoFar );
+			HitResult hr = hitEntity( transforms[ i ], shapes[ i ], r, 0.001f, closestSoFar );
 			if ( hr.hit )
 			{
 				hitAnything = true;

@@ -6,7 +6,8 @@
 
 GPURenderer::GPURenderer( MTL::Device* pDevice )
 	: _pDevice( pDevice->retain() )
-	, _pSphereBuffer( nullptr )
+	, _pTransformBuffer( nullptr )
+	, _pShapeBuffer( nullptr )
 	, _pMaterialBuffer( nullptr )
 	, _pOutputTexture( nullptr )
 	, _textureWidth( 0 )
@@ -49,8 +50,10 @@ GPURenderer::~GPURenderer()
 		_pOutputTexture->release();
 	if ( _pMaterialBuffer )
 		_pMaterialBuffer->release();
-	if ( _pSphereBuffer )
-		_pSphereBuffer->release();
+	if ( _pShapeBuffer )
+		_pShapeBuffer->release();
+	if ( _pTransformBuffer )
+		_pTransformBuffer->release();
 	_pPipelineState->release();
 	_pCommandQueue->release();
 	_pDevice->release();
@@ -59,18 +62,24 @@ GPURenderer::~GPURenderer()
 void GPURenderer::rebuildBuffers( const SceneDescription& scene )
 {
 	// Recreated on every render() call rather than capacity-cached: device/queue/pipeline are the
-	// expensive, cache-worthy resources (shader compile latency); a couple of Shared-mode buffer
+	// expensive, cache-worthy resources (shader compile latency); a few Shared-mode buffer
 	// allocations per on-demand render is negligible in comparison.
-	if ( _pSphereBuffer )
-		_pSphereBuffer->release();
+	if ( _pTransformBuffer )
+		_pTransformBuffer->release();
+	if ( _pShapeBuffer )
+		_pShapeBuffer->release();
 	if ( _pMaterialBuffer )
 		_pMaterialBuffer->release();
 
-	const size_t sphereBytes = scene.spheres.size() * sizeof( SphereGPU );
+	const size_t transformBytes = scene.transforms.size() * sizeof( TransformGPU );
+	const size_t shapeBytes = scene.shapes.size() * sizeof( ShapeGPU );
 	const size_t materialBytes = scene.materials.size() * sizeof( MaterialGPU );
 
-	_pSphereBuffer = _pDevice->newBuffer( sphereBytes, MTL::ResourceStorageModeShared );
-	std::memcpy( _pSphereBuffer->contents(), scene.spheres.data(), sphereBytes );
+	_pTransformBuffer = _pDevice->newBuffer( transformBytes, MTL::ResourceStorageModeShared );
+	std::memcpy( _pTransformBuffer->contents(), scene.transforms.data(), transformBytes );
+
+	_pShapeBuffer = _pDevice->newBuffer( shapeBytes, MTL::ResourceStorageModeShared );
+	std::memcpy( _pShapeBuffer->contents(), scene.shapes.data(), shapeBytes );
 
 	_pMaterialBuffer = _pDevice->newBuffer( materialBytes, MTL::ResourceStorageModeShared );
 	std::memcpy( _pMaterialBuffer->contents(), scene.materials.data(), materialBytes );
@@ -98,17 +107,18 @@ void GPURenderer::rebuildTextureIfNeeded( uint32_t width, uint32_t height )
 
 double GPURenderer::dispatchOnce( const SceneDescription& scene )
 {
-	uint32_t sphereCount = static_cast<uint32_t>( scene.spheres.size() );
+	uint32_t entityCount = static_cast<uint32_t>( scene.transforms.size() );
 
 	MTL::CommandBuffer*         pCommandBuffer = _pCommandQueue->commandBuffer();
 	MTL::ComputeCommandEncoder* pEncoder = pCommandBuffer->computeCommandEncoder();
 
 	pEncoder->setComputePipelineState( _pPipelineState );
-	pEncoder->setBuffer( _pSphereBuffer, 0, 0 );
-	pEncoder->setBytes( &sphereCount, sizeof( sphereCount ), 1 );
-	pEncoder->setBuffer( _pMaterialBuffer, 0, 2 );
-	pEncoder->setBytes( &scene.camera, sizeof( CameraGPU ), 3 );
-	pEncoder->setBytes( &scene.params, sizeof( RenderParams ), 4 );
+	pEncoder->setBuffer( _pTransformBuffer, 0, 0 );
+	pEncoder->setBuffer( _pShapeBuffer, 0, 1 );
+	pEncoder->setBytes( &entityCount, sizeof( entityCount ), 2 );
+	pEncoder->setBuffer( _pMaterialBuffer, 0, 3 );
+	pEncoder->setBytes( &scene.camera, sizeof( CameraGPU ), 4 );
+	pEncoder->setBytes( &scene.params, sizeof( RenderParams ), 5 );
 	pEncoder->setTexture( _pOutputTexture, 0 );
 
 	const MTL::Size threadsPerThreadgroup( 8, 8, 1 );

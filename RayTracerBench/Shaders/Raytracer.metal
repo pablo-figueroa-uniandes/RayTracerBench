@@ -4,16 +4,18 @@ using namespace metal;
 #include "../Core/ShaderTypes.h"
 #include "../Core/RayTraceCore.h"
 
-// One thread per pixel. sphereCount/camera/params arrive via setBytes() (small, read-only,
-// uniform across all threads) rather than being folded into RenderParams — spheres/materials stay
-// separate `device` buffers exactly like the CPU renderer's raw pointers, per RayTraceCore.h's
-// RT_DEVICE design (see CLAUDE.md).
+// One thread per pixel. entityCount/camera/params arrive via setBytes() (small, read-only,
+// uniform across all threads) rather than being folded into RenderParams — transforms/shapes/
+// materials stay separate `device` buffers (the ECS component arrays; see ShaderTypes.h/Scene.hpp)
+// exactly like the CPU renderer's raw pointers, per RayTraceCore.h's RT_DEVICE design (see
+// CLAUDE.md).
 kernel void renderKernel(
-	device const SphereGPU*   spheres [[buffer( 0 )]],
-	constant uint32_t&        sphereCount [[buffer( 1 )]],
-	device const MaterialGPU* materials [[buffer( 2 )]],
-	constant CameraGPU&       camera [[buffer( 3 )]],
-	constant RenderParams&    params [[buffer( 4 )]],
+	device const TransformGPU* transforms [[buffer( 0 )]],
+	device const ShapeGPU*     shapes [[buffer( 1 )]],
+	constant uint32_t&         entityCount [[buffer( 2 )]],
+	device const MaterialGPU*  materials [[buffer( 3 )]],
+	constant CameraGPU&        camera [[buffer( 4 )]],
+	constant RenderParams&     params [[buffer( 5 )]],
 	texture2d<float, access::write> outTexture [[texture( 0 )]],
 	uint2                     gid [[thread_position_in_grid]] )
 {
@@ -37,7 +39,7 @@ kernel void renderKernel(
 		CameraRaySample cameraRay = getRay( camera, u, v, seed );
 		seed = cameraRay.rngSeed;
 
-		RayColorResult sample = rayColor( cameraRay.ray, spheres, sphereCount, materials, params.maxDepth, seed );
+		RayColorResult sample = rayColor( cameraRay.ray, transforms, shapes, entityCount, materials, params.maxDepth, seed );
 		seed = sample.rngSeed;
 
 		colorSum = colorSum + sample.color;
