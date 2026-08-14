@@ -112,19 +112,20 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 		}
 	}
 
-	// Three large feature spheres: glass, lambertian, metal.
+	// Three large feature spheres: glass, lambertian, metal. Always resting on the ground,
+	// regardless of `floating` — only the small randomized field floats.
 	{
 		MaterialGPU glass{ MAT_DIELECTRIC, simd_make_float3( 0.0f, 0.0f, 0.0f ), 0.0f, 1.5f };
 		int         glassMat = addMaterial( scene.materials, glass );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 0.0f, placementHeight( floating, 1.0f, 1.0f, rng, unit ), 0.0f ), 1.0f, glassMat } );
+		scene.spheres.push_back( SphereGPU{ simd_make_float3( 0.0f, 1.0f, 0.0f ), 1.0f, glassMat } );
 
 		MaterialGPU diffuse{ MAT_LAMBERTIAN, simd_make_float3( 0.4f, 0.2f, 0.1f ), 0.0f, 0.0f };
 		int         diffuseMat = addMaterial( scene.materials, diffuse );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( -4.0f, placementHeight( floating, 1.0f, 1.0f, rng, unit ), 0.0f ), 1.0f, diffuseMat } );
+		scene.spheres.push_back( SphereGPU{ simd_make_float3( -4.0f, 1.0f, 0.0f ), 1.0f, diffuseMat } );
 
 		MaterialGPU metal{ MAT_METAL, simd_make_float3( 0.7f, 0.6f, 0.5f ), 0.0f, 0.0f };
 		int         metalMat = addMaterial( scene.materials, metal );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 4.0f, placementHeight( floating, 1.0f, 1.0f, rng, unit ), 0.0f ), 1.0f, metalMat } );
+		scene.spheres.push_back( SphereGPU{ simd_make_float3( 4.0f, 1.0f, 0.0f ), 1.0f, metalMat } );
 	}
 
 	scene.camera = makeCamera(

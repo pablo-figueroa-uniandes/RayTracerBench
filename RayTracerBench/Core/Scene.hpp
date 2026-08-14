@@ -18,8 +18,9 @@ struct SceneDescription
 // consume this exact same SceneDescription, so identical seeds produce identical sphere
 // layouts/materials on both (per-pixel noise still differs — see CLAUDE.md's verification notes).
 //
-// `floating`, when true, places every non-ground sphere at a random height in
+// `floating`, when true, places the small randomized-field spheres at a random height in
 // [radius, kMaxFloatHeight] (see Scene.cpp) instead of resting on the ground — kMaxFloatHeight was
 // chosen and verified by rendering the fixed camera setup below and confirming nothing clips out
-// of frame, not derived from an unverified formula.
+// of frame, not derived from an unverified formula. The three large feature spheres (glass /
+// lambertian / metal) always rest on the ground regardless of `floating`.
 SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio, uint32_t samplesPerPixel, uint32_t maxDepth, bool floating = false );
