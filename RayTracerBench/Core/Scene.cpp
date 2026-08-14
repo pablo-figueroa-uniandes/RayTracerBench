@@ -45,9 +45,23 @@ namespace
 		materials.push_back( mat );
 		return static_cast<int>( materials.size() - 1 );
 	}
+
+	// Chosen and verified by rendering the fixed camera setup below (lookfrom (13,2,3), lookat
+	// origin, vfov 20°) at several candidate heights and confirming by eye that nothing floats out
+	// of frame — not derived from an unverified formula. Applies to every non-ground sphere.
+	constexpr float kMaxFloatHeight = 3.0f;
+
+	// Picks a random height in [radius, kMaxFloatHeight] when floating, or the given resting
+	// height (touching the ground) otherwise.
+	float placementHeight( bool floating, float radius, float restingHeight, std::mt19937& rng, std::uniform_real_distribution<float>& unit )
+	{
+		if ( !floating )
+			return restingHeight;
+		return radius + unit( rng ) * ( kMaxFloatHeight - radius );
+	}
 }
 
-SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio, uint32_t samplesPerPixel, uint32_t maxDepth )
+SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio, uint32_t samplesPerPixel, uint32_t maxDepth, bool floating )
 {
 	SceneDescription scene;
 
@@ -93,6 +107,7 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 			}
 
 			int matIndex = addMaterial( scene.materials, mat );
+			center.y = placementHeight( floating, 0.2f, center.y, rng, unit );
 			scene.spheres.push_back( SphereGPU{ center, 0.2f, matIndex } );
 		}
 	}
@@ -101,15 +116,15 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 	{
 		MaterialGPU glass{ MAT_DIELECTRIC, simd_make_float3( 0.0f, 0.0f, 0.0f ), 0.0f, 1.5f };
 		int         glassMat = addMaterial( scene.materials, glass );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 0.0f, 1.0f, 0.0f ), 1.0f, glassMat } );
+		scene.spheres.push_back( SphereGPU{ simd_make_float3( 0.0f, placementHeight( floating, 1.0f, 1.0f, rng, unit ), 0.0f ), 1.0f, glassMat } );
 
 		MaterialGPU diffuse{ MAT_LAMBERTIAN, simd_make_float3( 0.4f, 0.2f, 0.1f ), 0.0f, 0.0f };
 		int         diffuseMat = addMaterial( scene.materials, diffuse );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( -4.0f, 1.0f, 0.0f ), 1.0f, diffuseMat } );
+		scene.spheres.push_back( SphereGPU{ simd_make_float3( -4.0f, placementHeight( floating, 1.0f, 1.0f, rng, unit ), 0.0f ), 1.0f, diffuseMat } );
 
 		MaterialGPU metal{ MAT_METAL, simd_make_float3( 0.7f, 0.6f, 0.5f ), 0.0f, 0.0f };
 		int         metalMat = addMaterial( scene.materials, metal );
-		scene.spheres.push_back( SphereGPU{ simd_make_float3( 4.0f, 1.0f, 0.0f ), 1.0f, metalMat } );
+		scene.spheres.push_back( SphereGPU{ simd_make_float3( 4.0f, placementHeight( floating, 1.0f, 1.0f, rng, unit ), 0.0f ), 1.0f, metalMat } );
 	}
 
 	scene.camera = makeCamera(

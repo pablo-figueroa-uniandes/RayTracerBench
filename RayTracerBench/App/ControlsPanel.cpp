@@ -104,10 +104,18 @@ ControlsPanel::ControlsPanel( CGRect frame )
 	_pCompareButton->setTarget( _pCompareButton );
 	_pCompareButton->setAction( NS::MenuItem::registerActionCallback( "controlsCompareClicked", onCompareClicked ) );
 	_pContainerView->addSubview( _pCompareButton );
+
+	// A real checkbox — AppKit manages its own checked state on click, so no target/action wiring
+	// is needed at all; currentSettings() just reads state() on demand.
+	_pFloatingCheckbox = NS::Button::alloc()->init( ( CGRect ){ { 550.0, 2.0 }, { 110.0, 26.0 } } );
+	_pFloatingCheckbox->setButtonType( NS::ButtonTypeSwitch );
+	_pFloatingCheckbox->setTitle( NS::String::string( "Floating?", UTF8StringEncoding ) );
+	_pContainerView->addSubview( _pFloatingCheckbox );
 }
 
 ControlsPanel::~ControlsPanel()
 {
+	_pFloatingCheckbox->release();
 	_pCompareButton->release();
 	_pRenderGPUButton->release();
 	_pRenderCPUButton->release();
@@ -128,6 +136,7 @@ RenderSettings ControlsPanel::currentSettings() const
 	settings.maxDepth = parseUInt( _pMaxDepthField, 1, 100, 20 );
 	settings.seed = parseUInt( _pSeedField, 0, 0xFFFFFFFFu, 1234 );
 	settings.cpuMode = _multiThreaded ? CPUThreading::MultiThreaded : CPUThreading::SingleThreaded;
+	settings.floating = _pFloatingCheckbox->state() != 0;
 	return settings;
 }
 
@@ -142,6 +151,7 @@ void ControlsPanel::setControlsEnabled( bool enabled )
 	_pRenderCPUButton->setEnabled( enabled );
 	_pRenderGPUButton->setEnabled( enabled );
 	_pCompareButton->setEnabled( enabled );
+	_pFloatingCheckbox->setEnabled( enabled );
 }
 
 void ControlsPanel::handleRandomizeSeedClicked()

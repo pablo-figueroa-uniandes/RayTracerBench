@@ -14,6 +14,7 @@ struct RenderSettings
 	uint32_t           maxDepth;
 	unsigned           seed;
 	CPUThreading::Mode cpuMode;
+	bool               floating; // "Floating?" checkbox — see Scene.hpp's buildDefaultScene()
 };
 
 // image-width, samples-per-pixel, max-depth, and scene-seed fields (+ randomize), a CPU-threading
@@ -60,6 +61,11 @@ class ControlsPanel
 
 		NS::Button* _pThreadingToggleButton;
 		bool        _multiThreaded;
+
+		// A real NSButtonTypeSwitch checkbox rather than the threading toggle's "push button whose
+		// title changes" hack — AppKit manages its own checked/unchecked state on click, so this
+		// needs no click handler at all; currentSettings() just reads state() on demand.
+		NS::Button* _pFloatingCheckbox;
 
 		NS::Button* _pRandomizeSeedButton;
 		NS::Button* _pRenderCPUButton;

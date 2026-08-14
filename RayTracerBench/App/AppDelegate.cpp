@@ -160,7 +160,7 @@ void AppDelegate::startCPURender( const RenderSettings& settings )
 
 	std::thread( [ this, settings ]()
 	{
-		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth );
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth, settings.floating );
 		CPURenderResult  result = renderCPU( scene, settings.cpuMode );
 		double           rps = raysPerSecond( scene.params, result.renderTime.count() );
 
@@ -189,7 +189,7 @@ void AppDelegate::startGPURender( const RenderSettings& settings )
 
 	std::thread( [ this, settings ]()
 	{
-		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth );
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth, settings.floating );
 		GPURenderResult  result = _pGPURenderer->render( scene );
 		double           rps = raysPerSecond( scene.params, result.gpuTimeMs );
 
@@ -217,7 +217,7 @@ void AppDelegate::startCompare( const RenderSettings& settings )
 
 	std::thread( [ this, settings ]()
 	{
-		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth );
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth, settings.floating );
 
 		CPURenderResult cpuResult = renderCPU( scene, settings.cpuMode );
 		GPURenderResult gpuResult = _pGPURenderer->render( scene );
