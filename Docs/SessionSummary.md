@@ -37,6 +37,12 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
     `/tmp` path (an artifact of how the project was generated); fixed to build to a stable,
     gitignored `build/` directory inside the repo instead.
 12. **Pushed to GitHub** — public repo, full history, `main` branch tracked to `origin`.
+13. **"Floating?" checkbox** — a real `NSButtonTypeSwitch` checkbox in `ControlsPanel` (AppKit
+    manages its own checked state, so no click handler is needed). When checked,
+    `Scene::buildDefaultScene()`'s new `floating` parameter randomizes the height of the small
+    randomized-field spheres up to a rendered-and-eyeballed `kMaxFloatHeight`; the three large
+    feature spheres (glass/lambertian/metal) always stay grounded, per explicit follow-up feedback
+    after the first pass floated everything.
 
 ## Notable technical decisions
 
@@ -59,6 +65,12 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
   rose — the signature of chaotic Monte Carlo branch-divergence from sub-ULP CPU/GPU floating-point
   differences, not a bug. The committed test asserts on mismatch rate at a high sample count instead
   of a strict bound at a low one.
+- **Empirical bound over untested math.** For the Floating? feature's max height, an exact
+  per-object analytical bound was derived by hand from the camera's `u`/`v`/`w` basis vectors, but a
+  hand-checked numeric example didn't verify cleanly — so it was abandoned in favor of a simpler
+  global constant, chosen by actually rendering candidate heights and confirming by eye that nothing
+  left the frame, consistent with this session's preference throughout for verifying against a real
+  render rather than trusting derived formulas.
 - **Verification without a screen.** This session ran with no display/accessibility access (no
   `screencapture`, no `osascript` automation). Every claim was still verified for real rather than
   assumed: offscreen GPU readback tests, a synthetic `NSEvent` posted through the app's actual

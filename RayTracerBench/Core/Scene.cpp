@@ -48,7 +48,8 @@ namespace
 
 	// Chosen and verified by rendering the fixed camera setup below (lookfrom (13,2,3), lookat
 	// origin, vfov 20°) at several candidate heights and confirming by eye that nothing floats out
-	// of frame — not derived from an unverified formula. Applies to every non-ground sphere.
+	// of frame — not derived from an unverified formula. Applies only to the small randomized-field
+	// spheres; the three large feature spheres always rest on the ground regardless of `floating`.
 	constexpr float kMaxFloatHeight = 3.0f;
 
 	// Picks a random height in [radius, kMaxFloatHeight] when floating, or the given resting
