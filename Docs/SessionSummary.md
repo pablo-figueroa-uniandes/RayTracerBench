@@ -59,6 +59,15 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
     six new pyramid/entity-dispatch tests (15 total, all passing), and the existing CPU/GPU parity
     test kept passing unmodified — confirming the ECS restructuring changed neither renderer's
     actual output.
+15. **Scene export (glTF / OBJ+MTL)** — new "Save glTF"/"Save OBJ" buttons in `ControlsPanel`
+    export the *current scene's geometry* (spheres tessellated into a UV mesh, pyramids exact and
+    faceted) to `<the running executable's own directory>/SavedScenes/`, via a new `Export/`
+    module reusing the ECS Transform+Shape components as a third "system" (`buildEntityMesh()`)
+    alongside `hitEntity()` and `scatter()`. Filenames encode seed/width/Floating? plus a
+    timestamp — deliberately not samples-per-pixel/max-depth, which don't affect the exported
+    geometry. `executableDirectory()` resolves the real binary location via `_NSGetExecutablePath`
+    rather than `argv[0]`/`getcwd()`. Dielectric materials are approximated the same way in both
+    formats (clear/glossy/partly-transparent), since neither format's core spec models true glass.
 
 ## Notable technical decisions
 
@@ -75,6 +84,11 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
   internally (thin C++ wrappers over `objc_msgSend`). One of these was an actual bug in Apple's
   vendored code (`NS::View::init()` sent a message to the wrong object) — caught by reproducing the
   crash first, not just inferred from reading the header.
+- **Winding orders, verified not assumed.** The scene exporter's sphere-mesh triangle winding was
+  hand-derived and looked plausible, but a standalone check (does each face's cross-product normal
+  point away from the sphere's center?) found it was actually backwards — 174 of 192 triangles
+  faced inward. Fixed, then re-verified programmatically (kept as a permanent test in
+  `EntityMeshTests.cpp`) rather than trusted by inspection a second time.
 - **The CPU/GPU parity investigation.** A strict per-pixel tolerance didn't hold at low sample
   counts (~9% of channels differed by more than expected). Investigated rather than dismissed:
   differences were exactly zero on every pixel that didn't hit geometry, and shrank as sample count

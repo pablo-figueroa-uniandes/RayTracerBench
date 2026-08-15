@@ -24,11 +24,14 @@ set(CMAKE_XCODE_ATTRIBUTE_SYMROOT "${CMAKE_SOURCE_DIR}/build")
 add_library(RayTracerCore STATIC
     RayTracerBench/Core/Scene.cpp
     RayTracerBench/CPU/CPURenderer.cpp
+    RayTracerBench/Export/EntityMesh.cpp
+    RayTracerBench/Export/SceneExporter.cpp
 )
 
 target_include_directories(RayTracerCore PUBLIC
     RayTracerBench/Core
     RayTracerBench/CPU
+    RayTracerBench/Export
 )
 
 add_executable(RayTracerBench
@@ -104,6 +107,7 @@ add_executable(RayTracerBenchTests
     RayTracerBenchTests/main.cpp
     RayTracerBenchTests/RayTraceCoreTests.cpp
     RayTracerBenchTests/DeterministicParityTests.cpp
+    RayTracerBenchTests/EntityMeshTests.cpp
     RayTracerBench/GPU/GPURenderer.cpp
 )
 

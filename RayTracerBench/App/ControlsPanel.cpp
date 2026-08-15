@@ -15,6 +15,8 @@ namespace
 	void onRenderCPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderCPUClicked(); }
 	void onRenderGPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderGPUClicked(); }
 	void onCompareClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleCompareClicked(); }
+	void onSaveGLTFClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleSaveGLTFClicked(); }
+	void onSaveOBJClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleSaveOBJClicked(); }
 
 	// Parses a text field as an unsigned integer, clamped to [minVal, maxVal]; returns `fallback`
 	// if the field doesn't start with a valid number.
@@ -119,11 +121,25 @@ ControlsPanel::ControlsPanel( CGRect frame )
 	_pFloatingCheckbox->setButtonType( NS::ButtonTypeSwitch );
 	_pFloatingCheckbox->setTitle( NS::String::string( "Floating?", UTF8StringEncoding ) );
 	_pContainerView->addSubview( _pFloatingCheckbox );
+
+	_pSaveGLTFButton = NS::Button::alloc()->init( ( CGRect ){ { 680.0, 2.0 }, { 110.0, 26.0 } } );
+	_pSaveGLTFButton->setTitle( NS::String::string( "Save glTF", UTF8StringEncoding ) );
+	_pSaveGLTFButton->setTarget( _pSaveGLTFButton );
+	_pSaveGLTFButton->setAction( NS::MenuItem::registerActionCallback( "controlsSaveGLTFClicked", onSaveGLTFClicked ) );
+	_pContainerView->addSubview( _pSaveGLTFButton );
+
+	_pSaveOBJButton = NS::Button::alloc()->init( ( CGRect ){ { 800.0, 2.0 }, { 110.0, 26.0 } } );
+	_pSaveOBJButton->setTitle( NS::String::string( "Save OBJ", UTF8StringEncoding ) );
+	_pSaveOBJButton->setTarget( _pSaveOBJButton );
+	_pSaveOBJButton->setAction( NS::MenuItem::registerActionCallback( "controlsSaveOBJClicked", onSaveOBJClicked ) );
+	_pContainerView->addSubview( _pSaveOBJButton );
 }
 
 // Releases every field/button/checkbox subview and the container view.
 ControlsPanel::~ControlsPanel()
 {
+	_pSaveOBJButton->release();
+	_pSaveGLTFButton->release();
 	_pFloatingCheckbox->release();
 	_pCompareButton->release();
 	_pRenderGPUButton->release();
@@ -165,6 +181,8 @@ void ControlsPanel::setControlsEnabled( bool enabled )
 	_pRenderGPUButton->setEnabled( enabled );
 	_pCompareButton->setEnabled( enabled );
 	_pFloatingCheckbox->setEnabled( enabled );
+	_pSaveGLTFButton->setEnabled( enabled );
+	_pSaveOBJButton->setEnabled( enabled );
 }
 
 // Fills the seed field with a freshly generated random seed.
@@ -205,4 +223,18 @@ void ControlsPanel::handleCompareClicked()
 {
 	if ( onCompare )
 		onCompare();
+}
+
+// Forwards to the onSaveGLTF callback, if the owner set one.
+void ControlsPanel::handleSaveGLTFClicked()
+{
+	if ( onSaveGLTF )
+		onSaveGLTF();
+}
+
+// Forwards to the onSaveOBJ callback, if the owner set one.
+void ControlsPanel::handleSaveOBJClicked()
+{
+	if ( onSaveOBJ )
+		onSaveOBJ();
 }

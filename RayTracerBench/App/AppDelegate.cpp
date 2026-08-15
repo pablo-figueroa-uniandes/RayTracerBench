@@ -2,6 +2,7 @@
 
 #include "../CPU/CPURenderer.hpp"
 #include "../Core/Scene.hpp"
+#include "../Export/SceneExporter.hpp"
 #include "AboutAlert.hpp"
 
 #include <cstdio>
@@ -87,7 +88,9 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	_pDevice = MTL::CreateSystemDefaultDevice();
 	_pGPURenderer = new GPURenderer( _pDevice );
 
-	const CGRect windowFrame = ( CGRect ){ { 100.0, 100.0 }, { 860.0, 460.0 } };
+	// Widened from the original 860 to fit the Save glTF / Save OBJ buttons added to row 2 of
+	// ControlsPanel without crowding the existing buttons.
+	const CGRect windowFrame = ( CGRect ){ { 100.0, 100.0 }, { 950.0, 460.0 } };
 	_pWindow = NS::Window::alloc()->init(
 		windowFrame,
 		NS::WindowStyleMaskClosable | NS::WindowStyleMaskTitled,
@@ -100,22 +103,24 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	NS::View* pContentView = NS::View::alloc()->init( contentFrame );
 
 	// Top to bottom: controls, two side-by-side previews, results.
-	_pControlsPanel = new ControlsPanel( ( CGRect ){ { 10.0, 390.0 }, { 840.0, 60.0 } } );
+	_pControlsPanel = new ControlsPanel( ( CGRect ){ { 10.0, 390.0 }, { 930.0, 60.0 } } );
 	pContentView->addSubview( _pControlsPanel->view() );
 
-	const CGRect cpuImageFrame = ( CGRect ){ { 10.0, 155.0 }, { 400.0, 225.0 } };
-	const CGRect gpuImageFrame = ( CGRect ){ { 430.0, 155.0 }, { 400.0, 225.0 } };
+	const CGRect cpuImageFrame = ( CGRect ){ { 10.0, 155.0 }, { 460.0, 225.0 } };
+	const CGRect gpuImageFrame = ( CGRect ){ { 480.0, 155.0 }, { 460.0, 225.0 } };
 	_pCPUImageView = new ImageDisplayView( _pDevice, cpuImageFrame );
 	pContentView->addSubview( _pCPUImageView->view() );
 	_pGPUImageView = new ImageDisplayView( _pDevice, gpuImageFrame );
 	pContentView->addSubview( _pGPUImageView->view() );
 
-	_pResultsPanel = new ResultsPanel( ( CGRect ){ { 10.0, 15.0 }, { 840.0, 70.0 } } );
+	_pResultsPanel = new ResultsPanel( ( CGRect ){ { 10.0, 15.0 }, { 930.0, 70.0 } } );
 	pContentView->addSubview( _pResultsPanel->view() );
 
 	_pControlsPanel->onRenderCPU = [ this ]() { startCPURender( _pControlsPanel->currentSettings() ); };
 	_pControlsPanel->onRenderGPU = [ this ]() { startGPURender( _pControlsPanel->currentSettings() ); };
 	_pControlsPanel->onCompare = [ this ]() { startCompare( _pControlsPanel->currentSettings() ); };
+	_pControlsPanel->onSaveGLTF = [ this ]() { saveScene( true ); };
+	_pControlsPanel->onSaveOBJ = [ this ]() { saveScene( false ); };
 
 	_pWindow->setContentView( pContentView );
 	_pWindow->makeKeyAndOrderFront( nullptr );
@@ -285,6 +290,30 @@ void AppDelegate::updateSpeedupIfPossible()
 		std::snprintf( buf, sizeof( buf ), "CPU is %.1fx faster than GPU", ratio );
 	}
 	_pResultsPanel->setSpeedupLine( buf );
+}
+
+// Builds a scene from the current controls settings (geometry depends only on seed/width/
+// floating — samplesPerPixel/maxDepth affect rendering, not the exported geometry) and writes it
+// via the requested exporter, then reports success or failure in a modal alert.
+void AppDelegate::saveScene( bool asGLTF )
+{
+	using NS::StringEncoding::UTF8StringEncoding;
+
+	RenderSettings   settings = _pControlsPanel->currentSettings();
+	SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth, settings.floating );
+	std::string      stem = sceneFilenameStem( settings.seed, settings.width, settings.floating );
+
+	SceneExportResult exportResult = asGLTF ? exportSceneAsGLTF( scene, stem ) : exportSceneAsOBJ( scene, stem );
+
+	// NS::Alert, not release()'d here — matches AboutAlert.cpp's existing pattern for this
+	// project's other one-off modal dialogs.
+	NS::Alert* pAlert = NS::Alert::alloc()->init();
+	pAlert->setMessageText( NS::String::string( exportResult.ok ? "Scene Saved" : "Save Failed", UTF8StringEncoding ) );
+	pAlert->setInformativeText( NS::String::string( exportResult.message.c_str(), UTF8StringEncoding ) );
+	pAlert->runModal();
+
+	std::printf( "%s\n", exportResult.message.c_str() );
+	std::fflush( stdout );
 }
 
 // Always true: this app has exactly one window, so closing it should quit.
