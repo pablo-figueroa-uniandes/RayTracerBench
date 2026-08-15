@@ -171,6 +171,18 @@ std::string sceneFilenameStem( unsigned seed, uint32_t width, bool floating )
 	return std::string( buf );
 }
 
+// Creates (if needed) and returns the shared SavedScenes/ directory, so a caller writing a
+// companion file (e.g. a preview image) alongside a 3D export can use the exact same location
+// without duplicating the directory-resolution/creation logic above.
+std::string ensureSavedScenesDirectoryPath()
+{
+	std::filesystem::path dir = savedScenesDirectory();
+	std::string           error = ensureSavedScenesDirectory( dir );
+	if ( !error.empty() )
+		return "";
+	return dir.string();
+}
+
 // Writes every entity's mesh as an "o"/"v"/"vn"/"usemtl"/"f" block into stem.obj, plus the
 // materials into a companion stem.mtl — see the header comment for the output location.
 SceneExportResult exportSceneAsOBJ( const SceneDescription& scene, const std::string& stem )

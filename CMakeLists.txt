@@ -42,6 +42,7 @@ add_executable(RayTracerBench
     RayTracerBench/App/ResultsPanel.cpp
     RayTracerBench/App/ImageDisplayView.cpp
     RayTracerBench/GPU/GPURenderer.cpp
+    RayTracerBench/Export/ImageWriter.cpp
 )
 
 target_include_directories(RayTracerBench PRIVATE
@@ -92,12 +93,18 @@ find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+# ImageWriter.cpp writes the scene-export preview PNG via CoreGraphics/ImageIO's plain C APIs —
+# real system frameworks, not a vendored image library, and no Objective-C needed.
+find_library(COREGRAPHICS_FRAMEWORK CoreGraphics REQUIRED)
+find_library(IMAGEIO_FRAMEWORK ImageIO REQUIRED)
 
 target_link_libraries(RayTracerBench PRIVATE
     ${COCOA_FRAMEWORK}
     ${METAL_FRAMEWORK}
     ${METALKIT_FRAMEWORK}
     ${QUARTZCORE_FRAMEWORK}
+    ${COREGRAPHICS_FRAMEWORK}
+    ${IMAGEIO_FRAMEWORK}
     ${FOUNDATION_FRAMEWORK}
 )
 

@@ -25,6 +25,12 @@ std::string executableDirectory();
 // excluded: they affect only rendering, not the exported geometry itself.
 std::string sceneFilenameStem( unsigned seed, uint32_t width, bool floating );
 
+// The directory every export writes into — <executableDirectory()>/SavedScenes/ — created if it
+// doesn't already exist yet. Exposed so callers can place a companion file (e.g. a preview image)
+// alongside a 3D export in the exact same location, using the exact same stem. Returns an empty
+// string if the directory couldn't be created.
+std::string ensureSavedScenesDirectoryPath();
+
 // Writes `scene` as a single self-contained .gltf file (geometry/materials embedded as a base64
 // data URI buffer, no companion .bin) into <executableDirectory()>/SavedScenes/<stem>.gltf.
 SceneExportResult exportSceneAsGLTF( const SceneDescription& scene, const std::string& stem );

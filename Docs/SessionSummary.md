@@ -68,6 +68,13 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
     geometry. `executableDirectory()` resolves the real binary location via `_NSGetExecutablePath`
     rather than `argv[0]`/`getcwd()`. Dielectric materials are approximated the same way in both
     formats (clear/glossy/partly-transparent), since neither format's core spec models true glass.
+16. **Same-named preview PNG alongside every 3D export** — each glTF/OBJ save now also renders
+    the scene at the current settings (via the existing CPU renderer) and writes it as a real PNG,
+    same stem, same `SavedScenes/` directory, via a new `Export/ImageWriter.hpp/.cpp` wrapping
+    CoreGraphics/ImageIO's plain C APIs (no vendored image library, no Objective-C). Adding a full
+    render meant `saveScene()` could no longer stay synchronous on the main thread as originally
+    designed — it now runs on a background thread like the other render actions, with the result
+    alert marshaled back via `dispatch_async`.
 
 ## Notable technical decisions
 

@@ -36,10 +36,10 @@ class AppDelegate : public NS::ApplicationDelegate
 		void updateSpeedupIfPossible();
 
 		// Builds a scene from the current controls settings and writes it to <executable
-		// directory>/SavedScenes/ as either glTF (asGLTF=true) or OBJ+MTL (asGLTF=false), then
-		// shows an alert with the result. Synchronous on the main thread — unlike the renders
-		// above, writing scene geometry to disk is fast enough that a background thread isn't
-		// warranted.
+		// directory>/SavedScenes/ as either glTF (asGLTF=true) or OBJ+MTL (asGLTF=false), plus a
+		// same-named PNG preview rendered at the current settings, then shows an alert with the
+		// result. Runs on a background thread, like the render actions above — a full CPU
+		// render for the preview image can take a while, unlike the geometry export alone.
 		void saveScene( bool asGLTF );
 
 		// Builds the app's minimal menu bar (About / Quit).

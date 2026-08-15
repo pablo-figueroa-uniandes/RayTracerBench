@@ -19,9 +19,10 @@ hand-written `.mm` files anywhere in this project.
 - A **magnifying-glass loupe** — hovering the mouse over either the CPU or GPU preview zooms the
   same normalized image location in *both* previews simultaneously, for directly comparing
   per-pixel detail between the two renderers.
-- **Save glTF / Save OBJ** — exports the current scene's geometry (not a rendered image) as
-  either a self-contained `.gltf` or an `.obj`+`.mtl` pair, written to `SavedScenes/` next to the
-  running executable with a filename that encodes the seed, image width, and Floating? state.
+- **Save glTF / Save OBJ** — exports the current scene's geometry as either a self-contained
+  `.gltf` or an `.obj`+`.mtl` pair, plus a same-named `.png` preview (a real CPU render at the
+  current settings), all written to `SavedScenes/` next to the running executable with a filename
+  that encodes the seed, image width, and Floating? state.
 
 ## Building
 

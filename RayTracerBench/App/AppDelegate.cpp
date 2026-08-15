@@ -2,6 +2,7 @@
 
 #include "../CPU/CPURenderer.hpp"
 #include "../Core/Scene.hpp"
+#include "../Export/ImageWriter.hpp"
 #include "../Export/SceneExporter.hpp"
 #include "AboutAlert.hpp"
 
@@ -293,27 +294,51 @@ void AppDelegate::updateSpeedupIfPossible()
 }
 
 // Builds a scene from the current controls settings (geometry depends only on seed/width/
-// floating — samplesPerPixel/maxDepth affect rendering, not the exported geometry) and writes it
-// via the requested exporter, then reports success or failure in a modal alert.
+// floating — samplesPerPixel/maxDepth affect rendering, not the exported geometry), writes it via
+// the requested exporter, and — on success — also renders it (at the current settings, exactly
+// like "Render CPU" would) and writes a same-named PNG preview alongside it, so the 3D export has
+// a quick-look image without needing a model viewer. Runs on a background thread like the render
+// actions above: once a full CPU render is part of this, it's no longer the fast, main-thread-only
+// operation it was when it only wrote geometry.
 void AppDelegate::saveScene( bool asGLTF )
 {
-	using NS::StringEncoding::UTF8StringEncoding;
+	_pControlsPanel->setControlsEnabled( false );
 
-	RenderSettings   settings = _pControlsPanel->currentSettings();
-	SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth, settings.floating );
-	std::string      stem = sceneFilenameStem( settings.seed, settings.width, settings.floating );
+	RenderSettings settings = _pControlsPanel->currentSettings();
 
-	SceneExportResult exportResult = asGLTF ? exportSceneAsGLTF( scene, stem ) : exportSceneAsOBJ( scene, stem );
+	std::thread( [ this, settings, asGLTF ]()
+	{
+		SceneDescription scene = buildDefaultScene( settings.seed, settings.width, kAspectRatio, settings.samplesPerPixel, settings.maxDepth, settings.floating );
+		std::string      stem = sceneFilenameStem( settings.seed, settings.width, settings.floating );
 
-	// NS::Alert, not release()'d here — matches AboutAlert.cpp's existing pattern for this
-	// project's other one-off modal dialogs.
-	NS::Alert* pAlert = NS::Alert::alloc()->init();
-	pAlert->setMessageText( NS::String::string( exportResult.ok ? "Scene Saved" : "Save Failed", UTF8StringEncoding ) );
-	pAlert->setInformativeText( NS::String::string( exportResult.message.c_str(), UTF8StringEncoding ) );
-	pAlert->runModal();
+		SceneExportResult exportResult = asGLTF ? exportSceneAsGLTF( scene, stem ) : exportSceneAsOBJ( scene, stem );
+		std::string       message = exportResult.message;
 
-	std::printf( "%s\n", exportResult.message.c_str() );
-	std::fflush( stdout );
+		if ( exportResult.ok )
+		{
+			CPURenderResult preview = renderCPU( scene, settings.cpuMode );
+			std::string     directory = ensureSavedScenesDirectoryPath();
+			std::string     pngPath = directory + "/" + stem + ".png";
+			bool            pngOk = !directory.empty() && writePNG( pngPath, preview.pixels.data(), scene.params.width, scene.params.height );
+			message += pngOk ? ( "\nand " + pngPath ) : "\n(preview image failed to write)";
+		}
+
+		dispatch_async( dispatch_get_main_queue(), ^{
+			using NS::StringEncoding::UTF8StringEncoding;
+
+			// NS::Alert, not release()'d here — matches AboutAlert.cpp's existing pattern for this
+			// project's other one-off modal dialogs.
+			NS::Alert* pAlert = NS::Alert::alloc()->init();
+			pAlert->setMessageText( NS::String::string( exportResult.ok ? "Scene Saved" : "Save Failed", UTF8StringEncoding ) );
+			pAlert->setInformativeText( NS::String::string( message.c_str(), UTF8StringEncoding ) );
+			pAlert->runModal();
+
+			std::printf( "%s\n", message.c_str() );
+			std::fflush( stdout );
+
+			_pControlsPanel->setControlsEnabled( true );
+		} );
+	} ).detach();
 }
 
 // Always true: this app has exactly one window, so closing it should quit.
