@@ -28,9 +28,10 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
 8. **Milestone 4** — an About panel with courtesy attribution, `README.md`, an MIT `LICENSE`, and a
    real `RayTracerBenchTests` command-line test target (unit tests for `hitSphere()`, plus a
    deterministic CPU/GPU pixel-parity test).
-9. **`Docs/RayTracerBench-Theory-and-Code.pdf`** — a 17-page document explaining both the ray
-   tracing theory (camera/ray model, intersection math, materials, Monte Carlo sampling, gamma
-   correction, the RNG) and this codebase's specific implementation of it, with real code excerpts.
+9. **`Docs/RayTracerBench-Theory-and-Code.pdf`** — a document explaining both the ray tracing
+   theory (camera/ray model, intersection math, materials, Monte Carlo sampling, gamma correction,
+   the RNG) and this codebase's specific implementation of it, with real code excerpts. Started at
+   17 pages; kept in sync as later features landed (see 18, below) rather than left to go stale.
 10. **Magnifying-glass loupe** — hovering either preview zooms the *same* region in both the CPU
     and GPU images simultaneously, so fine detail is directly comparable between the two renderers.
 11. **Build-location fix** — the checked-in Xcode project originally built to a session-specific
@@ -56,9 +57,8 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
     closed-form "lowest vertex" computation — no eyeballing needed, unlike `kMaxFloatHeight` above.
     Pyramids are lambertian/metal only (never dielectric), since the slab test doesn't resolve a ray
     originating inside the solid, which glass refraction would require. `RayTracerBenchTests` grew
-    six new pyramid/entity-dispatch tests (15 total, all passing), and the existing CPU/GPU parity
-    test kept passing unmodified — confirming the ECS restructuring changed neither renderer's
-    actual output.
+    six new pyramid/entity-dispatch tests, and the existing CPU/GPU parity test kept passing
+    unmodified — confirming the ECS restructuring changed neither renderer's actual output.
 15. **Scene export (glTF / OBJ+MTL)** — new "Save glTF"/"Save OBJ" buttons in `ControlsPanel`
     export the *current scene's geometry* (spheres tessellated into a UV mesh, pyramids exact and
     faceted) to `<the running executable's own directory>/SavedScenes/`, via a new `Export/`
@@ -75,6 +75,17 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
     render meant `saveScene()` could no longer stay synchronous on the main thread as originally
     designed — it now runs on a background thread like the other render actions, with the result
     alert marshaled back via `dispatch_async`.
+17. **A comment above every method and function**, project-wide (`App/`, `CPU/`, `Core/`, `GPU/`,
+    `Shaders/`, `RayTracerBenchTests/`) — a dedicated pass requested independently of any feature
+    work, purely additive (no logic changes), verified via a clean rebuild of both targets and a
+    full test run.
+18. **The theory-and-code PDF kept in sync**, across two follow-up passes rather than left to
+    drift once the code it described had moved on: one covering the ECS refactor, square pyramids
+    (a new "Ray-Polyhedron Intersection" theory section deriving the Kay-Kajiya slab method from
+    scratch), and the glTF/OBJ export feature; a second covering the preview-PNG addition and the
+    `saveScene()` threading change it required. Both times the document's existing section numbers
+    were left untouched (new content added as subsections, or appended at the end) specifically to
+    avoid silently breaking its many internal cross-references.
 
 ## Notable technical decisions
 
@@ -119,9 +130,10 @@ Repository: **https://github.com/pablo-figueroa-uniandes/RayTracerBench**
 
 ```
 RayTracerBench/
-  Core/        — shared, dual-compiled ray tracing algorithm + scene construction
+  Core/        — shared, dual-compiled ray tracing algorithm + scene construction (ECS-organized)
   CPU/         — multi-threaded CPU renderer
   GPU/         — Metal compute renderer
+  Export/      — glTF/OBJ+MTL scene export, mesh generation, and preview-PNG writing
   Shaders/     — Raytracer.metal (the shared algorithm), Blit.metal (display + magnifier lens)
   App/         — pure C++ AppKit UI (window, controls, results, image previews, About)
 RayTracerBenchTests/  — plain command-line test executable (no XCTest)
