@@ -839,8 +839,9 @@ click, so no click handler is wired up at all; <code>currentSettings()</code> si
 section.</p>
 
 <p>Two more buttons, <strong>"Save glTF"</strong> and <strong>"Save OBJ"</strong>, are wired the
-same way as the render buttons above but call into an entirely different subsystem — see §16 for
-the scene-export feature they trigger.</p>
+same way as the render buttons above, and — since exporting now also renders a preview image —
+run on a background thread the same way too, for the same reason. See §16 for the scene-export
+feature they trigger.</p>
 
 <h3>The magnifying-glass loupe</h3>
 
@@ -970,12 +971,14 @@ application uses.</p>
 
 <h2 id="s16">16. Scene Export: glTF and OBJ+MTL</h2>
 
-<p>The "Save glTF"/"Save OBJ" buttons (§13) export the <em>current scene's geometry</em> — not a
-rendered image. glTF and OBJ are 3D scene-description formats: they encode meshes, materials, and
-layout, the same category of information a modeling tool would save, not pixels. Both formats are
-written by a new <code>Export/</code> module, kept framework-free (no Metal, no AppKit) and built
-into the same <code>RayTracerCore</code> static library as <code>Core/</code>, since it never needs
-either.</p>
+<p>The "Save glTF"/"Save OBJ" buttons (§13) export the <em>current scene's geometry</em> as glTF
+or OBJ+MTL, and — since neither of those is a rendered image, and a 3D file with no quick way to
+see what it contains is awkward to work with — also write a same-named <code>.png</code> preview
+alongside it. Both the geometry writers and the mesh builder live in a new <code>Export/</code>
+module, kept framework-free (no Metal, no AppKit) and built into the same
+<code>RayTracerCore</code> static library as <code>Core/</code>, since they never need either; the
+preview-image writer is the one piece of <code>Export/</code> that isn't, for reasons its own
+subsection below explains.</p>
 
 <h3><code>buildEntityMesh()</code>: A Third ECS System</h3>
 
@@ -1045,6 +1048,40 @@ actually shows; glTF's <code>KHR_materials_transmission</code> extension was del
 unused so the export stays a plain, universally-loadable file rather than one that only renders
 correctly in viewers supporting that extension.</p>
 
+<h3>A Preview Image, Same Name, Same Place</h3>
+
+<p>A 3D file is opaque at a glance — there's no way to tell what a <code>.gltf</code> actually
+contains without loading it into a viewer. So a successful export doesn't stop at the geometry:
+the same scene is also rendered at whatever settings are currently dialed in (exactly the image
+"Render CPU" would produce for that seed) and saved as a <code>.png</code> with the identical
+stem, in the identical <code>SavedScenes/</code> directory — a quick-look thumbnail sitting right
+next to the file it describes.</p>
+
+<p><code>Export/ImageWriter.hpp/.cpp</code> writes that PNG using CoreGraphics/ImageIO's plain C
+API (<code>CGImageCreate</code>, <code>CGImageDestinationCreateWithURL</code>,
+<code>CGImageDestinationAddImage</code>/<code>Finalize</code>) — real system frameworks, so this
+needs no vendored image library and, like every other AppKit/Metal/QuartzCore integration in this
+project, no Objective-C. It's the one file in <code>Export/</code> that isn't part of the
+framework-free <code>RayTracerCore</code> library: <code>EntityMesh</code> and
+<code>SceneExporter</code> need nothing beyond the C++ standard library, but writing an actual PNG
+needs the CoreGraphics and ImageIO frameworks, so <code>ImageWriter.cpp</code> is linked directly
+into the <code>RayTracerBench</code> app target instead.</p>
+
+<div class="note">
+	<span class="note-label">A design decision this feature broke, and how it was fixed</span>
+	§13 was written when the Save buttons only wrote geometry — cheap enough that
+	<code>AppDelegate::saveScene()</code> ran synchronously on the main thread, unlike the render
+	actions, which always use a background thread. Adding a full CPU render for the preview image
+	invalidated that: a render at high sample counts or image widths is exactly the kind of
+	main-thread-blocking work this project goes out of its way to avoid elsewhere (see §13's
+	heartbeat-timer verification). <code>saveScene()</code> was rewritten to spawn a background
+	<code>std::thread</code> — building the scene, exporting it, rendering the preview, and
+	writing the PNG all happen off the main thread, with the result alert marshaled back via
+	<code>dispatch_async(dispatch_get_main_queue(), ...)</code>, exactly like
+	<code>startCPURender()</code>/<code>startGPURender()</code>/<code>startCompare()</code> already
+	do.
+</div>
+
 <h3>Where the File Goes, and What It's Named</h3>
 
 <p>Exports are written to a <code>SavedScenes/</code> subdirectory <em>next to the running
@@ -1053,7 +1090,11 @@ launched (Xcode's "Run," a Finder double-click, and a terminal invocation from t
 directories would otherwise produce three different save locations for the exact same click). The
 real executable path is resolved via <code>_NSGetExecutablePath</code> and canonicalized, rather
 than trusting <code>argv[0]</code> (which can be a relative path or a symlink) or
-<code>getcwd()</code> (which has nothing to do with where the binary lives).</p>
+<code>getcwd()</code> (which has nothing to do with where the binary lives). The preview image
+needs to land in that exact same directory, so <code>SceneExporter.hpp</code> exposes
+<code>ensureSavedScenesDirectoryPath()</code> publicly — the same resolution-plus-creation logic
+the geometry writers already use internally, rather than a second copy of it in
+<code>AppDelegate</code>.</p>
 
 <p>The filename itself is built to make the exported scene's parameters identifiable at a glance:
 the seed and image width (both of which determine the entity layout and camera, per §10) and the
