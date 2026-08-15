@@ -193,7 +193,7 @@
 		<ol>
 			<li><a href="#s1">What a Ray Tracer Actually Computes</a></li>
 			<li><a href="#s2">Cameras, Rays, and the Image Plane</a></li>
-			<li><a href="#s3">Ray–Sphere Intersection</a></li>
+			<li><a href="#s3">Ray–Sphere and Ray–Pyramid Intersection</a></li>
 			<li><a href="#s4">Materials: Diffuse, Metal, Glass</a></li>
 			<li><a href="#s5">Monte Carlo Path Tracing</a></li>
 			<li><a href="#s6">Gamma Correction</a></li>
@@ -210,6 +210,7 @@
 			<li><a href="#s13">The UI Layer, in Pure C++</a></li>
 			<li><a href="#s14">Testing and the Parity Investigation</a></li>
 			<li><a href="#s15">The Build System</a></li>
+			<li><a href="#s16">Scene Export: glTF and OBJ+MTL</a></li>
 		</ol>
 	</li>
 	<li><a href="#attribution">Attribution</a></li>
@@ -254,7 +255,7 @@ different points on the lens still converge on the same spot; objects nearer or 
 because they don't. That's where camera depth-of-field comes from — it's a direct, physical
 consequence of a non-zero aperture, not a post-process blur.</p>
 
-<h2 id="s3">3. Ray–Sphere Intersection</h2>
+<h2 id="s3">3. Ray–Sphere and Ray–Pyramid Intersection</h2>
 
 <p>Spheres are the one primitive this renderer (and the book it's based on) uses, because the
 intersection test reduces to a single quadratic equation. A point <code>P</code> lies on a sphere
@@ -284,6 +285,53 @@ shading: a normal should point <em>toward</em> whichever side of the surface the
 materials can tell whether a ray is entering or exiting an object (this matters most for glass).
 The renderer checks the sign of <code>direction·outwardNormal</code> — negative means the ray is
 hitting the outside of the surface — and flips the stored normal if not.</p>
+
+<h3>Ray–Polyhedron Intersection: The Slab Method</h3>
+
+<p>A sphere reduces to one quadratic because its surface is a single smooth equation. A square
+pyramid doesn't have that luxury — it's five flat faces meeting at hard edges — but it's still a
+<strong>convex</strong> shape, and every convex polyhedron can be written as the intersection of a
+handful of half-spaces, one per face: <code>dot(n<sub>i</sub>, P) ≤ d<sub>i</sub></code>, where
+<code>n<sub>i</sub></code> is face <code>i</code>'s outward normal and <code>d<sub>i</sub></code> is
+its distance from the origin. A point is inside the polyhedron exactly when it satisfies
+<em>every</em> face's inequality simultaneously.</p>
+
+<p>This project uses the <strong>Kay–Kajiya slab method</strong> to intersect a ray with that
+intersection-of-half-spaces directly, without ever building explicit triangles first — the same
+technique that makes axis-aligned bounding box tests fast (a box is just 6 such half-spaces, one
+pair per axis), generalized here from 6 planes to 5. Substituting the ray equation into a face's
+plane inequality and solving for <code>t</code> gives, for each face:</p>
+
+<div class="formula">t = (d<sub>i</sub> − dot(n<sub>i</sub>, origin)) / dot(n<sub>i</sub>, direction)</div>
+
+<p>The sign of the denominator tells you which side of that constraint the ray is moving into: a
+negative denominator means the ray is <em>entering</em> that half-space as <code>t</code>
+increases, so its <code>t</code> is a candidate lower bound (<code>tNear</code>); a positive
+denominator means the ray is <em>exiting</em>, so its <code>t</code> is a candidate upper bound
+(<code>tFar</code>). Running all 5 faces through this and taking the largest <code>tNear</code> and
+smallest <code>tFar</code> gives the ray's entire span inside the polyhedron in one pass — no
+triangle list, no per-triangle loop. A hit exists exactly when <code>tNear ≤ tFar</code>, and the
+entry point's face — whichever face produced the winning <code>tNear</code> — supplies the surface
+normal directly, with no separate normal computation needed.</p>
+
+<p>For a square pyramid specifically (base half-width <code>s</code>, height <code>h</code>, apex
+above the base center), the 5 face planes fall out of the shape's own symmetry in closed form
+rather than needing numerical fitting. The base is simply <code>y ≥ 0</code> (normal
+<code>(0,−1,0)</code>, distance 0). Each side face passes through the apex and two adjacent base
+corners; working out the plane through, e.g., the <code>+X</code> face's corners
+<code>(s,0,±s)</code> and the apex <code>(0,h,0)</code> gives
+<code>h·x + s·y = s·h</code> — normal <code>(h, s, 0)</code> at distance <code>s·h</code>. The
+other three side faces follow immediately by symmetry (negate <code>x</code>, or swap
+<code>x</code>/<code>z</code> for the pair facing along <code>z</code>).</p>
+
+<div class="note">
+	<span class="note-label">A boundary this method doesn't handle</span>
+	The slab method above only ever resolves the ray's <em>entry</em> face — exactly what a normal,
+	opaque surface needs. It does not correctly handle a ray whose <em>origin already starts inside</em>
+	the solid, which is precisely what happens partway through tracing a refracted ray inside glass.
+	This project's pyramids are therefore restricted to lambertian and metal materials, never
+	dielectric — an explicit, documented scope limit rather than an oversight (see §10).
+</div>
 
 <h2 id="s4">4. Materials: Diffuse, Metal, Glass</h2>
 
@@ -402,7 +450,7 @@ performance; running the same algorithm source on both does.</p>
 
 <h2 id="s9">9. The Shared Core: <code>ShaderTypes.h</code> and <code>RayTraceCore.h</code></h2>
 
-<p><code>Core/ShaderTypes.h</code> defines the plain data — spheres, materials, the camera, and
+<p><code>Core/ShaderTypes.h</code> defines the plain data — geometry, materials, the camera, and
 render parameters — as ordinary structs built from <code>simd_float3</code> (Apple's SIMD vector
 type, which Apple's headers make available, byte-for-byte identical, in both plain C++ and Metal
 Shading Language via <code>&lt;simd/simd.h&gt;</code>):</p>
@@ -423,12 +471,46 @@ struct MaterialGPU
 	float       ir;   // dielectric index of refraction; unused for other types
 };
 
-struct SphereGPU
+enum ShapeType
 {
-	simd_float3 center;
-	float       radius;
-	int         materialIndex; // index into the parallel materials array
+	SHAPE_SPHERE  = 0,
+	SHAPE_PYRAMID = 1,
+};
+
+struct TransformGPU
+{
+	simd_float3 position;
+	simd_float3 right, up, forward; // orthonormal orientation basis
+};
+
+struct ShapeGPU
+{
+	int   type;          // ShapeType
+	float radius;        // sphere: radius. pyramid: unused.
+	float baseHalfWidth; // pyramid: half the base square's side length. sphere: unused.
+	float height;        // pyramid: apex height above the base. sphere: unused.
+	int   materialIndex; // index into the parallel materials array
 };</code></pre>
+
+<h3>ECS-Style Geometry: Entities as Component Arrays</h3>
+
+<p>Once a second primitive (the square pyramid) entered the picture, a <code>SphereGPU</code>-only
+representation stopped making sense — geometry needed to be pluggable the same way materials
+already were. Rather than reach for a polymorphic shape hierarchy (illegal in MSL kernels for the
+same reason materials avoid it — see §8), this project organizes geometry the way an
+<strong>Entity Component System</strong> would: an <em>entity</em> is nothing but a plain array
+index; its <em>components</em> are the data at that index in a set of parallel arrays; and a
+<em>system</em> is a function that walks those arrays and does something with them, dispatching on
+a tag rather than a virtual call.</p>
+
+<p>Concretely: <code>TransformGPU</code> is the Transform component (a position plus an orthonormal
+orientation basis — meaningless for a sphere, which looks identical under any rotation, but
+essential for a pyramid's apex direction and base orientation), and <code>ShapeGPU</code> is the
+Shape component (a tagged union of per-primitive dimensions, plus a <code>materialIndex</code> that
+is itself a component reference into the materials array). <code>Core/Scene.hpp</code>'s
+<code>SceneDescription</code> stores these as parallel <code>transforms</code>/<code>shapes</code>
+arrays indexed by entity — see §10. Materials were already organized this way from the start
+(§8); geometry simply caught up to the same idea once it needed the same flexibility.</p>
 
 <p><code>Core/RayTraceCore.h</code> is where the theory from Part I actually lives in code — and
 it's <code>#include</code>d <strong>verbatim</strong> by both <code>Shaders/Raytracer.metal</code>
@@ -450,9 +532,9 @@ function passes and returns plain values, never references or pointers into call
 storage</strong> — with exactly one deliberate exception. Hit outcomes, scatter results, and RNG
 state all travel as small return-value structs (<code>HitResult</code>, <code>ScatterResult</code>,
 <code>RandomFloatSample</code>, ...) instead of the more conventional C-style out-parameters. The
-one place a real address-space-tagged pointer is unavoidable is <code>rayColor()</code>'s two scene
-array parameters — the actual sphere and material buffers a GPU kernel receives — and that's
-handled by a single macro:</p>
+one place a real address-space-tagged pointer is unavoidable is <code>rayColor()</code>'s scene
+array parameters — the actual entity-component and material buffers a GPU kernel receives — and
+that's handled by a single macro:</p>
 
 <div class="filename">Core/RayTraceCore.h</div>
 <pre><code>#if defined( __METAL_VERSION__ )
@@ -461,16 +543,46 @@ handled by a single macro:</p>
 	#define RT_DEVICE
 #endif
 
-inline RayColorResult rayColor( Ray r, RT_DEVICE const SphereGPU* spheres, uint32_t sphereCount,
+inline RayColorResult rayColor( Ray r,
+	RT_DEVICE const TransformGPU* transforms, RT_DEVICE const ShapeGPU* shapes, uint32_t entityCount,
 	RT_DEVICE const MaterialGPU* materials, uint32_t maxDepth, uint32_t rngSeed )
 { /* ... */ }</code></pre>
 
-<p>Everywhere else in the call chain — <code>hitSphere()</code>, <code>scatter()</code> — a single
-sphere or material is taken <em>by value</em>, read out of that device-space array exactly once at
-the call site (<code>spheres[i]</code>) and copied into an ordinary local variable before being
-passed anywhere further. MSL treats that copy as plain thread-local data needing no annotation at
-all, so the address-space concern never propagates past <code>rayColor()</code> itself. One macro,
-one place it's used — not a general-purpose shimming mechanism sprinkled everywhere.</p>
+<p>Everywhere else in the call chain — <code>hitSphere()</code>, <code>hitPyramid()</code>,
+<code>scatter()</code> — a single entity's components or material are taken <em>by value</em>, read
+out of that device-space array exactly once at the call site (<code>transforms[i]</code>,
+<code>shapes[i]</code>) and copied into ordinary local variables before being passed anywhere
+further. MSL treats those copies as plain thread-local data needing no annotation at all, so the
+address-space concern never propagates past <code>rayColor()</code> itself. One macro, one place
+it's used — not a general-purpose shimming mechanism sprinkled everywhere.</p>
+
+<h3><code>hitEntity()</code>: The Collision System</h3>
+
+<p>This is the direct code equivalent of §9's ECS description above — the "system" that walks the
+Transform and Shape component arrays and performs the ray/geometry intersection, dispatching on
+<code>ShapeGPU::type</code> instead of a virtual call, exactly like <code>scatter()</code> already
+dispatches on <code>MaterialGPU::type</code>:</p>
+
+<div class="filename">Core/RayTraceCore.h (abridged)</div>
+<pre><code>inline HitResult hitEntity( TransformGPU transform, ShapeGPU shape, Ray r, float tMin, float tMax )
+{
+	switch ( shape.type )
+	{
+		case SHAPE_SPHERE:  return hitSphere( transform, shape, r, tMin, tMax );
+		case SHAPE_PYRAMID: return hitPyramid( transform, shape, r, tMin, tMax );
+	}
+}</code></pre>
+
+<p><code>hitPyramid()</code> is where §3's slab-method theory becomes code. It first transforms the
+incoming world-space ray into the pyramid's own local space — not via a matrix inverse, but by
+projecting the ray's origin and direction onto the Transform's <code>right</code>/<code>up</code>/
+<code>forward</code> basis vectors directly (projecting onto an orthonormal basis <em>is</em> the
+inverse rotation, since an orthogonal matrix's inverse is just its transpose). The local-space
+intersection (<code>hitPyramidLocal()</code>) then runs the 5-plane slab test from §3 exactly as
+derived there, and the resulting hit normal is mapped back to world space by running the same basis
+forward. Because translation and rotation are both distance-preserving, the ray's <code>t</code>
+parameter is identical in local and world space — only the normal needs transforming back; the
+world-space hit point is simply <code>rayAt(r, t)</code>, computed directly.</p>
 
 <p>The same "shared header, two compilers" idea produced one more small but real portability
 lesson, worth calling out because it's the kind of thing that's easy to get wrong quietly:
@@ -519,7 +631,7 @@ approximation, and the Lambertian random-scatter-direction, all dispatched by a 
 <div class="note">
 	<span class="note-label">Fallback, documented up front</span>
 	If sharing this header verbatim ever proved too fussy in practice, the project's own design
-	notes call out a fallback: hand-duplicate the four core functions into a CPU copy and a GPU
+	notes call out a fallback: hand-duplicate the core functions into a CPU copy and a GPU
 	copy, marked with matching <code>// KEEP IN SYNC</code> comments at both ends, and treat any
 	future divergence between them as a bug. In practice this fallback was never needed — the
 	shared-header approach worked and was validated directly against the real Metal shader
@@ -530,17 +642,18 @@ approximation, and the Lambertian random-scatter-direction, all dispatched by a 
 
 <p><code>Core/Scene.hpp/.cpp</code> builds the classic "Ray Tracing in One Weekend" demo scene once
 — a large ground sphere, a randomized field of small spheres (diffuse, metal, and glass in roughly
-an 80/15/5 split, following the book's own proportions), and three large "feature" spheres (one of
-each material) — from a seeded <code>std::mt19937</code>, into a single <code>SceneDescription</code>
-that <em>both</em> renderers consume unmodified:</p>
+an 80/15/5 split, following the book's own proportions), three large "feature" spheres (one of each
+material), and a handful of square pyramids (below) — from a seeded <code>std::mt19937</code>, into
+a single <code>SceneDescription</code> that <em>both</em> renderers consume unmodified:</p>
 
 <div class="filename">Core/Scene.hpp</div>
 <pre><code>struct SceneDescription
 {
-	std::vector&lt;SphereGPU&gt;   spheres;
-	std::vector&lt;MaterialGPU&gt; materials;
-	CameraGPU                camera;
-	RenderParams              params;
+	std::vector&lt;TransformGPU&gt; transforms;
+	std::vector&lt;ShapeGPU&gt;     shapes;
+	std::vector&lt;MaterialGPU&gt;  materials;
+	CameraGPU                 camera;
+	RenderParams               params;
 };
 
 SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio,
@@ -550,9 +663,32 @@ SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectR
 shader — it's free to use the full <code>simd_</code> C API directly
 (<code>simd_make_float3</code>, <code>simd_normalize</code>, <code>simd_cross</code>) rather than
 the hand-rolled portable helpers <code>RayTraceCore.h</code> needs. There is no separate "GPU
-version" of the scene at all: the exact same seed produces the exact same sphere layout and
+version" of the scene at all: the exact same seed produces the exact same entity layout and
 materials on both renderers, which is precisely what makes the deterministic-parity testing in
-§14 meaningful in the first place.</p>
+§14 meaningful in the first place. Every entity is spawned through one small helper,
+<code>addEntity()</code>, which pushes a <code>TransformGPU</code>/<code>ShapeGPU</code> pair onto
+the two parallel arrays at the same index — spheres and pyramids are interleaved in the same two
+arrays, distinguished only by <code>ShapeGPU::type</code>.</p>
+
+<h3>Square Pyramids, at Varied Orientations</h3>
+
+<p>Five pyramids sit in the demo scene at varied yaw/tilt orientations — deliberately the shape
+that exercises <code>TransformGPU</code>'s orientation basis at all, since (as §9 notes) a sphere
+looks identical under any rotation. Each pyramid's orientation is built from two independent
+rotations — a tilt around the local Z axis, then a yaw around world Y — so some pyramids are merely
+spun in place while others are visibly tipped over.</p>
+
+<p>Placing a tilted pyramid flush on the ground without it clipping through or floating above it
+turned out to have an exact, closed-form answer: transform the pyramid's 5 local vertices (apex
+plus 4 base corners) through its orientation basis, find whichever one lands lowest, and shift the
+whole pyramid up or down so that vertex sits exactly at ground level. Unlike <code>kMaxFloatHeight</code>
+below (which needed a rendered check against the camera frustum because no trusted closed form was
+found), this <em>is</em> solvable exactly — so every pyramid, at any tilt, rests flush on the ground
+with no per-orientation eyeball check required.</p>
+
+<p>Pyramids are always lambertian or metal, never dielectric — see §3's note on why the slab
+intersection method doesn't support a ray originating inside the solid, which glass refraction
+requires once a ray exits the far side.</p>
 
 <h3>The "Floating?" checkbox</h3>
 
@@ -624,11 +760,12 @@ compute kernel, one thread per pixel, calling the exact same shared <code>getRay
 #include "../Core/RayTraceCore.h"
 
 kernel void renderKernel(
-	device const SphereGPU*   spheres [[buffer( 0 )]],
-	constant uint32_t&        sphereCount [[buffer( 1 )]],
-	device const MaterialGPU* materials [[buffer( 2 )]],
-	constant CameraGPU&       camera [[buffer( 3 )]],
-	constant RenderParams&    params [[buffer( 4 )]],
+	device const TransformGPU* transforms [[buffer( 0 )]],
+	device const ShapeGPU*     shapes [[buffer( 1 )]],
+	constant uint32_t&         entityCount [[buffer( 2 )]],
+	device const MaterialGPU*  materials [[buffer( 3 )]],
+	constant CameraGPU&        camera [[buffer( 4 )]],
+	constant RenderParams&     params [[buffer( 5 )]],
 	texture2d&lt;float, access::write&gt; outTexture [[texture( 0 )]],
 	uint2                     gid [[thread_position_in_grid]] )
 {
@@ -646,10 +783,11 @@ kernel void renderKernel(
 
 <p>The kernel is dispatched with <code>dispatchThreads:threadsPerThreadgroup:</code> using 8×8
 threadgroups — that variant auto-clamps threadgroups that run past the image's edge, unlike the
-book's CUDA port, which has to compute manual grid-rounding math itself. Sphere and material
-buffers use <code>MTL::ResourceStorageModeShared</code>, meaning on Apple Silicon's unified memory
-architecture the same physical memory is directly visible to both the CPU (which fills it in) and
-the GPU (which reads it) — no explicit copy step required in either direction.</p>
+book's CUDA port, which has to compute manual grid-rounding math itself. The Transform/Shape
+component buffers and the material buffer all use <code>MTL::ResourceStorageModeShared</code>,
+meaning on Apple Silicon's unified memory architecture the same physical memory is directly visible
+to both the CPU (which fills it in) and the GPU (which reads it) — no explicit copy step required
+in either direction.</p>
 
 <p>Every call to <code>render()</code> performs one untimed "warm-up" dispatch before the timed
 one, and surfaces <em>two</em> separate timing numbers: ordinary wall-clock time around the whole
@@ -699,6 +837,10 @@ click, so no click handler is wired up at all; <code>currentSettings()</code> si
 <code>NSButton.hpp</code>: <code>setButtonType()</code>, <code>setState()</code>, and
 <code>state()</code>, following the same <code>sendMessage</code> idiom as everything else in this
 section.</p>
+
+<p>Two more buttons, <strong>"Save glTF"</strong> and <strong>"Save OBJ"</strong>, are wired the
+same way as the render buttons above but call into an entirely different subsystem — see §16 for
+the scene-export feature they trigger.</p>
 
 <h3>The magnifying-glass loupe</h3>
 
@@ -766,9 +908,17 @@ Objective-C), using a small dependency-free self-registering test framework writ
 project rather than vendoring an external one. It covers two things:</p>
 
 <ul>
-	<li><strong>Unit tests for <code>hitSphere()</code></strong> — a dead-on hit, a clean miss, the
-	<code>tMax</code> boundary, a ray originating <em>inside</em> a sphere (which must report a
-	back-face hit, per Part I §3), and picking the closer of two overlapping spheres.</li>
+	<li><strong>Unit tests for <code>hitSphere()</code> and <code>hitPyramid()</code></strong> — a
+	dead-on hit, a clean miss, the <code>tMax</code> boundary, a ray originating <em>inside</em> a
+	sphere (which must report a back-face hit, per Part I §3), picking the closer of two
+	overlapping spheres, and — for the pyramid — hitting the apex, hitting a sloped side face
+	off-axis, hitting the base from below, and confirming <code>hitEntity()</code> actually
+	dispatches to each shape's own intersection function rather than always taking one path.</li>
+	<li><strong><code>EntityMeshTests.cpp</code></strong> — the scene-export mesh builder (§16) is
+	checked the same way the intersection code is: every triangle's winding is confirmed to face
+	outward via its cross-product normal, vertex/triangle counts are checked exactly for the
+	pyramid's faceted mesh, and a rotated pyramid's apex is confirmed to land where its orientation
+	basis actually points.</li>
 	<li><strong>Deterministic CPU/GPU parity</strong> — the same fixed seed, rendered by both
 	renderers, diffed pixel-by-pixel.</li>
 </ul>
@@ -817,6 +967,99 @@ via CMake's Xcode generator (<code>cmake -G Xcode</code>), then copied over the 
 time (see the note in §12), and the same compiled library is shared by both the app and the test
 target, so the deterministic-parity test exercises the identical GPU code path the real
 application uses.</p>
+
+<h2 id="s16">16. Scene Export: glTF and OBJ+MTL</h2>
+
+<p>The "Save glTF"/"Save OBJ" buttons (§13) export the <em>current scene's geometry</em> — not a
+rendered image. glTF and OBJ are 3D scene-description formats: they encode meshes, materials, and
+layout, the same category of information a modeling tool would save, not pixels. Both formats are
+written by a new <code>Export/</code> module, kept framework-free (no Metal, no AppKit) and built
+into the same <code>RayTracerCore</code> static library as <code>Core/</code>, since it never needs
+either.</p>
+
+<h3><code>buildEntityMesh()</code>: A Third ECS System</h3>
+
+<p>§9 introduced <code>hitEntity()</code> as a "system" dispatching on <code>ShapeGPU::type</code>
+to test ray intersections, and <code>scatter()</code> as one dispatching on
+<code>MaterialGPU::type</code> to compute shading. <code>Export/EntityMesh.hpp</code>'s
+<code>buildEntityMesh()</code> is a third: the same Transform+Shape components, the same tagged
+dispatch, but this time building a triangle mesh instead of testing a ray:</p>
+
+<div class="filename">Export/EntityMesh.hpp (abridged)</div>
+<pre><code>struct MeshData
+{
+	std::vector&lt;simd_float3&gt; positions;
+	std::vector&lt;simd_float3&gt; normals;
+	std::vector&lt;uint32_t&gt;    indices; // triangle list
+};
+
+MeshData buildEntityMesh( TransformGPU transform, ShapeGPU shape );</code></pre>
+
+<p>Neither glTF nor OBJ has a native sphere primitive, so every sphere (including the giant ground
+sphere) is tessellated into an 8×12 latitude/longitude grid with smooth, per-vertex outward normals
+— the same shading a real sphere would have. One subtlety: every longitude column collapses to a
+single point at each pole, so one of the two triangles in each pole-row quad is exactly zero-area;
+rather than emit that degenerate triangle and let it sit in the file as useless data, the mesh
+builder detects and skips it, emitting only the real triangle in that quad.</p>
+
+<p>Pyramids need no tessellation at all — they're already flat-faced. <code>buildEntityMesh()</code>
+builds them from the exact same 5 local vertices (apex plus 4 base corners) that §3/§9's
+<code>hitPyramidLocal()</code> derives its half-space planes from, transformed to world space
+through the same Transform basis <code>hitPyramid()</code> uses. Each of the 6 faces (4 sides + a
+2-triangle base) gets its own 3 unique vertices rather than sharing vertices with its neighbors, so
+each face has one flat per-triangle normal instead of an averaged one — correct for a shape whose
+edges are meant to look sharp, not smoothed.</p>
+
+<div class="note">
+	<span class="note-label">Verified, not assumed — and it caught a real bug</span>
+	Winding order (which direction around a triangle's 3 vertices makes its computed normal point
+	outward rather than inward) is easy to get backwards without noticing, since it doesn't show up
+	as a compile error. A first attempt at the sphere mesh's winding looked plausible by inspection
+	but was actually wrong: a standalone check computing every triangle's cross-product normal and
+	confirming it pointed away from the sphere's center found 174 of 192 triangles facing inward.
+	Fixed, and kept as a permanent test (<code>EntityMeshTests.cpp</code>, §14) rather than trusted
+	by eye a second time.
+</div>
+
+<h3>Two Formats, One Set of Materials</h3>
+
+<p><code>Export/SceneExporter.hpp</code> writes either format from the same <code>SceneDescription</code>.
+A glTF export is a single self-contained <code>.gltf</code> file — the binary mesh data
+(positions/normals/indices for every entity) is embedded directly in the JSON as a base64
+<code>data:</code> URI buffer, rather than a separate <code>.bin</code> file, so opening the export
+only ever means opening one file. An OBJ export is the traditional pair: a <code>.obj</code>
+(geometry, referencing materials by name) alongside a companion <code>.mtl</code> (the material
+definitions themselves).</p>
+
+<p>Materials map onto each format's native model: glTF's PBR metallic-roughness parameters
+(<code>baseColorFactor</code>, <code>metallicFactor</code>, <code>roughnessFactor</code>) for
+lambertian/metal, and OBJ/MTL's classic <code>Kd</code>/<code>Ks</code>/<code>Ns</code> for the
+same. Metal's <code>fuzz</code> parameter (§4) maps directly onto roughness in both formats, since
+that's exactly the role it already plays in <code>scatter()</code>. Neither format's core
+specification has a real glass/transmission model, though — <code>MAT_DIELECTRIC</code> is
+approximated the same conceptual way in both: a clear, glossy, partly-transparent surface
+(<code>alphaMode: BLEND</code> with low alpha in glTF; a low <code>d</code>/dissolve value and
+<code>illum 4</code> — "transparency: glass on, reflection: ray trace on" — in MTL). This is
+documented as an approximation, not presented as physically equivalent to what the raytraced image
+actually shows; glTF's <code>KHR_materials_transmission</code> extension was deliberately left
+unused so the export stays a plain, universally-loadable file rather than one that only renders
+correctly in viewers supporting that extension.</p>
+
+<h3>Where the File Goes, and What It's Named</h3>
+
+<p>Exports are written to a <code>SavedScenes/</code> subdirectory <em>next to the running
+executable</em> — not the current working directory, which depends on how the app happened to be
+launched (Xcode's "Run," a Finder double-click, and a terminal invocation from three different
+directories would otherwise produce three different save locations for the exact same click). The
+real executable path is resolved via <code>_NSGetExecutablePath</code> and canonicalized, rather
+than trusting <code>argv[0]</code> (which can be a relative path or a symlink) or
+<code>getcwd()</code> (which has nothing to do with where the binary lives).</p>
+
+<p>The filename itself is built to make the exported scene's parameters identifiable at a glance:
+the seed and image width (both of which determine the entity layout and camera, per §10) and the
+Floating? checkbox's state, plus a timestamp so exporting the same settings twice doesn't silently
+overwrite the earlier file. Samples-per-pixel and max-depth are deliberately left out — they govern
+how a scene is <em>rendered</em>, and have no bearing on the geometry an export actually contains.</p>
 
 <h1 id="attribution" style="break-before: page; font-size: 15pt; border-top: 1pt solid var(--rule); padding-top: 10pt; margin-top: 20pt;">Attribution</h1>
 

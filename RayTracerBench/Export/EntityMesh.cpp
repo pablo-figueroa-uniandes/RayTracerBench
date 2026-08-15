@@ -141,6 +141,8 @@ namespace
 	}
 }
 
+// Dispatches on the Shape component's tag to build that entity's mesh — the export-time "system"
+// alongside RayTraceCore.h's hitEntity() (intersection) and scatter() (shading).
 MeshData buildEntityMesh( TransformGPU transform, ShapeGPU shape )
 {
 	switch ( shape.type )

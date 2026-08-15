@@ -55,6 +55,7 @@ namespace
 		return out;
 	}
 
+	// Where every export is written: a SavedScenes/ subdirectory next to the running executable.
 	std::filesystem::path savedScenesDirectory()
 	{
 		return std::filesystem::path( executableDirectory() ) / "SavedScenes";
@@ -85,6 +86,7 @@ namespace
 		float       alpha;
 	};
 
+	// Maps a MaterialGPU onto glTF's PBR metallic-roughness parameters.
 	GLTFMaterialFields gltfMaterialFor( const MaterialGPU& mat )
 	{
 		switch ( mat.type )
@@ -113,6 +115,7 @@ namespace
 		int         illum;
 	};
 
+	// Maps a MaterialGPU onto Wavefront MTL's Kd/Ks/Ns/d/illum fields.
 	MTLFields mtlFieldsFor( const MaterialGPU& mat )
 	{
 		switch ( mat.type )
@@ -152,6 +155,8 @@ std::string executableDirectory()
 	return exePath.parent_path().string();
 }
 
+// Encodes the scene-identifying parameters plus a timestamp — see the header comment for why
+// samplesPerPixel/maxDepth are excluded.
 std::string sceneFilenameStem( unsigned seed, uint32_t width, bool floating )
 {
 	std::time_t t = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
@@ -166,6 +171,8 @@ std::string sceneFilenameStem( unsigned seed, uint32_t width, bool floating )
 	return std::string( buf );
 }
 
+// Writes every entity's mesh as an "o"/"v"/"vn"/"usemtl"/"f" block into stem.obj, plus the
+// materials into a companion stem.mtl — see the header comment for the output location.
 SceneExportResult exportSceneAsOBJ( const SceneDescription& scene, const std::string& stem )
 {
 	SceneExportResult result;
@@ -247,6 +254,9 @@ SceneExportResult exportSceneAsOBJ( const SceneDescription& scene, const std::st
 	return result;
 }
 
+// Assembles every entity's mesh data into one shared binary buffer, describes it with glTF
+// accessors/bufferViews/meshes/nodes, and writes the whole thing (JSON plus a base64-embedded
+// buffer) as a single stem.gltf file — see the header comment for the output location.
 SceneExportResult exportSceneAsGLTF( const SceneDescription& scene, const std::string& stem )
 {
 	SceneExportResult result;

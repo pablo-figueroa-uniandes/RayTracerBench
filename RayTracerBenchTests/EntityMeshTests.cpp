@@ -5,8 +5,11 @@
 
 namespace
 {
+	// Dot product.
 	float dot3( simd_float3 a, simd_float3 b ) { return a.x * b.x + a.y * b.y + a.z * b.z; }
 
+	// An identity-orientation Transform at `position` — sufficient for a sphere, whose Transform
+	// component never uses right/up/forward.
 	TransformGPU identityTransformAt( simd_float3 position )
 	{
 		TransformGPU t;
@@ -37,6 +40,8 @@ namespace
 	}
 }
 
+// A tessellated sphere's triangles all wind outward, none are degenerate, and every vertex
+// actually lies on the sphere's surface.
 TEST_CASE( buildEntityMesh_sphere_hasNoDegenerateTriangles_andFacesOutward )
 {
 	simd_float3 center = simd_make_float3( 1.0f, 2.0f, 3.0f );
@@ -64,6 +69,8 @@ TEST_CASE( buildEntityMesh_sphere_hasNoDegenerateTriangles_andFacesOutward )
 	}
 }
 
+// A pyramid mesh has exactly 6 faces, each with its own unshared 3 vertices (faceted, not
+// smooth), and every face winds outward.
 TEST_CASE( buildEntityMesh_pyramid_hasExactlySixFacetedTriangles_andFacesOutward )
 {
 	TransformGPU transform = identityTransformAt( simd_make_float3( 0.0f, 0.0f, 0.0f ) );
