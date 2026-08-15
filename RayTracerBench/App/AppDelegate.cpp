@@ -14,23 +14,27 @@ namespace
 	// from this fixed aspect ratio, matching Scene::buildDefaultScene's own design.
 	constexpr float kAspectRatio = 16.0f / 9.0f;
 
+	// Estimates rays/sec as width*height*samplesPerPixel divided by elapsed time.
 	double raysPerSecond( const RenderParams& params, double milliseconds )
 	{
 		double rays = (double)params.width * (double)params.height * (double)params.samplesPerPixel;
 		return rays / ( milliseconds / 1000.0 );
 	}
 
+	// Menu-item click trampoline for "About RayTracerBench".
 	void onShowAboutClicked( void*, SEL, const NS::Object* )
 	{
 		showAboutAlert();
 	}
 
+	// Menu-item click trampoline for "Quit".
 	void onQuitClicked( void*, SEL, const NS::Object* pSender )
 	{
 		NS::Application::sharedApplication()->terminate( pSender );
 	}
 }
 
+// Releases the renderer, panels, views, window, and device, in reverse construction order.
 AppDelegate::~AppDelegate()
 {
 	delete _pGPURenderer;
@@ -42,6 +46,7 @@ AppDelegate::~AppDelegate()
 	_pDevice->release();
 }
 
+// Builds the app's minimal menu bar: one app menu with "About RayTracerBench" and "Quit".
 NS::Menu* AppDelegate::createMenuBar()
 {
 	using NS::StringEncoding::UTF8StringEncoding;
@@ -69,6 +74,9 @@ NS::Menu* AppDelegate::createMenuBar()
 	return pMainMenu->autorelease();
 }
 
+// Builds the menu bar, window, and every subview (controls, both image previews, results), wires
+// button callbacks to the start*/updateSpeedupIfPossible methods below, and installs the
+// mouse-move monitor that drives the magnifier.
 void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification )
 {
 	using NS::StringEncoding::UTF8StringEncoding;
@@ -120,6 +128,8 @@ void AppDelegate::applicationDidFinishLaunching( NS::Notification* pNotification
 	} );
 }
 
+// Converts the event's window-space location into each preview's local UV coordinates and updates
+// (or disables) both previews' magnifier lenses accordingly.
 void AppDelegate::handleMouseMoved( NS::Event* pEvent )
 {
 	if ( pEvent->window() != _pWindow )
@@ -154,6 +164,8 @@ void AppDelegate::handleMouseMoved( NS::Event* pEvent )
 	_pGPUImageView->setMagnifier( true, u, v );
 }
 
+// Builds a scene from `settings` and renders it on the CPU, off the main thread; updates the CPU
+// preview/results line and re-enables controls on completion.
 void AppDelegate::startCPURender( const RenderSettings& settings )
 {
 	_pControlsPanel->setControlsEnabled( false );
@@ -183,6 +195,8 @@ void AppDelegate::startCPURender( const RenderSettings& settings )
 	} ).detach();
 }
 
+// Builds a scene from `settings` and renders it on the GPU, off the main thread; updates the GPU
+// preview/results line and re-enables controls on completion.
 void AppDelegate::startGPURender( const RenderSettings& settings )
 {
 	_pControlsPanel->setControlsEnabled( false );
@@ -211,6 +225,8 @@ void AppDelegate::startGPURender( const RenderSettings& settings )
 	} ).detach();
 }
 
+// Builds one scene from `settings` and renders it with both renderers, off the main thread;
+// updates both preview/results lines and the speedup line, and re-enables controls on completion.
 void AppDelegate::startCompare( const RenderSettings& settings )
 {
 	_pControlsPanel->setControlsEnabled( false );
@@ -250,6 +266,8 @@ void AppDelegate::startCompare( const RenderSettings& settings )
 	} ).detach();
 }
 
+// Once both a CPU and a GPU timing are known, formats and displays whichever ratio is >= 1x
+// ("GPU is Nx faster" or "CPU is Nx faster"). No-ops until both times exist.
 void AppDelegate::updateSpeedupIfPossible()
 {
 	if ( _lastCPUTimeMs < 0.0 || _lastGPUTimeMs < 0.0 )
@@ -269,6 +287,7 @@ void AppDelegate::updateSpeedupIfPossible()
 	_pResultsPanel->setSpeedupLine( buf );
 }
 
+// Always true: this app has exactly one window, so closing it should quit.
 bool AppDelegate::applicationShouldTerminateAfterLastWindowClosed( NS::Application* pSender )
 {
 	return true;

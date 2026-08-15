@@ -24,6 +24,7 @@ namespace
 		int    maxDiff;
 	};
 
+	// See the ParityStats comment above for what this returns and why.
 	ParityStats measureParity( uint32_t width, uint32_t spp, uint32_t maxDepth, unsigned seed, int tolerance )
 	{
 		const float      aspectRatio = 16.0f / 9.0f;

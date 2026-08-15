@@ -1,5 +1,6 @@
 #include "ResultsPanel.hpp"
 
+// Creates a non-editable, non-bezeled, transparent-background NS::TextField, used as a plain label.
 NS::TextField* ResultsPanel::makeLabel( CGRect frame, const char* text )
 {
 	NS::TextField* pLabel = NS::TextField::alloc()->init( frame );
@@ -10,6 +11,7 @@ NS::TextField* ResultsPanel::makeLabel( CGRect frame, const char* text )
 	return pLabel;
 }
 
+// Builds the three label subviews (CPU, GPU, speedup), each with its default placeholder text.
 ResultsPanel::ResultsPanel( CGRect frame )
 {
 	_pContainerView = NS::View::alloc()->init( frame );
@@ -24,6 +26,7 @@ ResultsPanel::ResultsPanel( CGRect frame )
 	_pContainerView->addSubview( _pSpeedupLabel );
 }
 
+// Releases the three label subviews and the container view.
 ResultsPanel::~ResultsPanel()
 {
 	_pSpeedupLabel->release();
@@ -32,16 +35,19 @@ ResultsPanel::~ResultsPanel()
 	_pContainerView->release();
 }
 
+// Replaces the CPU results line's text.
 void ResultsPanel::setCPULine( const std::string& text )
 {
 	_pCPULabel->setStringValue( NS::String::string( text.c_str(), NS::StringEncoding::UTF8StringEncoding ) );
 }
 
+// Replaces the GPU results line's text.
 void ResultsPanel::setGPULine( const std::string& text )
 {
 	_pGPULabel->setStringValue( NS::String::string( text.c_str(), NS::StringEncoding::UTF8StringEncoding ) );
 }
 
+// Replaces the speedup-ratio line's text.
 void ResultsPanel::setSpeedupLine( const std::string& text )
 {
 	_pSpeedupLabel->setStringValue( NS::String::string( text.c_str(), NS::StringEncoding::UTF8StringEncoding ) );

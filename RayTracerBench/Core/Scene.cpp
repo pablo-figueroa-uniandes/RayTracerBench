@@ -12,11 +12,15 @@ namespace
 {
 	constexpr float kPi = 3.14159265358979323846f;
 
+	// A random RGB albedo whose components are each the product of two uniform draws, biasing the
+	// distribution toward darker, less saturated colors (matching the book's own choice).
 	simd_float3 randomAlbedo( std::mt19937& rng, std::uniform_real_distribution<float>& unit )
 	{
 		return simd_make_float3( unit( rng ) * unit( rng ), unit( rng ) * unit( rng ), unit( rng ) * unit( rng ) );
 	}
 
+	// Builds a CameraGPU by precomputing its viewport basis/corners once, so getRay() never has to
+	// redo this trigonometry per ray.
 	CameraGPU makeCamera( simd_float3 lookFrom, simd_float3 lookAt, simd_float3 vUp,
 		float vfovDegrees, float aspectRatio, float aperture, float focusDist )
 	{
@@ -41,6 +45,7 @@ namespace
 		return cam;
 	}
 
+	// Appends a material to the materials component array and returns its index.
 	int addMaterial( std::vector<MaterialGPU>& materials, MaterialGPU mat )
 	{
 		materials.push_back( mat );
@@ -144,6 +149,9 @@ namespace
 	}
 }
 
+// Builds the classic "Ray Tracing in One Weekend" demo scene — ground, randomized small-sphere
+// field, three feature spheres, and a handful of oriented pyramids — see Scene.hpp for the full
+// parameter/determinism contract.
 SceneDescription buildDefaultScene( unsigned seed, uint32_t width, float aspectRatio, uint32_t samplesPerPixel, uint32_t maxDepth, bool floating )
 {
 	SceneDescription scene;

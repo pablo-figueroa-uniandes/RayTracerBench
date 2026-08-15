@@ -42,6 +42,7 @@ struct MagnifierUniforms
 	int   active;     // 0 = disabled; draw the source texture unmodified
 };
 
+// Emits one of the 6 baked-in quad vertices (2 triangles, no vertex buffer) for the given vertex_id.
 vertex RasterizerData blitVertex( uint vertexID [[vertex_id]] )
 {
 	RasterizerData out;
@@ -50,6 +51,8 @@ vertex RasterizerData blitVertex( uint vertexID [[vertex_id]] )
 	return out;
 }
 
+// Samples sourceTexture at in.texCoord, applying the magnifier lens effect when active (see the
+// file header comment).
 fragment float4 blitFragment( RasterizerData in [[stage_in]],
 	texture2d<float, access::sample> sourceTexture [[texture( 0 )]],
 	constant MagnifierUniforms& magnifier [[buffer( 0 )]] )

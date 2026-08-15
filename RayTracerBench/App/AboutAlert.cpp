@@ -2,6 +2,7 @@
 
 #include <AppKit/AppKit.hpp>
 
+// Builds and runs (modally) the About panel's NS::Alert. See AboutAlert.hpp for the rationale.
 void showAboutAlert()
 {
 	using NS::StringEncoding::UTF8StringEncoding;

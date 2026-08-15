@@ -14,9 +14,13 @@
 class ImageDisplayView
 {
 	public:
+		// Compiles Blit.metal, builds the render pipeline state, and creates the CAMetalLayer-backed
+		// view sized to `frame`.
 		ImageDisplayView( MTL::Device* pDevice, CGRect frame );
+		// Releases the owned texture (if any), the pipeline state, command queue, layer, and view.
 		~ImageDisplayView();
 
+		// The view an owner should add as a subview.
 		NS::View* view() const { return _pView; }
 
 		// Uploads an RGBA8, row-major, row-0-is-top buffer of exactly width*height*4 bytes and
@@ -27,6 +31,7 @@ class ImageDisplayView
 		// must outlive this call, but this view never retains or releases it.
 		void displayTexture( MTL::Texture* pTexture );
 
+		// The view's current pixel size.
 		CGSize size() const { return _viewSize; }
 
 		// centerU/centerV: lens center in the same normalized [0,1] UV convention as the source
@@ -47,7 +52,9 @@ class ImageDisplayView
 			int   active;
 		};
 
+		// (Re)creates _pOwnedTexture only when width/height actually change from last time.
 		void rebuildOwnedTextureIfNeeded( uint32_t width, uint32_t height );
+		// Encodes and presents one blit of _pCurrentTexture through Blit.metal's pipeline.
 		void render();
 
 		MTL::Device*              _pDevice;

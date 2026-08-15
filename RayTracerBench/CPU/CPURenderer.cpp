@@ -16,6 +16,8 @@ namespace
 		return static_cast<uint8_t>( 256.0f * clamped );
 	}
 
+	// Renders rows [rowStart, rowEnd) of `scene` into `pixels` (RGBA8, row-major, row 0 = top),
+	// tracing every sample of every pixel in that band through the shared RayTraceCore.h algorithm.
 	void renderRows( const SceneDescription& scene, std::vector<uint8_t>& pixels, uint32_t rowStart, uint32_t rowEnd )
 	{
 		const uint32_t width = scene.params.width;
@@ -70,6 +72,8 @@ namespace
 	}
 }
 
+// Renders the full image, either on the calling thread (SingleThreaded) or by partitioning rows
+// across std::thread::hardware_concurrency() threads (MultiThreaded), and times the whole render.
 CPURenderResult renderCPU( const SceneDescription& scene, CPUThreading::Mode mode )
 {
 	const uint32_t width = scene.params.width;

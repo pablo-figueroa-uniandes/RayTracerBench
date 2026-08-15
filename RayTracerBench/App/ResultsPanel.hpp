@@ -10,16 +10,24 @@
 class ResultsPanel
 {
 	public:
+		// Builds the three label subviews inside `frame`.
 		explicit ResultsPanel( CGRect frame );
+		// Releases the three label subviews and the container view.
 		~ResultsPanel();
 
+		// The container view an owner should add as a subview.
 		NS::View* view() const { return _pContainerView; }
 
+		// Replaces the CPU results line's text.
 		void setCPULine( const std::string& text );
+		// Replaces the GPU results line's text.
 		void setGPULine( const std::string& text );
+		// Replaces the speedup-ratio line's text.
 		void setSpeedupLine( const std::string& text );
 
 	private:
+		// Creates a non-editable, non-bezeled, transparent-background NS::TextField, used as a
+		// plain label rather than an input field.
 		static NS::TextField* makeLabel( CGRect frame, const char* text );
 
 		NS::View*      _pContainerView;

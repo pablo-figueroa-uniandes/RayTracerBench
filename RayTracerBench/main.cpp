@@ -7,6 +7,7 @@
 
 #include "App/AppDelegate.hpp"
 
+// Entry point: sets up the NSApplication/AppDelegate pair and runs the main event loop.
 int main( int argc, char* argv[] )
 {
 	NS::AutoreleasePool* pAutoreleasePool = NS::AutoreleasePool::alloc()->init();

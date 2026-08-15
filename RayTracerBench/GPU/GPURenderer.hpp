@@ -22,13 +22,20 @@ struct GPURenderResult
 class GPURenderer
 {
 	public:
+		// Loads the precompiled Raytracer.metallib, builds the compute pipeline state, and creates
+		// the command queue. Aborts on failure (see .cpp) rather than leaving a half-usable renderer.
 		explicit GPURenderer( MTL::Device* pDevice );
+		// Releases the output texture, entity/material buffers, pipeline state, queue, and device.
 		~GPURenderer();
 
+		// Rebuilds this scene's GPU buffers/texture, does one untimed warm-up dispatch, then one
+		// timed dispatch; returns the resulting texture plus wall-clock and GPU-only timings.
 		GPURenderResult render( const SceneDescription& scene );
 
 	private:
+		// Recreates the transform/shape/material buffers from `scene` and uploads their contents.
 		void   rebuildBuffers( const SceneDescription& scene );
+		// (Re)creates the output texture only when width/height actually change from last time.
 		void   rebuildTextureIfNeeded( uint32_t width, uint32_t height );
 		double dispatchOnce( const SceneDescription& scene ); // one dispatch+wait; returns GPU-only ms
 

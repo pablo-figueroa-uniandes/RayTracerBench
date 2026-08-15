@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cstring>
 
+// Loads the precompiled Raytracer.metallib, builds the compute pipeline state, and creates the
+// command queue. Aborts (rather than leaving a half-constructed renderer) if either step fails.
 GPURenderer::GPURenderer( MTL::Device* pDevice )
 	: _pDevice( pDevice->retain() )
 	, _pTransformBuffer( nullptr )
@@ -44,6 +46,7 @@ GPURenderer::GPURenderer( MTL::Device* pDevice )
 	_pCommandQueue = _pDevice->newCommandQueue();
 }
 
+// Releases the output texture, entity/material buffers, pipeline state, queue, and device.
 GPURenderer::~GPURenderer()
 {
 	if ( _pOutputTexture )
@@ -85,6 +88,7 @@ void GPURenderer::rebuildBuffers( const SceneDescription& scene )
 	std::memcpy( _pMaterialBuffer->contents(), scene.materials.data(), materialBytes );
 }
 
+// (Re)creates the output texture only when width/height actually differ from the last call.
 void GPURenderer::rebuildTextureIfNeeded( uint32_t width, uint32_t height )
 {
 	if ( _pOutputTexture && width == _textureWidth && height == _textureHeight )
@@ -105,6 +109,8 @@ void GPURenderer::rebuildTextureIfNeeded( uint32_t width, uint32_t height )
 	_textureHeight = height;
 }
 
+// Encodes and dispatches one compute pass over the whole image, waits for completion, and returns
+// the GPU-only elapsed time in milliseconds (from the command buffer's own timestamps).
 double GPURenderer::dispatchOnce( const SceneDescription& scene )
 {
 	uint32_t entityCount = static_cast<uint32_t>( scene.transforms.size() );
@@ -132,6 +138,8 @@ double GPURenderer::dispatchOnce( const SceneDescription& scene )
 	return ( pCommandBuffer->GPUEndTime() - pCommandBuffer->GPUStartTime() ) * 1000.0;
 }
 
+// Rebuilds this scene's buffers/texture, does one untimed warm-up dispatch, then one timed
+// dispatch; returns the output texture plus wall-clock and GPU-only timings.
 GPURenderResult GPURenderer::render( const SceneDescription& scene )
 {
 	rebuildBuffers( scene );

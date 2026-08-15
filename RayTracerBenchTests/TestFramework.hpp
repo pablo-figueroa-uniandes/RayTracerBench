@@ -29,6 +29,8 @@ namespace TestFramework
 
 	struct TestRegistrar
 	{
+		// Constructing a static TestRegistrar (see the TEST_CASE macro) registers its test function
+		// as a side effect, before main() runs.
 		TestRegistrar( const char* name, std::function<void()> fn ) { registry().push_back( { name, std::move( fn ) } ); }
 	};
 
@@ -37,6 +39,8 @@ namespace TestFramework
 		std::string message;
 	};
 
+	// Runs every registered test, printing a [PASS]/[FAIL] line per test and a summary line at the
+	// end. Returns a process exit code: 0 if everything passed, 1 if anything failed.
 	inline int runAll()
 	{
 		int passed = 0;
@@ -65,11 +69,15 @@ namespace TestFramework
 	}
 }
 
+// Declares a test function named `name`, registers it via a file-scope static TestRegistrar, then
+// opens the function body for the caller to fill in — e.g. `TEST_CASE( myTest ) { CHECK(...); }`.
 #define TEST_CASE( name )                                                                        \
 	static void          name();                                                                  \
 	static ::TestFramework::TestRegistrar registrar_##name( #name, name );                        \
 	static void          name()
 
+// Shared implementation behind CHECK(): throws a CheckFailure carrying a file:line-prefixed
+// message (plus any extra context) when `cond` is false.
 #define RT_CHECK_MESSAGE( cond, extra )                                                           \
 	do                                                                                              \
 	{                                                                                               \
@@ -81,8 +89,11 @@ namespace TestFramework
 		}                                                                                             \
 	} while ( false )
 
+// Fails the current test (throwing CheckFailure) unless `cond` is true.
 #define CHECK( cond ) RT_CHECK_MESSAGE( cond, "" )
 
+// Fails the current test unless `a` and `b` are within `eps` of each other — for floating-point
+// comparisons where exact equality isn't meaningful.
 #define CHECK_NEAR( a, b, eps )                                                                   \
 	do                                                                                              \
 	{                                                                                               \

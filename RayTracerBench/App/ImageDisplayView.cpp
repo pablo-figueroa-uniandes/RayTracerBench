@@ -29,6 +29,8 @@ namespace
 	}
 }
 
+// Compiles Blit.metal from source, builds the render pipeline state, and wires up the
+// CAMetalLayer-backed view. See the header comment for why this is a plain view, not MTKView.
 ImageDisplayView::ImageDisplayView( MTL::Device* pDevice, CGRect frame )
 	: _pDevice( pDevice->retain() )
 	, _viewSize( frame.size )
@@ -87,6 +89,7 @@ ImageDisplayView::ImageDisplayView( MTL::Device* pDevice, CGRect frame )
 	_pCommandQueue = _pDevice->newCommandQueue();
 }
 
+// Releases the owned texture (if any), pipeline state, command queue, layer, and view.
 ImageDisplayView::~ImageDisplayView()
 {
 	if ( _pOwnedTexture )
@@ -98,6 +101,7 @@ ImageDisplayView::~ImageDisplayView()
 	_pDevice->release();
 }
 
+// (Re)creates _pOwnedTexture only when width/height actually differ from the last call.
 void ImageDisplayView::rebuildOwnedTextureIfNeeded( uint32_t width, uint32_t height )
 {
 	if ( _pOwnedTexture && width == _ownedTextureWidth && height == _ownedTextureHeight )
@@ -115,6 +119,8 @@ void ImageDisplayView::rebuildOwnedTextureIfNeeded( uint32_t width, uint32_t hei
 	_ownedTextureHeight = height;
 }
 
+// Uploads an RGBA8 buffer into the owned texture (recreating it if the size changed), then
+// immediately renders and presents.
 void ImageDisplayView::updatePixels( const uint8_t* pRGBA, uint32_t width, uint32_t height )
 {
 	rebuildOwnedTextureIfNeeded( width, height );
@@ -127,6 +133,7 @@ void ImageDisplayView::updatePixels( const uint8_t* pRGBA, uint32_t width, uint3
 	render();
 }
 
+// Points rendering at an externally-owned texture (e.g. the GPU renderer's output) and presents.
 void ImageDisplayView::displayTexture( MTL::Texture* pTexture )
 {
 	_pCurrentTexture = pTexture;
@@ -134,6 +141,8 @@ void ImageDisplayView::displayTexture( MTL::Texture* pTexture )
 	render();
 }
 
+// Updates the lens uniforms and, if a texture is already showing, immediately re-renders so the
+// lens tracks the mouse live.
 void ImageDisplayView::setMagnifier( bool active, float centerU, float centerV, float zoomFactor, float radius )
 {
 	_magnifier.active = active ? 1 : 0;
@@ -146,6 +155,7 @@ void ImageDisplayView::setMagnifier( bool active, float centerU, float centerV, 
 		render();
 }
 
+// Encodes and presents one full-screen-quad blit of _pCurrentTexture through Blit.metal's pipeline.
 void ImageDisplayView::render()
 {
 	CA::MetalDrawable* pDrawable = _pMetalLayer->nextDrawable();

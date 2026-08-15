@@ -8,12 +8,16 @@ namespace
 {
 	ControlsPanel* gControlsPanel = nullptr;
 
+	// Button click trampolines: metal-cpp-extensions' action callbacks are capture-less function
+	// pointers, so each reaches the current panel through the file-local gControlsPanel pointer.
 	void onRandomizeSeedClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRandomizeSeedClicked(); }
 	void onThreadingToggleClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleThreadingToggleClicked(); }
 	void onRenderCPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderCPUClicked(); }
 	void onRenderGPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderGPUClicked(); }
 	void onCompareClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleCompareClicked(); }
 
+	// Parses a text field as an unsigned integer, clamped to [minVal, maxVal]; returns `fallback`
+	// if the field doesn't start with a valid number.
 	uint32_t parseUInt( NS::TextField* pField, uint32_t minVal, uint32_t maxVal, uint32_t fallback )
 	{
 		const char* pText = pField->stringValue()->utf8String();
@@ -29,6 +33,7 @@ namespace
 	}
 }
 
+// Creates a non-editable, non-bezeled, transparent-background NS::TextField, used as a plain label.
 NS::TextField* ControlsPanel::makeLabel( CGRect frame, const char* text )
 {
 	NS::TextField* pLabel = NS::TextField::alloc()->init( frame );
@@ -39,6 +44,7 @@ NS::TextField* ControlsPanel::makeLabel( CGRect frame, const char* text )
 	return pLabel;
 }
 
+// Creates an editable, bezeled NS::TextField pre-filled with `initialText`.
 NS::TextField* ControlsPanel::makeField( CGRect frame, const char* initialText )
 {
 	NS::TextField* pField = NS::TextField::alloc()->init( frame );
@@ -48,6 +54,8 @@ NS::TextField* ControlsPanel::makeField( CGRect frame, const char* initialText )
 	return pField;
 }
 
+// Builds every field, label, button, and the Floating? checkbox, laid out in two rows inside
+// `frame`, and wires each button's click action to its file-local trampoline above.
 ControlsPanel::ControlsPanel( CGRect frame )
 	: _multiThreaded( true )
 {
@@ -113,6 +121,7 @@ ControlsPanel::ControlsPanel( CGRect frame )
 	_pContainerView->addSubview( _pFloatingCheckbox );
 }
 
+// Releases every field/button/checkbox subview and the container view.
 ControlsPanel::~ControlsPanel()
 {
 	_pFloatingCheckbox->release();
@@ -128,6 +137,8 @@ ControlsPanel::~ControlsPanel()
 	_pContainerView->release();
 }
 
+// Reads and parses (with fallbacks for invalid input) the current state of every field, the
+// threading toggle, and the Floating? checkbox into a RenderSettings snapshot.
 RenderSettings ControlsPanel::currentSettings() const
 {
 	RenderSettings settings;
@@ -140,6 +151,8 @@ RenderSettings ControlsPanel::currentSettings() const
 	return settings;
 }
 
+// Enables or disables every field/toggle/button/checkbox at once, so a render in flight can't be
+// raced by a second click.
 void ControlsPanel::setControlsEnabled( bool enabled )
 {
 	_pWidthField->setEnabled( enabled );
@@ -154,6 +167,7 @@ void ControlsPanel::setControlsEnabled( bool enabled )
 	_pFloatingCheckbox->setEnabled( enabled );
 }
 
+// Fills the seed field with a freshly generated random seed.
 void ControlsPanel::handleRandomizeSeedClicked()
 {
 	std::random_device rd;
@@ -163,6 +177,7 @@ void ControlsPanel::handleRandomizeSeedClicked()
 	_pSeedField->setStringValue( NS::String::string( buf, NS::StringEncoding::UTF8StringEncoding ) );
 }
 
+// Flips the CPU-threading mode and updates the toggle button's title to match.
 void ControlsPanel::handleThreadingToggleClicked()
 {
 	_multiThreaded = !_multiThreaded;
@@ -171,18 +186,21 @@ void ControlsPanel::handleThreadingToggleClicked()
 		NS::StringEncoding::UTF8StringEncoding ) );
 }
 
+// Forwards to the onRenderCPU callback, if the owner set one.
 void ControlsPanel::handleRenderCPUClicked()
 {
 	if ( onRenderCPU )
 		onRenderCPU();
 }
 
+// Forwards to the onRenderGPU callback, if the owner set one.
 void ControlsPanel::handleRenderGPUClicked()
 {
 	if ( onRenderGPU )
 		onRenderGPU();
 }
 
+// Forwards to the onCompare callback, if the owner set one.
 void ControlsPanel::handleCompareClicked()
 {
 	if ( onCompare )

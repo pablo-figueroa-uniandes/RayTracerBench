@@ -24,11 +24,15 @@ struct RenderSettings
 class ControlsPanel
 {
 	public:
+		// Builds every field, button, and checkbox subview inside `frame`.
 		explicit ControlsPanel( CGRect frame );
+		// Releases every field/button/checkbox subview and the container view.
 		~ControlsPanel();
 
+		// The container view an owner should add as a subview.
 		NS::View* view() const { return _pContainerView; }
 
+		// Reads and parses (with fallbacks) the current state of every field/toggle/checkbox.
 		RenderSettings currentSettings() const;
 
 		// Disables every field/button (prevents a second click from racing an in-flight
@@ -42,14 +46,22 @@ class ControlsPanel
 		// Public so the capture-less click-callback trampolines in ControlsPanel.cpp (which can't
 		// hold a `this` closure) can reach them through a file-local pointer — same pattern as
 		// AppDelegate's click handlers.
+		// Fills the seed field with a new random seed.
 		void handleRandomizeSeedClicked();
+		// Toggles the CPU-threading mode and updates the button's title to match.
 		void handleThreadingToggleClicked();
+		// Forwards to the onRenderCPU callback, if one is set.
 		void handleRenderCPUClicked();
+		// Forwards to the onRenderGPU callback, if one is set.
 		void handleRenderGPUClicked();
+		// Forwards to the onCompare callback, if one is set.
 		void handleCompareClicked();
 
 	private:
+		// Creates a non-editable, non-bezeled, transparent-background NS::TextField, used as a
+		// plain label.
 		static NS::TextField* makeLabel( CGRect frame, const char* text );
+		// Creates an editable, bezeled NS::TextField pre-filled with `initialText`.
 		static NS::TextField* makeField( CGRect frame, const char* initialText );
 
 		NS::View* _pContainerView;

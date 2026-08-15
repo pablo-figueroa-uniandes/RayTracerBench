@@ -44,6 +44,8 @@
 // too many arguments — it needs simd_make_float3(x,y,z) or brace-init instead.
 //-------------------------------------------------------------------------------------------------
 
+// Constructs a 3-vector from components, spelled the one way that compiles on both sides — see
+// the block comment above.
 inline simd_float3 makeFloat3( float x, float y, float z )
 {
 #if defined( __METAL_VERSION__ )
@@ -53,32 +55,40 @@ inline simd_float3 makeFloat3( float x, float y, float z )
 #endif
 }
 
+// Dot product.
 inline float dot3( simd_float3 a, simd_float3 b )
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+// Euclidean length.
 inline float length3( simd_float3 a )
 {
 	return sqrt( dot3( a, a ) );
 }
 
+// Unit-length version of `a`.
 inline simd_float3 normalize3( simd_float3 a )
 {
 	return a / length3( a );
 }
 
+// True if every component of `a` is within a small epsilon of zero — used to catch a degenerate
+// (near-zero-length) Lambertian scatter direction before it's normalized.
 inline bool nearZero3( simd_float3 a )
 {
 	const float eps = 1e-8f;
 	return ( fabs( a.x ) < eps ) && ( fabs( a.y ) < eps ) && ( fabs( a.z ) < eps );
 }
 
+// Reflects `v` about surface normal `n` — the standard mirror-reflection law.
 inline simd_float3 reflect3( simd_float3 v, simd_float3 n )
 {
 	return v - 2.0f * dot3( v, n ) * n;
 }
 
+// Refracts unit vector `uv` through a surface with normal `n`, per Snell's law, given the ratio of
+// refractive indices `etaiOverEtat`.
 inline simd_float3 refract3( simd_float3 uv, simd_float3 n, float etaiOverEtat )
 {
 	float       cosTheta = fmin( dot3( -uv, n ), 1.0f );
@@ -87,6 +97,8 @@ inline simd_float3 refract3( simd_float3 uv, simd_float3 n, float etaiOverEtat )
 	return rOutPerp + rOutParallel;
 }
 
+// Schlick's approximation: the probability that a dielectric surface reflects (rather than
+// refracts) a ray at the given angle and refraction index.
 inline float reflectance( float cosine, float refractionIndex )
 {
 	float r0 = ( 1.0f - refractionIndex ) / ( 1.0f + refractionIndex );
@@ -100,6 +112,7 @@ inline float reflectance( float cosine, float refractionIndex )
 // of the RNG needing a mutable reference parameter.
 //-------------------------------------------------------------------------------------------------
 
+// Advances a 32-bit RNG state to the next well-mixed 32-bit value (a pcg-hash step).
 inline uint32_t pcgHash( uint32_t input )
 {
 	uint32_t state = input * 747796405u + 2891336453u;
@@ -119,6 +132,7 @@ struct RandomVec3Sample
 	uint32_t    seed;
 };
 
+// Draws one uniform float in [0,1) and returns it alongside the advanced RNG state.
 inline RandomFloatSample randomFloat( uint32_t seed )
 {
 	uint32_t nextSeed = pcgHash( seed );
@@ -126,6 +140,7 @@ inline RandomFloatSample randomFloat( uint32_t seed )
 	return RandomFloatSample{ value, nextSeed };
 }
 
+// Draws one uniform float in [minVal, maxVal).
 inline RandomFloatSample randomFloatRange( uint32_t seed, float minVal, float maxVal )
 {
 	RandomFloatSample s = randomFloat( seed );
@@ -133,6 +148,7 @@ inline RandomFloatSample randomFloatRange( uint32_t seed, float minVal, float ma
 	return s;
 }
 
+// Draws one vector whose components are each independently uniform in [minVal, maxVal).
 inline RandomVec3Sample randomVec3Range( uint32_t seed, float minVal, float maxVal )
 {
 	RandomFloatSample sx = randomFloatRange( seed, minVal, maxVal );
@@ -155,6 +171,8 @@ inline RandomVec3Sample randomInUnitSphere( uint32_t seed )
 	return RandomVec3Sample{ makeFloat3( 0.0f, 0.0f, 0.0f ), seed };
 }
 
+// Draws a uniformly-distributed unit vector (a random point on the unit sphere's surface) — used
+// for Lambertian scatter directions.
 inline RandomVec3Sample randomUnitVector( uint32_t seed )
 {
 	RandomVec3Sample s = randomInUnitSphere( seed );
@@ -162,6 +180,8 @@ inline RandomVec3Sample randomUnitVector( uint32_t seed )
 	return s;
 }
 
+// Draws a random point inside the unit disk in the XY plane (Z always 0), via the same bounded
+// rejection-sampling approach as randomInUnitSphere() — used for thin-lens defocus-blur sampling.
 inline RandomVec3Sample randomInUnitDisk( uint32_t seed )
 {
 	for ( int i = 0; i < 32; ++i )
@@ -186,6 +206,7 @@ struct Ray
 	simd_float3 direction;
 };
 
+// The point at parameter `t` along ray `r`: origin + t*direction.
 inline simd_float3 rayAt( Ray r, float t )
 {
 	return r.origin + t * r.direction;
@@ -389,6 +410,8 @@ struct ScatterResult
 	uint32_t    rngSeed;
 };
 
+// Scatters an incoming ray off a hit surface according to its material: a new outgoing ray plus
+// the color attenuation it carries, or `scattered=false` if the ray is absorbed.
 inline ScatterResult scatter( Ray rayIn, HitRecord rec, MaterialGPU mat, uint32_t rngSeed )
 {
 	switch ( mat.type )
@@ -439,6 +462,8 @@ struct RayColorResult
 	uint32_t    rngSeed;
 };
 
+// Traces one camera ray through up to `maxDepth` bounces and returns its accumulated color —
+// the top-level path-tracing loop both renderers call once per sample per pixel.
 inline RayColorResult rayColor( Ray r,
 	RT_DEVICE const TransformGPU* transforms, RT_DEVICE const ShapeGPU* shapes, uint32_t entityCount,
 	RT_DEVICE const MaterialGPU* materials, uint32_t maxDepth, uint32_t rngSeed )
@@ -497,6 +522,8 @@ struct CameraRaySample
 	uint32_t rngSeed;
 };
 
+// Builds the camera ray for normalized image coordinates (s, t), jittered by a random point on the
+// lens disk to produce thin-lens defocus blur.
 inline CameraRaySample getRay( CameraGPU cam, float s, float t, uint32_t rngSeed )
 {
 	RandomVec3Sample diskSample = randomInUnitDisk( rngSeed );

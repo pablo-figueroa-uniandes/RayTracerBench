@@ -3,6 +3,8 @@
 
 namespace
 {
+	// An identity-orientation Transform at `center` — sufficient for a sphere, whose Transform
+	// component never uses right/up/forward.
 	TransformGPU sphereTransform( simd_float3 center )
 	{
 		TransformGPU t;
@@ -13,6 +15,7 @@ namespace
 		return t;
 	}
 
+	// A sphere Shape component with the given radius.
 	ShapeGPU sphereShape( float radius )
 	{
 		ShapeGPU s;
@@ -31,6 +34,7 @@ namespace
 		return sphereTransform( basePosition ); // identity basis works for either shape
 	}
 
+	// A pyramid Shape component with the given base half-width and height.
 	ShapeGPU pyramidShape( float baseHalfWidth, float height )
 	{
 		ShapeGPU s;
@@ -43,6 +47,7 @@ namespace
 	}
 }
 
+// A ray fired straight at a sphere's center hits its near face at t = center distance - radius.
 TEST_CASE( hitSphere_hitsDeadOn )
 {
 	TransformGPU transform = sphereTransform( makeFloat3( 0.0f, 0.0f, -1.0f ) );
@@ -57,6 +62,7 @@ TEST_CASE( hitSphere_hitsDeadOn )
 	CHECK_NEAR( result.record.normal.z, 1.0, 1e-5 ); // ray hit the near face, normal points back at the ray
 }
 
+// A ray that never comes near a sphere reports no hit.
 TEST_CASE( hitSphere_missesEntirely )
 {
 	TransformGPU transform = sphereTransform( makeFloat3( 10.0f, 10.0f, 10.0f ) );
@@ -210,6 +216,7 @@ TEST_CASE( hitEntity_dispatchesByShapeTag )
 	CHECK_NEAR( pyramidResult.record.t, 4.0, 1e-4 ); // apex at y=1
 }
 
+// Reflecting a 45-degree incoming vector off a flat normal mirrors it to the other side.
 TEST_CASE( reflect3_mirrorsAboutNormal )
 {
 	simd_float3 incoming = makeFloat3( 1.0f, -1.0f, 0.0f );
@@ -222,6 +229,8 @@ TEST_CASE( reflect3_mirrorsAboutNormal )
 	CHECK_NEAR( reflected.z, 0.0, 1e-5 );
 }
 
+// pcgHash() is a pure function: same input always gives the same output, different inputs
+// (almost always) give different outputs.
 TEST_CASE( pcgHash_isDeterministicAndVaries )
 {
 	uint32_t a1 = pcgHash( 12345u );

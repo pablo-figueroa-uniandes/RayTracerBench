@@ -11,9 +11,13 @@
 class AppDelegate : public NS::ApplicationDelegate
 {
 	public:
+		// Releases the renderer, panels, views, window, and device.
 		~AppDelegate();
 
+		// Builds the menu bar, window, and all subviews, wires up button callbacks, and installs
+		// the mouse-move monitor for the magnifier.
 		void applicationDidFinishLaunching( NS::Notification* pNotification ) override;
+		// Always true: this app has exactly one window, so closing it should quit.
 		bool applicationShouldTerminateAfterLastWindowClosed( NS::Application* pSender ) override;
 
 	private:
@@ -21,12 +25,17 @@ class AppDelegate : public NS::ApplicationDelegate
 		// the main thread via dispatch_async(dispatch_get_main_queue(), ...) — GCD's plain C API,
 		// no Objective-C needed. Controls are disabled for the duration to prevent a second click
 		// from racing an in-flight render against the same shared GPURenderer/ImageDisplayView state.
+		// Builds a scene from `settings` and renders it on the CPU.
 		void startCPURender( const RenderSettings& settings );
+		// Builds a scene from `settings` and renders it on the GPU.
 		void startGPURender( const RenderSettings& settings );
+		// Builds one scene from `settings` and renders it with both the CPU and GPU renderers.
 		void startCompare( const RenderSettings& settings );
 
+		// Recomputes and displays the CPU/GPU speedup line once both a CPU and a GPU time are known.
 		void updateSpeedupIfPossible();
 
+		// Builds the app's minimal menu bar (About / Quit).
 		NS::Menu* createMenuBar();
 
 		// Magnifying-glass loupe: a local NS::EventMaskMouseMoved monitor (installed once, at
