@@ -3,19 +3,25 @@
 **Abstract.** This chapter covers the three files that make up RayTracerBench's
 control surface: `ControlsPanel`, which owns every input field, toggle,
 checkbox, and button the user touches to configure and trigger a render or
-export; `ResultsPanel`, the deliberately dumb three-line label strip that
+export; `ResultsPanel`, the deliberately dumb four-line label strip that
 displays whatever timing text `AppDelegate` hands it; and `AboutAlert`, the
 one-shot attribution dialog. None of these files render anything or know how
 long a render took — they parse input, forward clicks through
-`std::function` callbacks, and display strings. The interesting engineering
-in this chapter is not in what these classes compute (almost nothing) but in
-how they talk to AppKit without a line of Objective-C++: capture-less
-function-pointer trampolines standing in for target/action selectors, and a
-real `NSButtonTypeSwitch` checkbox that needs no click handler at all,
-contrasted against an older toggle button that has to fake its own checked
-state. Files covered: `App/ControlsPanel.hpp`, `App/ControlsPanel.cpp`,
-`App/ResultsPanel.hpp`, `App/ResultsPanel.cpp`, `App/AboutAlert.hpp`,
-`App/AboutAlert.cpp`.
+`std::function` callbacks, and display strings. That's still true after
+three more render paths were added on top of the original CPU/GPU pair
+(Raster in Chapter 13, the Pipeline Steps window in Chapter 14, and the
+reverse-import "Load Scene" feature in Chapter 7) — each new button is one
+more four-line allocate/title/target/action block and one more
+`std::function` member, not a change to either class's actual job. The
+interesting engineering in this chapter is not in what these classes compute
+(almost nothing) but in how they talk to AppKit without a line of
+Objective-C++: capture-less function-pointer trampolines standing in for
+target/action selectors, a real `NSButtonTypeSwitch` checkbox that needs no
+click handler at all contrasted against an older toggle button that has to
+fake its own checked state, and — added later — a real `NS::OpenPanel` file
+picker for "Load Scene." Files covered: `App/ControlsPanel.hpp`,
+`App/ControlsPanel.cpp`, `App/ResultsPanel.hpp`, `App/ResultsPanel.cpp`,
+`App/AboutAlert.hpp`, `App/AboutAlert.cpp`.
 
 ## §1. What `ControlsPanel` owns, and what it deliberately doesn't
 
@@ -33,18 +39,24 @@ class ControlsPanel
 `App/ControlsPanel.hpp:20-24`
 
 That separation is why the class has no reference to `CPURenderer`,
-`GPURenderer`, or `SceneExporter` beyond the `CPUThreading::Mode` enum it
-needs to fill in a `RenderSettings` struct — the five `std::function<void()>`
-members are the entire interface `AppDelegate` uses to react to a click:
+`GPURenderer`, `RasterRenderer`, or `SceneExporter`/`SceneImporter` beyond the
+`CPUThreading::Mode` enum it needs to fill in a `RenderSettings` struct — the
+eight `std::function<void()>` members (three of them added after this
+chapter was first written, as the app grew a raster renderer, Chapter 14's
+pipeline-visualization window, and the "Load Scene" round-trip feature) are
+the entire interface `AppDelegate` uses to react to a click:
 
 ```cpp
 std::function<void()> onRenderCPU;
 std::function<void()> onRenderGPU;
+std::function<void()> onRenderRaster;
 std::function<void()> onCompare;
+std::function<void()> onShowPipeline;
 std::function<void()> onSaveGLTF;
 std::function<void()> onSaveOBJ;
+std::function<void()> onLoadScene;
 ```
-`App/ControlsPanel.hpp:42-46`
+`App/ControlsPanel.hpp:42-49`
 
 The struct those settings get read into mirrors exactly the fields the panel
 exposes — four numeric text fields, a threading mode, and the floating
@@ -63,13 +75,15 @@ struct RenderSettings
 ```
 `App/ControlsPanel.hpp:10-18`
 
-## §2. Building the row of fields, and the 860→950 window widening
+## §2. Building the row of fields, and a 930-wide budget that outlived three later additions
 
 `ControlsPanel`'s constructor lays out two rows of subviews inside the frame
-it's given: the top row holds the four labeled numeric fields plus a
-Randomize button, and the bottom row holds the threading toggle, the three
-render buttons, the Floating? checkbox, and the two Save buttons, each
-placed at a hand-picked x-offset:
+it's given. Row 1 holds the four labeled numeric fields, a Randomize button,
+and — added later, one at a time, as the app grew new render paths — three
+more buttons squeezed into whatever room was left; row 2 holds the threading
+toggle, the original three render buttons, the Floating? checkbox, and the
+two Save buttons. The four fields are laid out first, each at a hand-picked
+x-offset:
 
 ```cpp
 _pContainerView->addSubview( makeLabel( ( CGRect ){ { 0.0, 32.0 }, { 45.0, 20.0 } }, "Width:" ) );
@@ -88,12 +102,11 @@ _pContainerView->addSubview( makeLabel( ( CGRect ){ { 335.0, 32.0 }, { 40.0, 20.
 _pSeedField = makeField( ( CGRect ){ { 378.0, 32.0 }, { 80.0, 22.0 } }, "1234" );
 _pContainerView->addSubview( _pSeedField );
 ```
-`App/ControlsPanel.cpp:71-85`
+`App/ControlsPanel.cpp:74-88`
 
-The bottom row keeps growing rightward as the app's feature set grew: the
-threading toggle starts at x=0, the three render buttons follow, the
-Floating? checkbox sits at x=550, and the two Save buttons land at x=680 and
-x=800, each 110pt wide plus a gap:
+Row 2 keeps growing rightward too: the threading toggle starts at x=0, the
+three original render buttons follow, the Floating? checkbox sits at x=550,
+and the two Save buttons land at x=680 and x=800, each 110pt wide plus a gap:
 
 ```cpp
 _pSaveGLTFButton = NS::Button::alloc()->init( ( CGRect ){ { 680.0, 2.0 }, { 110.0, 26.0 } } );
@@ -108,16 +121,33 @@ _pSaveOBJButton->setTarget( _pSaveOBJButton );
 _pSaveOBJButton->setAction( NS::MenuItem::registerActionCallback( "controlsSaveOBJClicked", onSaveOBJClicked ) );
 _pContainerView->addSubview( _pSaveOBJButton );
 ```
-`App/ControlsPanel.cpp:125-135`
+`App/ControlsPanel.cpp:152-162`
 
 The Save OBJ button's right edge lands at x=910 — close enough to the
 original 860pt-wide window that it would have been clipped or overlapped the
 window's edge chrome. Per CLAUDE.md's project-status notes, adding the two
 export buttons is exactly why "window widened from 860 to 950 to fit the
-latter two" — a one-line consequence of §2's absolute-coordinate layout that
-is otherwise invisible from `ControlsPanel.cpp` alone, since the window's
-width is set in `AppDelegate`, not here. The two files have to agree on
-geometry even though neither owns the other's numbers.
+latter two" — a one-line consequence of this row's absolute-coordinate
+layout that is otherwise invisible from `ControlsPanel.cpp` alone, since the
+window's width is set in `AppDelegate`, not here. The two files have to
+agree on geometry even though neither owns the other's numbers.
+
+Row 2 never grew again after that — every button added since (`Load Scene`,
+`Render Raster`, `Pipeline Steps`, §10) went to row 1 instead, each with a
+comment explaining the same reasoning: row 1 had spare width row 2 didn't.
+
+```cpp
+// Row 1 has plenty of unused width to the right of Randomize (it only extends to x=555 out of
+// this container's 930), so Load Scene lives here rather than crowding row 2's already-packed
+// button row.
+_pLoadSceneButton = NS::Button::alloc()->init( ( CGRect ){ { 570.0, 30.0 }, { 110.0, 26.0 } } );
+```
+`App/ControlsPanel.cpp:96-99`
+
+Three additions later, row 1 itself finally ran out of room too: `Pipeline
+Steps` (§10) had to be squeezed into a final 115pt gap at x=815, out of the
+same 930pt budget — no window resize needed, but no further row-1 additions
+would fit without one.
 
 ## §3. The CPU-threading toggle: a push button faking a checked state
 
@@ -134,7 +164,7 @@ _pThreadingToggleButton->setTarget( _pThreadingToggleButton );
 _pThreadingToggleButton->setAction( NS::MenuItem::registerActionCallback( "controlsThreadingToggleClicked", onThreadingToggleClicked ) );
 _pContainerView->addSubview( _pThreadingToggleButton );
 ```
-`App/ControlsPanel.cpp:94-98`
+`App/ControlsPanel.cpp:121-125`
 
 The click handler does two things a real checkbox's click handler wouldn't
 have to: flip a hand-maintained `bool`, and rewrite the button's title so the
@@ -150,7 +180,7 @@ void ControlsPanel::handleThreadingToggleClicked()
 		NS::StringEncoding::UTF8StringEncoding ) );
 }
 ```
-`App/ControlsPanel.cpp:198-205`
+`App/ControlsPanel.cpp:231-238`
 
 That `_multiThreaded` field is the class's only piece of state that isn't
 read straight out of an AppKit control on demand:
@@ -159,7 +189,7 @@ read straight out of an AppKit control on demand:
 NS::Button* _pThreadingToggleButton;
 bool        _multiThreaded;
 ```
-`App/ControlsPanel.hpp:80-81`
+`App/ControlsPanel.hpp:89-90`
 
 `currentSettings()` has no choice but to consult it, since the button itself
 has no notion of "checked":
@@ -167,7 +197,7 @@ has no notion of "checked":
 ```cpp
 settings.cpuMode = _multiThreaded ? CPUThreading::MultiThreaded : CPUThreading::SingleThreaded;
 ```
-`App/ControlsPanel.cpp:165`
+`App/ControlsPanel.cpp:195`
 
 This works, and it's what CLAUDE.md calls, in its own words, "the CPU-
 threading toggle's older 'push button whose title changes' hack" — a hack in
@@ -190,7 +220,7 @@ _pFloatingCheckbox->setButtonType( NS::ButtonTypeSwitch );
 _pFloatingCheckbox->setTitle( NS::String::string( "Floating?", UTF8StringEncoding ) );
 _pContainerView->addSubview( _pFloatingCheckbox );
 ```
-`App/ControlsPanel.cpp:118-123`
+`App/ControlsPanel.cpp:145-150`
 
 Notice everything that's *missing* compared to every other button in this
 file: no `setTarget`, no `setAction`, no `registerActionCallback`, and no
@@ -208,7 +238,7 @@ directly:
 // needs no click handler at all; currentSettings() just reads state() on demand.
 NS::Button* _pFloatingCheckbox;
 ```
-`App/ControlsPanel.hpp:83-86`
+`App/ControlsPanel.hpp:92-95`
 
 So where the threading toggle needs a `bool` field, a click handler, and a
 title rewrite just to answer "am I on or off," the checkbox needs none of
@@ -217,7 +247,7 @@ that — `currentSettings()` just asks it:
 ```cpp
 settings.floating = _pFloatingCheckbox->state() != 0;
 ```
-`App/ControlsPanel.cpp:166`
+`App/ControlsPanel.cpp:196`
 
 `state()` sends the real `NSButton` `state` selector via
 `Object::sendMessage`, returning `1` when checked and `0` when unchecked
@@ -255,7 +285,7 @@ uint32_t parseUInt( NS::TextField* pField, uint32_t minVal, uint32_t maxVal, uin
 	return (uint32_t)value;
 }
 ```
-`App/ControlsPanel.cpp:21-35`
+`App/ControlsPanel.cpp:24-38`
 
 ```cpp
 RenderSettings ControlsPanel::currentSettings() const
@@ -270,7 +300,7 @@ RenderSettings ControlsPanel::currentSettings() const
 	return settings;
 }
 ```
-`App/ControlsPanel.cpp:158-168`
+`App/ControlsPanel.cpp:188-198`
 
 Chapter 8 covers in full why `AppDelegate` always calls this on the main
 thread, synchronously, before spawning the `std::thread` that actually
@@ -296,13 +326,16 @@ void ControlsPanel::setControlsEnabled( bool enabled )
 	_pRandomizeSeedButton->setEnabled( enabled );
 	_pRenderCPUButton->setEnabled( enabled );
 	_pRenderGPUButton->setEnabled( enabled );
+	_pRenderRasterButton->setEnabled( enabled );
+	_pShowPipelineButton->setEnabled( enabled );
 	_pCompareButton->setEnabled( enabled );
 	_pFloatingCheckbox->setEnabled( enabled );
 	_pSaveGLTFButton->setEnabled( enabled );
 	_pSaveOBJButton->setEnabled( enabled );
+	_pLoadSceneButton->setEnabled( enabled );
 }
 ```
-`App/ControlsPanel.cpp:172-186`
+`App/ControlsPanel.cpp:202-219`
 
 ## §6. Randomize Seed: the one handler that needs no forwarding
 
@@ -322,7 +355,7 @@ void ControlsPanel::handleRandomizeSeedClicked()
 	_pSeedField->setStringValue( NS::String::string( buf, NS::StringEncoding::UTF8StringEncoding ) );
 }
 ```
-`App/ControlsPanel.cpp:189-196`
+`App/ControlsPanel.cpp:221-229`
 
 It draws straight from `std::random_device` rather than the seeded
 `std::mt19937` `Scene::buildDefaultScene()` uses internally (Chapter 1) —
@@ -342,7 +375,7 @@ _pRandomizeSeedButton->setTarget( _pRandomizeSeedButton );
 _pRandomizeSeedButton->setAction( NS::MenuItem::registerActionCallback( "controlsRandomizeSeedClicked", onRandomizeSeedClicked ) );
 _pContainerView->addSubview( _pRandomizeSeedButton );
 ```
-`App/ControlsPanel.cpp:87-91`
+`App/ControlsPanel.cpp:90-94`
 
 `registerActionCallback` wants a capture-less function pointer, not a
 lambda with captures, so `ControlsPanel.cpp` keeps a single file-local
@@ -360,16 +393,19 @@ namespace
 	void onThreadingToggleClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleThreadingToggleClicked(); }
 	void onRenderCPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderCPUClicked(); }
 	void onRenderGPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderGPUClicked(); }
+	void onRenderRasterClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderRasterClicked(); }
 	void onCompareClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleCompareClicked(); }
+	void onShowPipelineClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleShowPipelineClicked(); }
 	void onSaveGLTFClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleSaveGLTFClicked(); }
 	void onSaveOBJClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleSaveOBJClicked(); }
+	void onLoadSceneClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleLoadSceneClicked(); }
 	...
 }
 ```
-`App/ControlsPanel.cpp:7-19`
+`App/ControlsPanel.cpp:9-23`
 
 This is the same idiom `AppDelegate` uses for its own menu-item callback
-(`onShowAboutClicked` in `App/AppDelegate.cpp:27-30`) and it's how every
+(`onShowAboutClicked` in `App/AppDelegate.cpp:29-33`) and it's how every
 AppKit control callback in this project gets wired without Objective-C++ —
 `NS::Control`/`NS::Button`'s `setTarget`/`setAction`, and
 `NS::MenuItem::registerActionCallback` underneath them, ultimately rest on
@@ -380,35 +416,40 @@ itself is built from (§4 above). *Why* Apple's vendored
 Objective-C selector, is Chapter 10's subject in full; this chapter only
 notes the pattern as it's used here.
 
-## §8. `ResultsPanel`: three labels, no arithmetic
+## §8. `ResultsPanel`: four labels, no arithmetic
 
 `ResultsPanel`'s header is explicit that the class does no computation of
-its own:
+its own — the "three" it originally said became "four" the moment the
+raster renderer (Chapter 13) needed a line of its own, but the "deliberately
+dumb" design didn't change at all:
 
 ```cpp
-// Three label lines (CPU / GPU / speedup) per CLAUDE.md's UI architecture. Deliberately dumb: it
-// just displays whatever text it's given — all render-time/rays-per-sec/speedup formatting stays
-// in AppDelegate, where the actual timing values are known.
+// Four label lines (CPU / GPU / Raster / speedup) per CLAUDE.md's UI architecture. Deliberately
+// dumb: it just displays whatever text it's given — all render-time/rays-per-sec/triangle-count/
+// speedup formatting stays in AppDelegate, where the actual timing values are known.
 class ResultsPanel
 ```
 `App/ResultsPanel.hpp:7-10`
 
-Its constructor places three plain (non-editable, non-bezeled) label fields
+Its constructor places four plain (non-editable, non-bezeled) label fields
 stacked vertically, each starting with placeholder text:
 
 ```cpp
-_pCPULabel = makeLabel( ( CGRect ){ { 0.0, 46.0 }, { frame.size.width, 20.0 } }, "CPU: not yet run" );
+_pCPULabel = makeLabel( ( CGRect ){ { 0.0, 68.0 }, { frame.size.width, 20.0 } }, "CPU: not yet run" );
 _pContainerView->addSubview( _pCPULabel );
 
-_pGPULabel = makeLabel( ( CGRect ){ { 0.0, 24.0 }, { frame.size.width, 20.0 } }, "GPU: not yet run" );
+_pGPULabel = makeLabel( ( CGRect ){ { 0.0, 46.0 }, { frame.size.width, 20.0 } }, "GPU: not yet run" );
 _pContainerView->addSubview( _pGPULabel );
 
-_pSpeedupLabel = makeLabel( ( CGRect ){ { 0.0, 2.0 }, { frame.size.width, 20.0 } }, "Run both CPU and GPU to compare" );
+_pRasterLabel = makeLabel( ( CGRect ){ { 0.0, 24.0 }, { frame.size.width, 20.0 } }, "Raster: not yet run" );
+_pContainerView->addSubview( _pRasterLabel );
+
+_pSpeedupLabel = makeLabel( ( CGRect ){ { 0.0, 2.0 }, { frame.size.width, 20.0 } }, "Run at least two of CPU/GPU/Raster to compare" );
 _pContainerView->addSubview( _pSpeedupLabel );
 ```
-`App/ResultsPanel.cpp:19-26`
+`App/ResultsPanel.cpp:20-30`
 
-and its entire public surface beyond that is three setters that do nothing
+and its entire public surface beyond that is four setters that do nothing
 but forward a pre-formatted string into the matching label:
 
 ```cpp
@@ -417,13 +458,15 @@ void ResultsPanel::setCPULine( const std::string& text )
 	_pCPULabel->setStringValue( NS::String::string( text.c_str(), NS::StringEncoding::UTF8StringEncoding ) );
 }
 ```
-`App/ResultsPanel.cpp:45-48`
+`App/ResultsPanel.cpp:44-47`
 
-The actual numbers — render time, GPU-only time, estimated rays/sec, and the
-labeled speedup ratio — are computed in `AppDelegate`, which is the only
-place that has both a `RenderParams` (width/height/samplesPerPixel) and a
-measured elapsed time in hand at the same moment. Rays/sec is a single
-helper shared by every render path:
+The actual numbers — render time, GPU-only time, estimated rays/sec (or, for
+the raster line, a triangle count instead — Chapter 13, §2, since
+rasterization has no "rays" to estimate a rate for), and the speedup line —
+are computed in `AppDelegate`, which is the only place that has both a
+`RenderParams` (width/height/samplesPerPixel) and a measured elapsed time in
+hand at the same moment. Rays/sec is a single helper shared by both ray
+tracers:
 
 ```cpp
 // Estimates rays/sec as width*height*samplesPerPixel divided by elapsed time.
@@ -433,34 +476,69 @@ double raysPerSecond( const RenderParams& params, double milliseconds )
 	return rays / ( milliseconds / 1000.0 );
 }
 ```
-`App/AppDelegate.cpp:19-24`
+`App/AppDelegate.cpp:22-27`
 
-and the speedup line is only ever produced once both a CPU and a GPU timing
-exist, formatted as whichever side is faster:
+The speedup line started out simple — CPU and GPU were the only two
+renderers, so there was only ever one ratio to report, whichever side was
+faster. Adding a third renderer meant that simple two-way branch could no
+longer say everything worth saying (once all three have run, there are three
+pairwise ratios, not one), so `updateSpeedupIfPossible()` was generalized to
+build a list of whichever timings are currently known and format every
+pairwise ratio among them — while still producing *exactly* the old
+single-pair message on a scene where only CPU and GPU have run, so this was
+an additive change, not a breaking one:
 
 ```cpp
-// Once both a CPU and a GPU timing are known, formats and displays whichever ratio is >= 1x
-// ("GPU is Nx faster" or "CPU is Nx faster"). No-ops until both times exist.
+// Once at least two of CPU/GPU/Raster timings are known, formats and displays every pairwise ratio
+// among whichever are known (1 pair today, up to 3 once all three have run) — e.g. "GPU is 152.3x
+// faster than CPU | Raster is 9.8x faster than GPU | Raster is 1492.1x faster than CPU". No-ops
+// until at least two times exist.
 void AppDelegate::updateSpeedupIfPossible()
 {
-	if ( _lastCPUTimeMs < 0.0 || _lastGPUTimeMs < 0.0 )
+	struct Timing { const char* name; double ms; };
+	std::vector<Timing> known;
+	if ( _lastCPUTimeMs >= 0.0 )
+		known.push_back( { "CPU", _lastCPUTimeMs } );
+	if ( _lastGPUTimeMs >= 0.0 )
+		known.push_back( { "GPU", _lastGPUTimeMs } );
+	if ( _lastRasterTimeMs >= 0.0 )
+		known.push_back( { "Raster", _lastRasterTimeMs } );
+
+	if ( known.size() < 2 )
 		return;
 
-	char buf[ 128 ];
-	if ( _lastGPUTimeMs < _lastCPUTimeMs )
-	{
-		double ratio = _lastCPUTimeMs / _lastGPUTimeMs;
-		std::snprintf( buf, sizeof( buf ), "GPU is %.1fx faster than CPU", ratio );
-	}
-	else
-	{
-		double ratio = _lastGPUTimeMs / _lastCPUTimeMs;
-		std::snprintf( buf, sizeof( buf ), "CPU is %.1fx faster than GPU", ratio );
-	}
-	_pResultsPanel->setSpeedupLine( buf );
+	std::string line;
+	for ( size_t i = 0; i < known.size(); ++i )
+		for ( size_t j = i + 1; j < known.size(); ++j )
+		{
+			if ( !line.empty() )
+				line += " | ";
+			line += formatSpeedup( known[ i ].name, known[ i ].ms, known[ j ].name, known[ j ].ms );
+		}
+
+	_pResultsPanel->setSpeedupLine( line );
 }
 ```
-`App/AppDelegate.cpp:277-294`
+`App/AppDelegate.cpp:349-377`
+
+The actual "which one's faster, and by how much" arithmetic for one pair was
+pulled out into its own tiny helper, so the nested loop above doesn't repeat
+it once per pair:
+
+```cpp
+// Formats "<A> is Nx faster than <B>" for one pair of timings (in ms) — a small helper so
+// updateSpeedupIfPossible() below doesn't repeat this once per pair.
+std::string formatSpeedup( const char* nameA, double msA, const char* nameB, double msB )
+{
+	char buf[ 96 ];
+	if ( msA < msB )
+		std::snprintf( buf, sizeof( buf ), "%s is %.1fx faster than %s", nameA, msB / msA, nameB );
+	else
+		std::snprintf( buf, sizeof( buf ), "%s is %.1fx faster than %s", nameB, msA / msB, nameA );
+	return buf;
+}
+```
+`App/AppDelegate.cpp:41-51`
 
 This division of labor mirrors `ControlsPanel`'s: the view-owning class
 knows only how to display text in a labeled field, and the class that owns
@@ -515,23 +593,110 @@ throughout this chapter — is a project-local addition to
 headers have no alert wrapper either; that gap-filling story belongs to
 Chapter 10.
 
+## §10. Three later additions: Load Scene, Render Raster, Pipeline Steps
+
+Three buttons were added to row 1 after this chapter was first written, each
+following the exact same four-line allocate/title/target/action pattern §7
+already covers, but each worth a sentence for *why* it exists and what it
+sits next to.
+
+`Load Scene` shows a real `NS::OpenPanel` — a project-local addition to
+`metal-cpp-extensions`, since Apple's vendored headers have no open-panel
+wrapper any more than they have an alert or button one (§9, Chapter 10) —
+then hands the picked path to `Export/SceneImporter.hpp` (Chapter 7, §11) on
+a background thread:
+
+```cpp
+// Row 1 has plenty of unused width to the right of Randomize (it only extends to x=555 out of
+// this container's 930), so Load Scene lives here rather than crowding row 2's already-packed
+// button row.
+_pLoadSceneButton = NS::Button::alloc()->init( ( CGRect ){ { 570.0, 30.0 }, { 110.0, 26.0 } } );
+_pLoadSceneButton->setTitle( NS::String::string( "Load Scene", UTF8StringEncoding ) );
+_pLoadSceneButton->setTarget( _pLoadSceneButton );
+_pLoadSceneButton->setAction( NS::MenuItem::registerActionCallback( "controlsLoadSceneClicked", onLoadSceneClicked ) );
+_pContainerView->addSubview( _pLoadSceneButton );
+```
+`App/ControlsPanel.cpp:96-103`
+
+`NS::OpenPanel` itself is deliberately minimal — just enough to pick one
+file and read back its URL, with no content-type filter wrapper, since this
+app tells `.gltf` from `.obj` apart by the chosen file's own extension
+afterward rather than restricting the panel itself:
+
+```cpp
+class OpenPanel : public Referencing< OpenPanel >
+{
+	public:
+		// NSOpenPanel is normally obtained via +openPanel, not +alloc/-init, and is a shared
+		// autoreleased instance per Apple's docs — matches how this is actually used here (one
+		// synchronous runModal() call on the main thread, no retained ownership needed after).
+		static OpenPanel* openPanel();
+
+		void setCanChooseFiles( bool value );
+		void setCanChooseDirectories( bool value );
+		void setAllowsMultipleSelection( bool value );
+
+		// Blocks (this is a real modal panel) until the user picks a file or cancels; returns
+		// NSModalResponseOK (1) or NSModalResponseCancel (0).
+		long runModal();
+		// Valid only after runModal() returns NSModalResponseOK.
+		URL* url() const;
+};
+```
+`ThirdParty/metal-cpp-extensions/AppKit/NSOpenPanel.hpp:32-49`
+
+`Render Raster` and `Pipeline Steps` need no new AppKit wrapper at all — both
+just forward through the same `std::function` pattern every other button
+uses (§1) — but they mark two successive points where row 1 ran out of the
+"plenty of unused width" the `Load Scene` comment above once had:
+
+```cpp
+// Same reasoning as Load Scene just above: row 1 still has room (this ends at x=810, out of
+// this container's 930) while row 2 is already packed with the render/save/floating controls.
+_pRenderRasterButton = NS::Button::alloc()->init( ( CGRect ){ { 700.0, 30.0 }, { 110.0, 26.0 } } );
+```
+`App/ControlsPanel.cpp:105-107`
+
+```cpp
+// Same row-1 reasoning as Load Scene/Render Raster above — the last remaining gap on row 1.
+_pShowPipelineButton = NS::Button::alloc()->init( ( CGRect ){ { 815.0, 30.0 }, { 115.0, 26.0 } } );
+```
+`App/ControlsPanel.cpp:113-114`
+
+Each comment explicitly measures how much of the 930pt row-1 budget is left
+before deciding the new button still fits without a window resize — the same
+discipline §2's `Load Scene` story already established, applied twice more
+until the row was genuinely full.
+
 ## Where this connects
 
 - **Chapter 8** (`main.cpp`, `App/AppDelegate.hpp/.cpp`) owns the instances
-  of `ControlsPanel` and `ResultsPanel` this chapter describes, wires the
-  five `std::function` callbacks (`onRenderCPU`, `onRenderGPU`, `onCompare`,
-  `onSaveGLTF`, `onSaveOBJ`) to its own `start*`/`saveScene` methods, is the
-  sole caller of `currentSettings()` (always synchronously, on the main
-  thread, before spawning the background `std::thread` that actually
-  renders — §5), and computes every number `ResultsPanel`'s setters merely
-  display (§8).
+  of `ControlsPanel` and `ResultsPanel` this chapter describes, wires all
+  eight `std::function` callbacks (`onRenderCPU`, `onRenderGPU`,
+  `onRenderRaster`, `onCompare`, `onShowPipeline`, `onSaveGLTF`, `onSaveOBJ`,
+  `onLoadScene`) to its own `start*`/`saveScene`/`loadScene`/
+  `showPipelineWindow` methods, is the sole caller of `currentSettings()`
+  (always synchronously, on the main thread, before spawning the background
+  `std::thread` that actually renders — §5), and computes every number
+  `ResultsPanel`'s setters merely display (§8).
 - **Chapter 10** (`App/ImageDisplayView.hpp/.cpp`, plus the
   `ThirdParty/metal-cpp-extensions` additions) tells the full story behind
-  the `NS::Button`/`NS::TextField`/`NS::Alert`/`NS::Control` additions this
-  chapter's panels are built entirely out of — the `Object::sendMessage`/
-  `class_addMethod` idiom introduced only briefly here in §4 and §7.
+  the `NS::Button`/`NS::TextField`/`NS::Alert`/`NS::Control`/`NS::OpenPanel`
+  additions this chapter's panels are built entirely out of — the
+  `Object::sendMessage`/`class_addMethod` idiom introduced only briefly here
+  in §4, §7, and §10.
 - **Chapter 1** (`Core/Scene.hpp/.cpp`) is where the Floating? checkbox's
   `bool` actually does something: `settings.floating` (§4) flows into
   `Scene::buildDefaultScene()`'s `floating` parameter, which places the
   small randomized-field spheres at a random height instead of resting them
   on the ground.
+- **Chapter 7** (`Export/SceneImporter.hpp/.cpp`) is what `Load Scene` (§10)
+  actually hands the picked file to, and the round-trip contract (this app's
+  own exports only) that makes reconstruction exact.
+- **Chapter 13** (`GPU/RasterRenderer.hpp/.cpp`) is what `Render Raster`
+  (§10) and the generalized every-pairwise-ratio speedup line (§8) exist
+  to expose — the third renderer whose `triangleCount`, not a rays/sec
+  figure, `ResultsPanel`'s raster line displays.
+- **Chapter 14** (`App/PipelineVisualizationWindow.hpp/.cpp`,
+  `GPU/PipelineStageRenderer.hpp/.cpp`) is the secondary window `Pipeline
+  Steps` (§10) opens.

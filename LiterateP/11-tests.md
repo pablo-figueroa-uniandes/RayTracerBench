@@ -3,19 +3,29 @@
 **Abstract.** `RayTracerBenchTests` is the project's one committed test binary: a
 plain command-line C++ tool with no XCTest and no Objective-C, built from a
 homegrown ~100-line test framework rather than a vendored one. It exercises
-three different layers of the program — Chapter 2's shared ray-tracing core
+six different layers of the program — Chapter 2's shared ray-tracing core
 (`RayTraceCoreTests.cpp`), Chapter 6's mesh-export geometry
-(`EntityMeshTests.cpp`), and a genuine CPU-vs-GPU numerical comparison
-(`DeterministicParityTests.cpp`) — and each layer is tested for a different
-reason. The centerpiece of this chapter is the last of those: a tolerance
-that was set, measured against, found wrong, and revised, which is as close
-as this codebase gets to a recorded scientific method. Eighteen tests exist
-across the three files; all eighteen currently pass.
+(`EntityMeshTests.cpp`), a genuine CPU-vs-GPU numerical comparison
+(`DeterministicParityTests.cpp`), Chapter 7's export/import round trip
+(`SceneImportExportTests.cpp`), Chapter 13's rasterizer
+(`RasterRendererTests.cpp`), and Chapter 14's pipeline-stage diagram math
+(`PipelineStageTests.cpp`) — and each layer is tested for a different
+reason. The centerpiece of this chapter is still the CPU/GPU parity story: a
+tolerance that was set, measured against, found wrong, and revised, which is
+as close as this codebase gets to a recorded scientific method. §6-§8 cover
+the three files added since this chapter was first written, including how
+each one is scoped differently from the parity test — smoke tests and
+geometry-math checks where a pixel-parity comparison wouldn't be meaningful.
+Twenty-seven tests exist across the six files; all twenty-seven currently
+pass.
 
 Files covered: `RayTracerBenchTests/TestFramework.hpp`,
 `RayTracerBenchTests/main.cpp`, `RayTracerBenchTests/RayTraceCoreTests.cpp`,
 `RayTracerBenchTests/EntityMeshTests.cpp`,
-`RayTracerBenchTests/DeterministicParityTests.cpp`.
+`RayTracerBenchTests/DeterministicParityTests.cpp`,
+`RayTracerBenchTests/SceneImportExportTests.cpp`,
+`RayTracerBenchTests/RasterRendererTests.cpp`,
+`RayTracerBenchTests/PipelineStageTests.cpp`.
 
 ---
 
@@ -584,23 +594,246 @@ check.
 
 ---
 
-## §5. Eighteen tests, all passing
+## §5. Twenty-seven tests, all passing
 
-Counting `TEST_CASE` occurrences across the three test files: thirteen in
+Counting `TEST_CASE` occurrences across all six test files: thirteen in
 `RayTraceCoreTests.cpp` (`hitSphere_hitsDeadOn`, `hitSphere_missesEntirely`,
 `hitSphere_respectsTMaxRange`, `hitSphere_originInsideSphere_reportsBackFace`,
 `hitSphere_picksCloserOfTwoRoots`, `hitPyramid_hitsApexFromAbove`,
 `hitPyramid_hitsSideFaceWhenOffApexAxis`, `hitPyramid_hitsBaseFromBelow`,
 `hitPyramid_missesEntirely`, `hitPyramid_sideNormalPointsOutwardAndUpward`,
 `hitEntity_dispatchesByShapeTag`, `reflect3_mirrorsAboutNormal`,
-`pcgHash_isDeterministicAndVaries`), three in `EntityMeshTests.cpp`, and two
-in `DeterministicParityTests.cpp` — 13 + 3 + 2 = **18**, matching the count
-`CLAUDE.md`'s project-status notes give ("18 tests, all passing"), so the
-number hasn't drifted since that note was written. `CMakeLists.txt` links
-exactly these three test `.cpp`s plus `main.cpp` into the
-`RayTracerBenchTests` executable target (`CMakeLists.txt:113-117`), so this
-count is also the complete registry `runAll()` (§1) will walk at runtime —
-nothing else contributes a `TEST_CASE` to this binary.
+`pcgHash_isDeterministicAndVaries`), three in `EntityMeshTests.cpp`, two in
+`DeterministicParityTests.cpp`, four in `SceneImportExportTests.cpp` (§6),
+two in `RasterRendererTests.cpp` (§7), and three in `PipelineStageTests.cpp`
+(§8) — 13 + 3 + 2 + 4 + 2 + 3 = **27**. `CMakeLists.txt` links all six test
+`.cpp`s plus `main.cpp` (and, for the three GPU-touching newer files, the
+renderer `.cpp`s they exercise directly) into the `RayTracerBenchTests`
+executable target:
+
+```cmake
+add_executable(RayTracerBenchTests
+    RayTracerBenchTests/main.cpp
+    RayTracerBenchTests/RayTraceCoreTests.cpp
+    RayTracerBenchTests/DeterministicParityTests.cpp
+    RayTracerBenchTests/EntityMeshTests.cpp
+    RayTracerBenchTests/SceneImportExportTests.cpp
+    RayTracerBenchTests/RasterRendererTests.cpp
+    RayTracerBenchTests/PipelineStageTests.cpp
+    RayTracerBench/GPU/GPURenderer.cpp
+    RayTracerBench/GPU/RasterRenderer.cpp
+    RayTracerBench/GPU/PipelineStageRenderer.cpp
+)
+```
+`CMakeLists.txt:126-137`
+
+so this count is also the complete registry `runAll()` (§1) will walk at
+runtime — nothing else contributes a `TEST_CASE` to this binary.
+
+## §6. `SceneImportExportTests.cpp`: closing the loop Chapter 7 opened
+
+Chapter 7 covers a real, silent-corruption bug in `exportSceneAsGLTF()` — a
+bulk `memcpy` that ignored `simd_float3`'s SIMD padding and scrambled every
+vertex past the first one in each mesh — caught not by inspection but by
+decoding a real export's buffer and diffing it against the source mesh data.
+`checkRoundTrip()` is that same comparison, promoted from an ad hoc harness
+into a permanent, reusable assertion every test in this file shares:
+
+```cpp
+// Every entity's Transform/Shape/Material, reconstructed from `loaded`, should match `original`
+// to float-text-precision (a few times float32 epsilon — see SceneExporter.cpp's setprecision(9)
+// comments) — this is the regression this test exists to catch: SceneExporter.cpp originally
+// shipped a bug (a bulk memcpy over simd_float3's SIMD padding) that scrambled glTF vertex data
+// entirely, which this same comparison caught by decoding a real export and finding its bounding
+// box didn't match the source mesh at all — see the fix's commit for the full story.
+void checkRoundTrip( const SceneDescription& original, const SceneDescription& loaded, float eps )
+```
+`RayTracerBenchTests/SceneImportExportTests.cpp:18-24`
+
+Four tests build on it. `base64_roundTrip_recoversOriginalBytesAtEveryLengthMod3`
+exercises `Base64.hpp`'s encode/decode pair (Chapter 7, §11) at every
+`length % 3` remainder — 0, 1, and 2 bytes of trailing data pad differently,
+so all three cases (plus a couple of longer lengths) are checked explicitly
+rather than trusting one representative length to stand in for all three:
+
+```cpp
+TEST_CASE( base64_roundTrip_recoversOriginalBytesAtEveryLengthMod3 )
+{
+	// base64 pads differently depending on (length % 3) — exercise all three cases, plus empty.
+	for ( size_t len : { (size_t)0, (size_t)1, (size_t)2, (size_t)3, (size_t)4, (size_t)5, (size_t)6, (size_t)97 } )
+	{
+		std::vector<uint8_t> original( len );
+		for ( size_t i = 0; i < len; ++i )
+			original[ i ] = (uint8_t)( ( i * 37 + 11 ) & 0xFF );
+
+		std::string           encoded = base64Encode( original.data(), original.size() );
+		std::vector<uint8_t>  decoded = base64Decode( encoded );
+
+		RT_CHECK_MESSAGE( decoded == original, "length " << len << " round-trip mismatch (encoded=" << encoded << ")" );
+	}
+}
+```
+`RayTracerBenchTests/SceneImportExportTests.cpp:57-71`
+
+`sceneRoundTrip_gltf_reconstructsEntitiesPositionsAndMaterials` and its OBJ
+counterpart export the real `buildDefaultScene()` layout (at a small
+32px-wide setting, to keep the ~490-entity export/import cheap rather than
+building a toy scene that wouldn't exercise the real code path), immediately
+re-import what was just written, and hand both scenes to `checkRoundTrip()`:
+
+```cpp
+TEST_CASE( sceneRoundTrip_gltf_reconstructsEntitiesPositionsAndMaterials )
+{
+	// A small, fast scene (32px width keeps buildDefaultScene's ~490 entities but the export/import
+	// cheap) at a fixed seed, exported then immediately re-imported — the same pattern as
+	// DeterministicParityTests' fixed-seed determinism checks.
+	SceneDescription scene = buildDefaultScene( 4242u, 32, kAspectRatio, 8, 6, false );
+
+	std::string        stem = "test_gltf_roundtrip_scene";
+	SceneExportResult  exportResult = exportSceneAsGLTF( scene, stem );
+	CHECK( exportResult.ok );
+	CHECK( exportResult.writtenFilePaths.size() == 1 );
+
+	SceneImportResult importResult = importSceneFromGLTF( exportResult.writtenFilePaths[ 0 ], 32, kAspectRatio, 8, 6, 4242u );
+	RT_CHECK_MESSAGE( importResult.ok, importResult.message );
+
+	// A few times float32 epsilon at these coordinate magnitudes (positions up to ~1000) — see
+	// SceneExporter.cpp's setprecision(17)/(9) comments for why this isn't exact to the last bit.
+	checkRoundTrip( scene, importResult.scene, 1.0e-3f );
+}
+```
+`RayTracerBenchTests/SceneImportExportTests.cpp:73-91`
+
+The fourth test, `sceneRoundTrip_floatingScene_alsoReconstructsExactly`
+(`RayTracerBenchTests/SceneImportExportTests.cpp:108-122`), repeats the glTF
+round trip with `floating=true` — a distinct geometry distribution (Chapter
+1's small-sphere field at random heights rather than resting on the ground)
+that the first two tests, both `floating=false`, never exercise.
+
+## §7. `RasterRendererTests.cpp`: a smoke test, deliberately not a parity test
+
+§4's whole parity story depends on `RayTraceCore.h` being shared verbatim
+between the CPU and GPU renderers — a CPU/GPU pixel diff is only meaningful
+*because* both sides run the same algorithm. `RasterRenderer` (Chapter 13)
+shares no code with that algorithm at all: it's a different rendering
+strategy, expected to *look* different (no shadows, no reflections, no
+global illumination) even on the identical scene. A pixel-parity test
+against the ray tracer would therefore be testing the wrong thing entirely,
+so this file asks two narrower, still-real questions instead:
+
+```cpp
+// Rasterized output is *expected* to look different from the ray-traced output (no shadows/GI/
+// reflection — see CLAUDE.md's Project status note on this render path's scope), so this is
+// deliberately not a pixel-parity test against the CPU/GPU ray tracers. It's a smoke test that the
+// real pipeline actually ran: correct texture dimensions, and real color variation rather than a
+// blank/uniform frame (which would indicate a broken matrix, everything culled, or similar).
+TEST_CASE( rasterRenderer_producesNonBlankImageAtRequestedSize )
+```
+`RayTracerBenchTests/RasterRendererTests.cpp:23-28`
+
+The test renders the real default scene through a real `RasterRenderer` (not
+a reimplementation), confirms the output texture's dimensions match the
+request, then reads it back with `getBytes()` and checks that *some* pixel
+differs from the first one — a blank or uniformly-cleared frame is exactly
+what a wrong MVP matrix, a fully-culled scene, or a broken vertex buffer
+would produce, and this catches that class of failure without needing to
+assert on any specific pixel value:
+
+```cpp
+std::vector<uint8_t> pixels( (size_t)scene.params.width * scene.params.height * 4 );
+result.pTexture->getBytes( pixels.data(), (size_t)scene.params.width * 4,
+	MTL::Region( 0, 0, 0, scene.params.width, scene.params.height, 1 ), 0 );
+
+uint8_t firstR = pixels[ 0 ];
+uint8_t firstG = pixels[ 1 ];
+uint8_t firstB = pixels[ 2 ];
+bool    hasVariation = false;
+for ( size_t i = 0; i + 3 < pixels.size(); i += 4 )
+{
+	if ( pixels[ i ] != firstR || pixels[ i + 1 ] != firstG || pixels[ i + 2 ] != firstB )
+	{
+		hasVariation = true;
+		break;
+	}
+}
+CHECK( hasVariation );
+```
+`RayTracerBenchTests/RasterRendererTests.cpp:39-55`
+
+The second test, `rasterRenderer_triangleCountMatchesEntityMeshSum`
+(`RayTracerBenchTests/RasterRendererTests.cpp:63-82`), checks a structural
+property instead of a visual one: that `RasterRenderResult::triangleCount`
+(Chapter 13, §2) equals an independently-computed sum of
+`buildEntityMesh()`'s own triangle counts across every entity — catching an
+off-by-one or indexing bug in the vertex-buffer-flattening loop (Chapter 13,
+§4) without needing a GPU readback for this particular question at all.
+
+## §8. `PipelineStageTests.cpp`: testing the geometry math, not the diagram
+
+Chapter 14's `PipelineStageRenderer` produces hand-designed diagrams with no
+"expected pixels" to compare against — unlike §7's rasterizer, there isn't
+even a plausible parity target to reject. What *can* be tested, and
+rigorously, is the geometry math underneath the diagrams, independent of any
+GPU rendering at all.
+
+`projectOntoPlane_cornersAreFixedPoints_andForwardAxisHitsCenter` checks two
+facts that must hold for the "deformed" projection (Chapter 14, §5) to be
+correct: projecting one of the image plane's own four corners must return
+that exact corner (a fixed point of its own projection, since it already
+lies on the plane), and projecting a point straight down the camera's
+forward axis must land at the plane's center:
+
+```cpp
+for ( simd_float3 corner : { c00, c10, c01, c11 } )
+{
+	simd_float3 projected = projectOntoPlane( cam.origin, corner, c00, cam.w );
+	CHECK_NEAR( projected.x, corner.x, 1e-3 );
+	CHECK_NEAR( projected.y, corner.y, 1e-3 );
+	CHECK_NEAR( projected.z, corner.z, 1e-3 );
+}
+
+simd_float3 viewportCenter = c00 + ( cam.horizontal + cam.vertical ) * 0.5f;
+simd_float3 pointOnForwardAxis = cam.origin - cam.w * 5.0f; // "forward" is -w
+simd_float3 projectedCenter = projectOntoPlane( cam.origin, pointOnForwardAxis, c00, cam.w );
+```
+`RayTracerBenchTests/PipelineStageTests.cpp:50-60`
+
+`collectFramingPoints_excludesOversizedEntities_fromFramingBounds` is this
+session's Unity-import investigation, encoded as a permanent regression
+check rather than left as a one-off lesson: a synthetic scene with one
+radius-1000 sphere and a small cluster of radius-0.2 ones must produce a
+framing-bounds radius that reflects only the small cluster, exactly the
+exclusion rule Chapter 14, §4 documents in full:
+
+```cpp
+// This is this session's Unity-import lesson (see CLAUDE.md), encoded as a permanent regression
+// check: a scene with one radius-1000 sphere and a small cluster must not let the giant one dictate
+// how an external observer camera frames the scene.
+TEST_CASE( collectFramingPoints_excludesOversizedEntities_fromFramingBounds )
+{
+	SceneDescription scene;
+	addSphere( scene, simd_make_float3( 0.0f, -1000.0f, 0.0f ), 1000.0f ); // the "ground sphere"
+	addSphere( scene, simd_make_float3( 1.0f, 0.2f, 1.0f ), 0.2f );
+	addSphere( scene, simd_make_float3( -1.0f, 0.2f, -1.0f ), 0.2f );
+	addSphere( scene, simd_make_float3( 1.0f, 0.2f, -1.0f ), 0.2f );
+
+	std::vector<simd_float3> points = collectFramingPoints( scene );
+	CHECK( points.size() == 3 ); // the giant sphere's center is excluded, the small cluster isn't
+
+	FramingBounds bounds = fitFramingSphere( points );
+	CHECK( bounds.radius < 10.0f ); // would be ~1000 if the giant sphere weren't excluded
+}
+```
+`RayTracerBenchTests/PipelineStageTests.cpp:66-82`
+
+The third test, `buildSceneWireframe_vertexCountAndSphereRingRadius`
+(`RayTracerBenchTests/PipelineStageTests.cpp:87-109`), checks the wireframe
+builder's (Chapter 14, §2) output structurally — the exact expected vertex
+count for a synthetic scene of two spheres and one pyramid
+(`ringSegments × 2` per sphere plus 36 per pyramid), and that every
+generated sphere-ring point sits at exactly that sphere's true radius from
+its center, catching a wrong ring-construction formula without any GPU
+readback.
 
 ---
 
@@ -620,9 +853,18 @@ nothing else contributes a `TEST_CASE` to this binary.
   are the two renderers §4's `measureParity()` actually invokes and diffs —
   this chapter's parity story is really about the divergence between those
   two chapters' execution of the one shared core from Chapter 2.
+- **Chapter 7** (`Export/SceneExporter.hpp/.cpp`, `Export/SceneImporter.hpp/.cpp`,
+  `Export/Base64.hpp/.cpp`) is what §6 tests, and the source of the
+  SIMD-padding corruption bug `checkRoundTrip()` exists to catch a recurrence
+  of.
 - **Chapter 12** (`CMakeLists.txt`) is the build system that compiles this
   test binary and is the source of the "no Test action configured" scheme
   limitation discussed in §1 — and its own text should be read alongside
   the exact `xcodebuild ... build` + run-the-binary-directly sequence
   quoted from `CLAUDE.md` above, since that sequence is the only way this
   chapter's tests actually get executed.
+- **Chapter 13** (`GPU/RasterRenderer.hpp/.cpp`) is what §7 tests, and the
+  reason those tests are smoke tests rather than a parity comparison.
+- **Chapter 14** (`GPU/PipelineStageRenderer.hpp/.cpp`) is what §8 tests —
+  the geometry math underneath diagrams that have no "expected pixels" of
+  their own to assert on.

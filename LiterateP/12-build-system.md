@@ -3,7 +3,7 @@
 **Abstract.** RayTracerBench is not built by hand-editing an Xcode project —
 it is built by CMake, with the `.xcodeproj` itself treated as a generated
 artifact that happens to be checked in for convenience. `CMakeLists.txt` is
-short (136 lines) but carries real weight: it defines the three-target
+short (158 lines) but carries real weight: it defines the three-target
 layout (a framework-free static library, the app, and a headless test
 binary), and it contains the one genuinely unusual build step in the whole
 project — shelling out to the real Metal command-line compiler at build
@@ -13,9 +13,12 @@ core headers make it impossible to compile the way `Blit.metal` is compiled
 bottom: the target layout, the `.metallib` custom command and the
 `RT_RAYTRACER_METALLIB`/`RT_SHADERS_DIR` compile definitions it and its
 sibling produce, the vendored `ThirdParty` include paths, the operational
-rule for regenerating the Xcode project after a source change, and the
+rule for regenerating the Xcode project after a source change, the
 build/test commands this project actually uses (including the one that
-looks like it should work and doesn't).
+looks like it should work and doesn't), and a real build-system bug this
+project's own history ran into — a `SYMROOT` override that looked correct
+and silently wasn't — told in full as a cautionary case study in Xcode
+generator internals.
 
 Files covered: `CMakeLists.txt`.
 
@@ -27,7 +30,7 @@ AppKit/Metal" line that runs through the rest of the project's module
 layout. The first is `RayTracerCore`, a static library:
 
 ```cmake
-# CMakeLists.txt:20-29
+# CMakeLists.txt:28-39
 # RayTraceCore.h and ShaderTypes.h are header-only and dual-compiled into
 # Shaders/Raytracer.metal directly (not through this library) once the GPU
 # renderer exists. CPURenderer.cpp is framework-free C++17 like Core/, so it
@@ -35,8 +38,10 @@ layout. The first is `RayTracerCore`, a static library:
 add_library(RayTracerCore STATIC
     RayTracerBench/Core/Scene.cpp
     RayTracerBench/CPU/CPURenderer.cpp
+    RayTracerBench/Export/Base64.cpp
     RayTracerBench/Export/EntityMesh.cpp
     RayTracerBench/Export/SceneExporter.cpp
+    RayTracerBench/Export/SceneImporter.cpp
 )
 
 target_include_directories(RayTracerCore PUBLIC
@@ -49,25 +54,29 @@ target_include_directories(RayTracerCore PUBLIC
 Every `.cpp` in this list is plain C++17 with no Apple-framework
 dependency: `Scene.cpp` (Chapter 1) only touches `<simd/simd.h>` types and
 the standard library's `std::mt19937`; `CPURenderer.cpp` (Chapter 4) is
-explicitly framework-free by design; and `EntityMesh.cpp`/`SceneExporter.cpp`
-(Chapters 6 and 7) build meshes and write glTF/OBJ text with nothing but
-the standard library. `RayTraceCore.h` and `ShaderTypes.h` themselves never
-appear in this target's source list at all — as the comment says, they are
-header-only and get pulled into two separate compilations instead: this
-library's `.cpp` files include them as plain C++, and `Shaders/Raytracer.metal`
-(§2 below) includes the identical files again as MSL. `RayTracerCore` is a
-library of *consumers* of that shared header pair, not a place where it is
-compiled once and reused.
+explicitly framework-free by design; and `EntityMesh.cpp`/`SceneExporter.cpp`/
+`SceneImporter.cpp`/`Base64.cpp` (Chapter 7) build meshes and read/write
+glTF/OBJ text and base64 data with nothing but the standard library and a
+hand-rolled JSON parser. `RayTraceCore.h` and `ShaderTypes.h` themselves
+never appear in this target's source list at all — as the comment says,
+they are header-only and get pulled into two separate compilations
+instead: this library's `.cpp` files include them as plain C++, and
+`Shaders/Raytracer.metal` (§2 below) includes the identical files again as
+MSL. `RayTracerCore` is a library of *consumers* of that shared header
+pair, not a place where it is compiled once and reused.
 
 Note what is conspicuously absent from this list: `Export/ImageWriter.cpp`.
 It builds meshes and writes 3D-format text like its siblings above, but it
 also calls into CoreGraphics/ImageIO to rasterize a PNG (Chapter 7), and
 `RayTracerCore` is deliberately kept framework-free so it never needs to
 link against anything beyond the C++ standard library. `ImageWriter.cpp` is
-compiled into the app target instead:
+compiled into the app target instead, alongside `GPU/RasterRenderer.cpp`
+(Chapter 13) and `GPU/PipelineStageRenderer.cpp` (Chapter 14) — both need
+Metal, which the app target already links (§6), so they join
+`GPU/GPURenderer.cpp` rather than moving into `RayTracerCore`:
 
 ```cmake
-# CMakeLists.txt:37-46
+# CMakeLists.txt:47-59
 add_executable(RayTracerBench
     RayTracerBench/main.cpp
     RayTracerBench/App/AppDelegate.cpp
@@ -75,14 +84,17 @@ add_executable(RayTracerBench
     RayTracerBench/App/ControlsPanel.cpp
     RayTracerBench/App/ResultsPanel.cpp
     RayTracerBench/App/ImageDisplayView.cpp
+    RayTracerBench/App/PipelineVisualizationWindow.cpp
     RayTracerBench/GPU/GPURenderer.cpp
+    RayTracerBench/GPU/RasterRenderer.cpp
+    RayTracerBench/GPU/PipelineStageRenderer.cpp
     RayTracerBench/Export/ImageWriter.cpp
 )
 ```
 
 `RayTracerBench` is where everything that actually needs a framework lives:
-all of `App/` (AppKit, via `metal-cpp-extensions`), `GPU/GPURenderer.cpp`
-(Metal), and `Export/ImageWriter.cpp` (CoreGraphics/ImageIO). It links
+all of `App/` (AppKit, via `metal-cpp-extensions`), `GPU/*.cpp` (Metal),
+and `Export/ImageWriter.cpp` (CoreGraphics/ImageIO). It links
 `RayTracerCore` in later (§5) to get the shared scene/CPU/export code, so
 the app target is really "the framework-dependent half of the program,
 plus the framework-free half linked in" rather than a self-contained list
@@ -90,25 +102,32 @@ of every source file the app needs.
 
 The third target, `RayTracerBenchTests` (Chapter 11), reuses the same
 split again — it links `RayTracerCore` for the scene/CPU code its tests
-exercise, and separately compiles `GPU/GPURenderer.cpp` directly into
-itself (rather than linking against `RayTracerBench`, which doesn't exist
-as a library) so its parity tests can drive the real GPU renderer too:
+exercise, and separately compiles `GPU/GPURenderer.cpp`, `GPU/RasterRenderer.cpp`,
+and `GPU/PipelineStageRenderer.cpp` directly into itself (rather than
+linking against `RayTracerBench`, which doesn't exist as a library) so its
+parity, raster, and pipeline-stage tests can drive the real Metal-backed
+renderers too:
 
 ```cmake
-# CMakeLists.txt:113-119
+# CMakeLists.txt:126-137
 add_executable(RayTracerBenchTests
     RayTracerBenchTests/main.cpp
     RayTracerBenchTests/RayTraceCoreTests.cpp
     RayTracerBenchTests/DeterministicParityTests.cpp
     RayTracerBenchTests/EntityMeshTests.cpp
+    RayTracerBenchTests/SceneImportExportTests.cpp
+    RayTracerBenchTests/RasterRendererTests.cpp
+    RayTracerBenchTests/PipelineStageTests.cpp
     RayTracerBench/GPU/GPURenderer.cpp
+    RayTracerBench/GPU/RasterRenderer.cpp
+    RayTracerBench/GPU/PipelineStageRenderer.cpp
 )
 ```
 
 Its own comment on this target states the same reasoning explicitly:
 
 ```cmake
-# CMakeLists.txt:111-112
+# CMakeLists.txt:124-125
 # RayTracerBenchTests: a plain command-line C++ tool (no XCTest, no Objective-C) — headless, so it
 # only needs Metal + Foundation, not AppKit/metal-cpp-extensions/Cocoa.
 ```
@@ -128,7 +147,7 @@ system's answer is to make Raytracer.metal a real, separately compiled
 artifact, using the actual command-line Metal toolchain:
 
 ```cmake
-# CMakeLists.txt:61-83
+# CMakeLists.txt:74-96
 # Raytracer.metal #includes Core/ShaderTypes.h and Core/RayTraceCore.h verbatim (the dual-compile
 # design), so it CANNOT be compiled from a raw in-memory source string the way Blit.metal is —
 # there's no file location for a relative #include to resolve against. Compile it to a real
@@ -197,7 +216,7 @@ variable, the build injects it directly as a preprocessor definition on the
 target that needs it:
 
 ```cmake
-# CMakeLists.txt:85-87
+# CMakeLists.txt:98-100
 target_compile_definitions(RayTracerBench PRIVATE
     RT_RAYTRACER_METALLIB="${RAYTRACER_METALLIB}"
 )
@@ -208,11 +227,21 @@ and the same definition is repeated for the test target, since
 parity tests:
 
 ```cmake
-# CMakeLists.txt:126-128
+# CMakeLists.txt:144-149
 target_compile_definitions(RayTracerBenchTests PRIVATE
     RT_RAYTRACER_METALLIB="${RAYTRACER_METALLIB}"
+    # RasterRenderer.cpp reads Raster.metal's source from disk at runtime, like ImageDisplayView.cpp
+    # does for Blit.metal — only RayTracerBench had this definition before RasterRendererTests needed it too.
+    RT_SHADERS_DIR="${CMAKE_SOURCE_DIR}/RayTracerBench/Shaders"
 )
 ```
+
+The test target's copy of this block picked up a second definition,
+`RT_SHADERS_DIR`, once `RasterRendererTests.cpp` (Chapter 13, §7) started
+constructing a real `RasterRenderer` — which, like `ImageDisplayView`,
+reads its shader's source text off disk at runtime rather than from a
+precompiled `.metallib`, so the test binary needs to know where the
+`Shaders/` directory is too, for exactly the reason explained next.
 
 `RT_SHADERS_DIR` solves a related but distinct problem, for the *other*
 shader. `Blit.metal` (Chapter 3, and used by `ImageDisplayView`, Chapter
@@ -225,7 +254,7 @@ the shader source directory itself instead, so `ImageDisplayView` can
 `fopen`/read `Blit.metal`'s text directly from the source tree at runtime:
 
 ```cmake
-# CMakeLists.txt:53-59
+# CMakeLists.txt:66-72
 # ImageDisplayView compiles Shaders/Blit.metal from source at runtime (newLibrary(), not
 # newDefaultLibrary()) since this is deliberately a plain executable, not an app bundle with a
 # compiled default.metallib resource — see ImageDisplayView.cpp's readShaderSource() comment.
@@ -234,6 +263,12 @@ target_compile_definitions(RayTracerBench PRIVATE
     RT_SHADERS_DIR="${CMAKE_SOURCE_DIR}/RayTracerBench/Shaders"
 )
 ```
+
+`Shaders/Raster.metal` (Chapter 13) follows Blit.metal's model, not
+Raytracer.metal's — it has no local `#include`s either, so `RasterRenderer`
+reads it from disk and compiles it from a source string at runtime,
+reusing this same `RT_SHADERS_DIR` definition rather than needing a third
+one of its own. `Shaders/Wireframe.metal` (Chapter 14) does too.
 
 The two definitions are answers to the same underlying question —
 "where is my shader at runtime" — but they differ in exactly the way §2
@@ -297,7 +332,7 @@ that links the library, without `RayTracerBench` having to repeat them
 itself:
 
 ```cmake
-# CMakeLists.txt:89
+# CMakeLists.txt:102
 target_link_libraries(RayTracerBench PRIVATE RayTracerCore)
 ```
 
@@ -306,7 +341,7 @@ since they are headers-only and never compiled into a library of their
 own. They are wired directly onto the app target:
 
 ```cmake
-# CMakeLists.txt:48-51
+# CMakeLists.txt:61-64
 target_include_directories(RayTracerBench PRIVATE
     ThirdParty/metal-cpp
     ThirdParty/metal-cpp-extensions
@@ -332,7 +367,7 @@ directly (it compiles `GPURenderer.cpp` straight into itself rather than
 linking against the app target, which isn't a library):
 
 ```cmake
-# CMakeLists.txt:121-124
+# CMakeLists.txt:139-142
 target_include_directories(RayTracerBenchTests PRIVATE
     ThirdParty/metal-cpp
     RayTracerBench/GPU
@@ -351,7 +386,7 @@ AppKit has no reason to see the AppKit extension headers at all.
 rendering, and export:
 
 ```cmake
-# CMakeLists.txt:91-108
+# CMakeLists.txt:104-122
 find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
@@ -386,7 +421,7 @@ library exists to have. `RayTracerBenchTests`, correspondingly, links only
 the two frameworks it actually needs:
 
 ```cmake
-# CMakeLists.txt:132-136
+# CMakeLists.txt:153-157
 target_link_libraries(RayTracerBenchTests PRIVATE
     RayTracerCore
     ${METAL_FRAMEWORK}
@@ -426,10 +461,11 @@ target, the same kind of target `RayTracerBench` itself is, with no XCTest
 bundle, no `XCTestCase` subclasses, and nothing for CMake's Xcode generator
 to wire into a scheme's Test action — there is no XCTest target for
 `xcodebuild test` to even attempt to run. `RayTracerBenchTests/main.cpp`
-(Chapter 11) is instead a plain `main()` that runs `RayTraceCoreTests.cpp`,
-`DeterministicParityTests.cpp`, and `EntityMeshTests.cpp`'s checks directly
-and reports pass/fail on its own, the same as any other C++ command-line
-program would. The correct way to run it is therefore to build the scheme
+(Chapter 11) is instead a plain `main()` that runs all six test files'
+checks directly (`RayTraceCoreTests.cpp`, `DeterministicParityTests.cpp`,
+`EntityMeshTests.cpp`, `SceneImportExportTests.cpp`, `RasterRendererTests.cpp`,
+`PipelineStageTests.cpp`) and reports pass/fail on its own, the same as any
+other C++ command-line program would. The correct way to run it is therefore to build the scheme
 as an ordinary product and then execute the resulting binary directly,
 locating it first:
 
@@ -447,6 +483,99 @@ its job in the background during that build step — the test binary needs
 does, since it constructs a real `GPURenderer` against the same compiled
 library (§3).
 
+## §8. The `SYMROOT` saga: a build-system bug that looked fixed three times before it was
+
+This project's own history includes a real build-system investigation
+worth telling in full, in the Knuth sense of showing the bug that shaped
+the final form rather than presenting the finished file as though it were
+obvious from the start. An earlier version of `CMakeLists.txt` set a custom
+`SYMROOT` — the intent, stated in that version's own comment, was to pin
+build products to a fixed `<repo>/build` location regardless of where
+`cmake -S . -B <dir> -G Xcode` happened to be invoked from, so that
+regenerating the Xcode project into a scratch directory (this project's
+headless generation workflow, §4) and then deleting that scratch directory
+wouldn't leave the checked-in `.xcodeproj` pointing at a build folder that
+no longer existed. What actually followed was three attempts, each one
+looking like a fix until the next build proved otherwise:
+
+1. **`CMAKE_XCODE_ATTRIBUTE_SYMROOT` alone.** This changed *where Xcode
+   said* products would go, but not where CMake's Xcode generator had
+   already computed several *other* absolute paths would be — the
+   `.metallib` custom command's `OUTPUT`/`DEPENDS` paths (§2) and, more
+   subtly, the linker flags connecting `RayTracerBench` to `RayTracerCore`.
+2. **Also forcing `CMAKE_XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR` to
+   `"$(SYMROOT)/$(CONFIGURATION)"`.** This is the standard fix for
+   "`SYMROOT` alone didn't move everything" in ordinary Xcode projects, and
+   it worked — but only at the project level. CMake's Xcode generator
+   *also* emits its own `CONFIGURATION_BUILD_DIR` value directly on each
+   individual target, and a per-target build setting always wins over a
+   project-level one in Xcode's build-setting resolution order, so each
+   target's actual output silently kept going to the generator's own
+   computed location regardless of the project-level override.
+3. **`set_target_properties(... XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR
+   ...)` per target**, to fight the generator's per-target value directly.
+   This one actually worked for each target's *own* output location — but
+   uncovered the real, previously-hidden problem: the *linker* flags
+   `RayTracerBench` uses to find `RayTracerCore`'s compiled static library
+   are written by CMake's Xcode generator directly into `OTHER_LDFLAGS` as
+   a literal absolute path string, computed from `CMAKE_BINARY_DIR` at
+   *generation* time — not as an Xcode build-setting reference like
+   `$(CONFIGURATION_BUILD_DIR)` that would follow any later override. Once
+   each target's own product moved to the new, overridden location, the
+   consuming target's hardcoded `OTHER_LDFLAGS` entry kept pointing at
+   the *old*, generator-computed path, and the link failed outright with
+   "no such file or directory" — confirmed by actually running the build,
+   not inferred from reading the generated project file.
+
+The eventual fix was to stop fighting the generator and instead work with
+its actual, consistent default: Xcode's own default `SYMROOT` (unset) is
+`$(PROJECT_DIR)/build`, a `build` subfolder nested under wherever the
+generated `.xcodeproj` itself lives — which is exactly `CMAKE_BINARY_DIR`,
+the same directory every other absolute path in this file (the
+`.metallib` custom command's paths in §2, the `OTHER_LDFLAGS` entries that
+broke attempt 3) is generated to already agree with. Once every override
+was removed, every path in the generated project was internally consistent
+again, because they had all been computed from the same
+`CMAKE_BINARY_DIR` all along — the problem was never that CMake's paths
+disagreed with each other, only that the `SYMROOT` overrides tried to
+introduce a *second*, inconsistent notion of where products live
+alongside the first. `CMakeLists.txt` records this as the operational rule
+it actually is, not just a historical note:
+
+```cmake
+# CMakeLists.txt:12-26
+# No custom SYMROOT override (an earlier version of this file had one, meant to "pin build products
+# to <repo>/build regardless of where `cmake -B <dir>` is invoked from" — removed after it turned out
+# to not actually be achievable). CMake's Xcode generator bakes several *other* absolute paths from
+# CMAKE_BINARY_DIR as literal strings regardless of any SYMROOT override — not just the Raytracer.metallib
+# custom-command paths below, but also, critically, inter-target link references: when RayTracerBench
+# links RayTracerCore, the generator writes RayTracerCore's expected static-library path directly into
+# OTHER_LDFLAGS as a plain linker argument (not a $(...)  build-setting reference), computed from
+# CMAKE_BINARY_DIR at *generation* time — so overriding SYMROOT/CONFIGURATION_BUILD_DIR only moves
+# where RayTracerCore's product actually gets *copied*, not where the consumer's hardcoded OTHER_LDFLAGS
+# entry *looks for it*, breaking the link with "no such file or directory" (confirmed the hard way).
+# Xcode's own default SYMROOT (unset here) is "$(PROJECT_DIR)/build" — a "build" subfolder nested
+# under wherever the generated .xcodeproj itself lives (CMAKE_BINARY_DIR) — which is what every path
+# in this file, including the ones below, is generated to agree with. The one hard requirement this
+# leaves: `cmake -S . -B <dir> -G Xcode` must always regenerate into the *same*, persistent `<dir>`
+# (never a one-off /tmp path) — see the "regenerating RayTracerBench.xcodeproj" note in CLAUDE.md.
+```
+
+That last sentence is the rule this whole investigation actually produced:
+`cmake -S . -B .cmake-xcode -G Xcode` (§4) must always target the same
+persistent, `.gitignore`d `.cmake-xcode/` directory, never a one-off
+scratch path that gets deleted afterward — because the moment that
+directory stops existing, every one of these baked-in absolute paths
+(the `.metallib` command's output, `RayTracerCore`'s link path, the
+`RT_RAYTRACER_METALLIB` compile definition itself) points at nothing, and
+no `SYMROOT` override can be made to survive that in its place. This is
+also, concretely, why a stray `build/` directory once accumulated in the
+repository root and had to be cleaned up by hand: it was a leftover from
+exactly this trial-and-error process, not a file this project's normal
+workflow produces on its own.
+
+---
+
 ## Where this connects
 
 - **Chapter 3** (`Shaders/Raytracer.metal`, `Shaders/Blit.metal`) is the
@@ -460,14 +589,26 @@ library (§3).
   `_pDevice->newLibrary(NS::String::string(RT_RAYTRACER_METALLIB, ...),
   &pError)` on exactly the path this file's custom command produces, never
   a source string, for the reason spelled out in both files' comments.
-- **Chapter 7** (`Export/SceneExporter.hpp/.cpp`,
-  `Export/ImageWriter.hpp/.cpp`) is why `RayTracerCore` and
-  `RayTracerBench` split the way they do in §1 and §6: `ImageWriter.cpp`'s
-  CoreGraphics/ImageIO dependency is the one thing in the whole `Export/`
-  module that isn't framework-free, so it alone is compiled into and linked
-  against the app target rather than the shared static library.
+- **Chapter 7** (`Export/SceneExporter.hpp/.cpp`, `Export/SceneImporter.hpp/.cpp`,
+  `Export/Base64.hpp/.cpp`, `Export/ImageWriter.hpp/.cpp`) is why
+  `RayTracerCore` and `RayTracerBench` split the way they do in §1 and §6:
+  `ImageWriter.cpp`'s CoreGraphics/ImageIO dependency is the one thing in
+  the whole `Export/` module that isn't framework-free, so it alone is
+  compiled into and linked against the app target rather than the shared
+  static library, while the round-trip import/export/base64 code all
+  stays in `RayTracerCore`.
 - **Chapter 11** (`RayTracerBenchTests/*`) is the target this file defines
   in §1 and links in §6, and whose actual checks (RayTraceCore unit tests,
-  deterministic CPU/GPU parity, EntityMesh winding-order verification) are
-  what running the binary produced by §7's build/locate/run sequence
-  reports pass or fail on.
+  deterministic CPU/GPU parity, EntityMesh winding-order verification,
+  scene import/export round-trips, raster smoke tests, pipeline-stage
+  geometry-math checks) are what running the binary produced by §7's
+  build/locate/run sequence reports pass or fail on.
+- **Chapter 13** (`GPU/RasterRenderer.hpp/.cpp`, `GPU/CameraMath.hpp`,
+  `Shaders/Raster.metal`) is why `RT_SHADERS_DIR` (§3) is shared between
+  two consumers instead of one, and why `RasterRenderer.cpp` appears in
+  both the app target's and the test target's source lists in §1.
+- **Chapter 14** (`GPU/PipelineStageRenderer.hpp/.cpp`,
+  `Shaders/Wireframe.metal`, `App/PipelineVisualizationWindow.hpp/.cpp`) is
+  the other new consumer of the same pattern §1 and §3 describe for
+  Chapter 13 — `PipelineStageRenderer.cpp` compiled into both the app and
+  test targets, `Wireframe.metal` read from `RT_SHADERS_DIR` at runtime.
