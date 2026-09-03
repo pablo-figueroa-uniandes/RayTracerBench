@@ -9,14 +9,13 @@ namespace
 {
 	constexpr float kPi = 3.14159265358979323846f;
 
-	// Tessellation density for exported spheres: no native sphere primitive exists in either
-	// glTF or OBJ, so every sphere (including the giant ground sphere) is approximated as a UV
-	// grid. Chosen as a size/smoothness balance after estimating the full scene's export size at
+	// Tessellation density for exported spheres (kSphereLatSegments/kSphereLonSegments, declared in
+	// EntityMesh.hpp so SceneImporter.cpp can share them): no native sphere primitive exists in
+	// either glTF or OBJ, so every sphere (including the giant ground sphere) is approximated as a
+	// UV grid. Chosen as a size/smoothness balance after estimating the full scene's export size at
 	// a few candidate densities (see CLAUDE.md) — the ~480-sphere randomized field dominates
 	// total triangle count, so doubling this from 8x12 would roughly double the file size for a
 	// visually marginal smoothness gain at typical viewing distance.
-	constexpr int kSphereLatSegments = 8;
-	constexpr int kSphereLonSegments = 12;
 
 	// A smooth-shaded UV sphere: shared vertices at each (lat,lon) grid point with an outward
 	// radial normal, matching how a sphere is actually shaded (no hard edges to preserve).

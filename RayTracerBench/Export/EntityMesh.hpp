@@ -5,6 +5,13 @@
 #include <cstdint>
 #include <vector>
 
+// Sphere tessellation density (see EntityMesh.cpp's buildSphereMesh()) — exposed here, not kept
+// file-local in EntityMesh.cpp, so SceneImporter.cpp can derive the exact same "is this a
+// tessellated sphere?" vertex-count signature ((latN+1)*(lonN+1)) instead of duplicating a magic
+// number that could silently drift out of sync with this if the density ever changes.
+constexpr int kSphereLatSegments = 8;
+constexpr int kSphereLonSegments = 12;
+
 // A world-space triangle mesh: parallel positions/normals arrays plus a triangle-list index
 // buffer (3 indices per face), in the layout both the glTF and OBJ/MTL exporters expect.
 struct MeshData

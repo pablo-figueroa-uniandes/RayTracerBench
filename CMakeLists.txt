@@ -9,13 +9,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Pin build products to <repo>/build regardless of where `cmake -B <dir>` is actually invoked from
-# (its own default otherwise nests an extra "build" subfolder under whatever -B path is given, and
-# ties the product location to that scratch directory rather than a fixed, predictable one). This
-# must be set before any target is created — CMAKE_XCODE_ATTRIBUTE_<attr> only seeds the
-# XCODE_ATTRIBUTE_<attr> property's default on targets as they're added, not retroactively.
-# build/ is gitignored; the binary itself is never checked in.
-set(CMAKE_XCODE_ATTRIBUTE_SYMROOT "${CMAKE_SOURCE_DIR}/build")
+# No custom SYMROOT override (an earlier version of this file had one, meant to "pin build products
+# to <repo>/build regardless of where `cmake -B <dir>` is invoked from" — removed after it turned out
+# to not actually be achievable). CMake's Xcode generator bakes several *other* absolute paths from
+# CMAKE_BINARY_DIR as literal strings regardless of any SYMROOT override — not just the Raytracer.metallib
+# custom-command paths below, but also, critically, inter-target link references: when RayTracerBench
+# links RayTracerCore, the generator writes RayTracerCore's expected static-library path directly into
+# OTHER_LDFLAGS as a plain linker argument (not a $(...)  build-setting reference), computed from
+# CMAKE_BINARY_DIR at *generation* time — so overriding SYMROOT/CONFIGURATION_BUILD_DIR only moves
+# where RayTracerCore's product actually gets *copied*, not where the consumer's hardcoded OTHER_LDFLAGS
+# entry *looks for it*, breaking the link with "no such file or directory" (confirmed the hard way).
+# Xcode's own default SYMROOT (unset here) is "$(PROJECT_DIR)/build" — a "build" subfolder nested
+# under wherever the generated .xcodeproj itself lives (CMAKE_BINARY_DIR) — which is what every path
+# in this file, including the ones below, is generated to agree with. The one hard requirement this
+# leaves: `cmake -S . -B <dir> -G Xcode` must always regenerate into the *same*, persistent `<dir>`
+# (never a one-off /tmp path) — see the "regenerating RayTracerBench.xcodeproj" note in CLAUDE.md.
 
 # RayTraceCore.h and ShaderTypes.h are header-only and dual-compiled into
 # Shaders/Raytracer.metal directly (not through this library) once the GPU
@@ -24,8 +32,10 @@ set(CMAKE_XCODE_ATTRIBUTE_SYMROOT "${CMAKE_SOURCE_DIR}/build")
 add_library(RayTracerCore STATIC
     RayTracerBench/Core/Scene.cpp
     RayTracerBench/CPU/CPURenderer.cpp
+    RayTracerBench/Export/Base64.cpp
     RayTracerBench/Export/EntityMesh.cpp
     RayTracerBench/Export/SceneExporter.cpp
+    RayTracerBench/Export/SceneImporter.cpp
 )
 
 target_include_directories(RayTracerCore PUBLIC
@@ -41,7 +51,10 @@ add_executable(RayTracerBench
     RayTracerBench/App/ControlsPanel.cpp
     RayTracerBench/App/ResultsPanel.cpp
     RayTracerBench/App/ImageDisplayView.cpp
+    RayTracerBench/App/PipelineVisualizationWindow.cpp
     RayTracerBench/GPU/GPURenderer.cpp
+    RayTracerBench/GPU/RasterRenderer.cpp
+    RayTracerBench/GPU/PipelineStageRenderer.cpp
     RayTracerBench/Export/ImageWriter.cpp
 )
 
@@ -115,7 +128,12 @@ add_executable(RayTracerBenchTests
     RayTracerBenchTests/RayTraceCoreTests.cpp
     RayTracerBenchTests/DeterministicParityTests.cpp
     RayTracerBenchTests/EntityMeshTests.cpp
+    RayTracerBenchTests/SceneImportExportTests.cpp
+    RayTracerBenchTests/RasterRendererTests.cpp
+    RayTracerBenchTests/PipelineStageTests.cpp
     RayTracerBench/GPU/GPURenderer.cpp
+    RayTracerBench/GPU/RasterRenderer.cpp
+    RayTracerBench/GPU/PipelineStageRenderer.cpp
 )
 
 target_include_directories(RayTracerBenchTests PRIVATE
@@ -125,6 +143,9 @@ target_include_directories(RayTracerBenchTests PRIVATE
 
 target_compile_definitions(RayTracerBenchTests PRIVATE
     RT_RAYTRACER_METALLIB="${RAYTRACER_METALLIB}"
+    # RasterRenderer.cpp reads Raster.metal's source from disk at runtime, like ImageDisplayView.cpp
+    # does for Blit.metal — only RayTracerBench had this definition before RasterRendererTests needed it too.
+    RT_SHADERS_DIR="${CMAKE_SOURCE_DIR}/RayTracerBench/Shaders"
 )
 
 add_dependencies(RayTracerBenchTests RaytracerMetalLib)

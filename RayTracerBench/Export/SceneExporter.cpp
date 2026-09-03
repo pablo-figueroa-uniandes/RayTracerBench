@@ -1,5 +1,6 @@
 #include "SceneExporter.hpp"
 
+#include "Base64.hpp"
 #include "EntityMesh.hpp"
 
 #include <mach-o/dyld.h>
@@ -11,50 +12,11 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 
 namespace
 {
-	// Standard base64 alphabet (RFC 4648), used to embed the glTF export's binary buffer as a
-	// data: URI rather than writing a companion .bin file — keeps a glTF export to one file.
-	std::string base64Encode( const uint8_t* data, size_t len )
-	{
-		static const char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-		std::string out;
-		out.reserve( ( ( len + 2 ) / 3 ) * 4 );
-
-		size_t i = 0;
-		for ( ; i + 3 <= len; i += 3 )
-		{
-			uint32_t n = ( (uint32_t)data[ i ] << 16 ) | ( (uint32_t)data[ i + 1 ] << 8 ) | (uint32_t)data[ i + 2 ];
-			out.push_back( table[ ( n >> 18 ) & 0x3F ] );
-			out.push_back( table[ ( n >> 12 ) & 0x3F ] );
-			out.push_back( table[ ( n >> 6 ) & 0x3F ] );
-			out.push_back( table[ n & 0x3F ] );
-		}
-
-		size_t rem = len - i;
-		if ( rem == 1 )
-		{
-			uint32_t n = (uint32_t)data[ i ] << 16;
-			out.push_back( table[ ( n >> 18 ) & 0x3F ] );
-			out.push_back( table[ ( n >> 12 ) & 0x3F ] );
-			out.push_back( '=' );
-			out.push_back( '=' );
-		}
-		else if ( rem == 2 )
-		{
-			uint32_t n = ( (uint32_t)data[ i ] << 16 ) | ( (uint32_t)data[ i + 1 ] << 8 );
-			out.push_back( table[ ( n >> 18 ) & 0x3F ] );
-			out.push_back( table[ ( n >> 12 ) & 0x3F ] );
-			out.push_back( table[ ( n >> 6 ) & 0x3F ] );
-			out.push_back( '=' );
-		}
-
-		return out;
-	}
-
 	// Where every export is written: a SavedScenes/ subdirectory next to the running executable.
 	std::filesystem::path savedScenesDirectory()
 	{
@@ -207,6 +169,10 @@ SceneExportResult exportSceneAsOBJ( const SceneDescription& scene, const std::st
 		result.message = "Failed to open " + mtlPath.string();
 		return result;
 	}
+	// max_digits10 for float (9) — the default stream precision (6 significant digits) would lose
+	// enough precision on round-trip that a loaded scene's geometry/material fields would visibly
+	// drift from the original (see the analogous fix and reasoning in exportSceneAsGLTF() below).
+	mtlFile << std::setprecision( 9 );
 	mtlFile << "# RayTracerBench scene export - materials\n\n";
 	for ( size_t m = 0; m < scene.materials.size(); ++m )
 	{
@@ -226,6 +192,7 @@ SceneExportResult exportSceneAsOBJ( const SceneDescription& scene, const std::st
 		result.message = "Failed to open " + objPath.string();
 		return result;
 	}
+	objFile << std::setprecision( 9 );
 	objFile << "# RayTracerBench scene export\n";
 	objFile << "mtllib " << stem << ".mtl\n\n";
 
@@ -289,8 +256,15 @@ SceneExportResult exportSceneAsGLTF( const SceneDescription& scene, const std::s
 	auto appendVec3s = [ &buffer ]( const std::vector<simd_float3>& v ) -> size_t {
 		size_t offset = buffer.size();
 		buffer.resize( offset + v.size() * sizeof( float ) * 3 );
-		if ( !v.empty() )
-			std::memcpy( buffer.data() + offset, v.data(), v.size() * sizeof( float ) * 3 );
+		// simd_float3 is a SIMD-register type: sizeof/alignof is 16 (a padded 4th lane), not the
+		// tightly-packed 12 bytes a plain float[3] would occupy — confirmed via sizeof/alignof and
+		// a stride check on a real array, not assumed. A single bulk memcpy of v.size()*12 bytes
+		// from v.data() would therefore read across the wrong element boundaries and scramble
+		// every vertex past the first (caught by decoding a real exported .gltf's buffer and
+		// diffing it against the source mesh data — components came out shuffled between
+		// vertices). Copy each vertex's 3 floats individually instead, skipping the padding lane.
+		for ( size_t i = 0; i < v.size(); ++i )
+			std::memcpy( buffer.data() + offset + i * sizeof( float ) * 3, &v[ i ], sizeof( float ) * 3 );
 		return offset;
 	};
 	auto appendIndices = [ &buffer ]( const std::vector<uint32_t>& v ) -> size_t {
@@ -306,6 +280,17 @@ SceneExportResult exportSceneAsGLTF( const SceneDescription& scene, const std::s
 	std::ostringstream meshesJson;
 	std::ostringstream nodesJson;
 
+	// The default stream precision (6 significant digits) isn't nearly enough: accessor min/max
+	// values written at 6 digits routinely round to a bound that's numerically inside the real
+	// data range, which glTF's spec (and validators) treat as invalid ("declared min/max must
+	// bound the actual data") — confirmed by decoding a real export's buffer and comparing against
+	// its declared min/max, which disagreed on ~1469 of ~2946 bound components before this. Nor is
+	// max_digits10 for float32 (9) quite enough: JSON numbers are parsed back as double, and a
+	// 9-digit decimal that round-trips correctly *as a float* can still land a hair off the exact
+	// widened-to-double value once parsed at double precision, leaving a ~1e-8 residual — confirmed
+	// by the same decode-and-compare check, which still found violations at 9 digits.
+	// max_digits10 for double (17) closes that gap completely.
+	accessorsJson << std::setprecision( 17 );
 	int  bufferViewCount = 0;
 	int  accessorCount = 0;
 	int  nodeCount = 0;
@@ -365,6 +350,7 @@ SceneExportResult exportSceneAsGLTF( const SceneDescription& scene, const std::s
 	}
 
 	std::ostringstream materialsJson;
+	materialsJson << std::setprecision( 17 );
 	for ( size_t m = 0; m < scene.materials.size(); ++m )
 	{
 		GLTFMaterialFields f = gltfMaterialFor( scene.materials[ m ] );

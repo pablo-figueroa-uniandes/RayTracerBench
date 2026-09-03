@@ -1,5 +1,10 @@
 # Xcode / build artifacts
 build/
+# CMake's own generator/configure state (CMakeCache.txt, CMakeScripts/ReRunCMake.make, the
+# Raytracer.metallib intermediate .air, etc.) for regenerating RayTracerBench.xcodeproj — see
+# CLAUDE.md's "regenerating the .xcodeproj" note for why this must be a persistent directory
+# distinct from build/ (which is SYMROOT, and gets wholesale-deleted by Xcode's Clean).
+.cmake-xcode/
 DerivedData/
 *.xcuserstate
 xcuserdata/

@@ -14,9 +14,12 @@ namespace
 	void onThreadingToggleClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleThreadingToggleClicked(); }
 	void onRenderCPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderCPUClicked(); }
 	void onRenderGPUClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderGPUClicked(); }
+	void onRenderRasterClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleRenderRasterClicked(); }
 	void onCompareClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleCompareClicked(); }
+	void onShowPipelineClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleShowPipelineClicked(); }
 	void onSaveGLTFClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleSaveGLTFClicked(); }
 	void onSaveOBJClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleSaveOBJClicked(); }
+	void onLoadSceneClicked( void*, SEL, const NS::Object* ) { gControlsPanel->handleLoadSceneClicked(); }
 
 	// Parses a text field as an unsigned integer, clamped to [minVal, maxVal]; returns `fallback`
 	// if the field doesn't start with a valid number.
@@ -90,6 +93,30 @@ ControlsPanel::ControlsPanel( CGRect frame )
 	_pRandomizeSeedButton->setAction( NS::MenuItem::registerActionCallback( "controlsRandomizeSeedClicked", onRandomizeSeedClicked ) );
 	_pContainerView->addSubview( _pRandomizeSeedButton );
 
+	// Row 1 has plenty of unused width to the right of Randomize (it only extends to x=555 out of
+	// this container's 930), so Load Scene lives here rather than crowding row 2's already-packed
+	// button row.
+	_pLoadSceneButton = NS::Button::alloc()->init( ( CGRect ){ { 570.0, 30.0 }, { 110.0, 26.0 } } );
+	_pLoadSceneButton->setTitle( NS::String::string( "Load Scene", UTF8StringEncoding ) );
+	_pLoadSceneButton->setTarget( _pLoadSceneButton );
+	_pLoadSceneButton->setAction( NS::MenuItem::registerActionCallback( "controlsLoadSceneClicked", onLoadSceneClicked ) );
+	_pContainerView->addSubview( _pLoadSceneButton );
+
+	// Same reasoning as Load Scene just above: row 1 still has room (this ends at x=810, out of
+	// this container's 930) while row 2 is already packed with the render/save/floating controls.
+	_pRenderRasterButton = NS::Button::alloc()->init( ( CGRect ){ { 700.0, 30.0 }, { 110.0, 26.0 } } );
+	_pRenderRasterButton->setTitle( NS::String::string( "Render Raster", UTF8StringEncoding ) );
+	_pRenderRasterButton->setTarget( _pRenderRasterButton );
+	_pRenderRasterButton->setAction( NS::MenuItem::registerActionCallback( "controlsRenderRasterClicked", onRenderRasterClicked ) );
+	_pContainerView->addSubview( _pRenderRasterButton );
+
+	// Same row-1 reasoning as Load Scene/Render Raster above — the last remaining gap on row 1.
+	_pShowPipelineButton = NS::Button::alloc()->init( ( CGRect ){ { 815.0, 30.0 }, { 115.0, 26.0 } } );
+	_pShowPipelineButton->setTitle( NS::String::string( "Pipeline Steps", UTF8StringEncoding ) );
+	_pShowPipelineButton->setTarget( _pShowPipelineButton );
+	_pShowPipelineButton->setAction( NS::MenuItem::registerActionCallback( "controlsShowPipelineClicked", onShowPipelineClicked ) );
+	_pContainerView->addSubview( _pShowPipelineButton );
+
 	// Row 2 (bottom): CPU-threading toggle + Render CPU / Render GPU / Compare.
 	_pThreadingToggleButton = NS::Button::alloc()->init( ( CGRect ){ { 0.0, 2.0 }, { 170.0, 26.0 } } );
 	_pThreadingToggleButton->setTitle( NS::String::string( "CPU Threads: Multi", UTF8StringEncoding ) );
@@ -138,6 +165,9 @@ ControlsPanel::ControlsPanel( CGRect frame )
 // Releases every field/button/checkbox subview and the container view.
 ControlsPanel::~ControlsPanel()
 {
+	_pLoadSceneButton->release();
+	_pShowPipelineButton->release();
+	_pRenderRasterButton->release();
 	_pSaveOBJButton->release();
 	_pSaveGLTFButton->release();
 	_pFloatingCheckbox->release();
@@ -179,10 +209,13 @@ void ControlsPanel::setControlsEnabled( bool enabled )
 	_pRandomizeSeedButton->setEnabled( enabled );
 	_pRenderCPUButton->setEnabled( enabled );
 	_pRenderGPUButton->setEnabled( enabled );
+	_pRenderRasterButton->setEnabled( enabled );
+	_pShowPipelineButton->setEnabled( enabled );
 	_pCompareButton->setEnabled( enabled );
 	_pFloatingCheckbox->setEnabled( enabled );
 	_pSaveGLTFButton->setEnabled( enabled );
 	_pSaveOBJButton->setEnabled( enabled );
+	_pLoadSceneButton->setEnabled( enabled );
 }
 
 // Fills the seed field with a freshly generated random seed.
@@ -218,11 +251,25 @@ void ControlsPanel::handleRenderGPUClicked()
 		onRenderGPU();
 }
 
+// Forwards to the onRenderRaster callback, if the owner set one.
+void ControlsPanel::handleRenderRasterClicked()
+{
+	if ( onRenderRaster )
+		onRenderRaster();
+}
+
 // Forwards to the onCompare callback, if the owner set one.
 void ControlsPanel::handleCompareClicked()
 {
 	if ( onCompare )
 		onCompare();
+}
+
+// Forwards to the onShowPipeline callback, if the owner set one.
+void ControlsPanel::handleShowPipelineClicked()
+{
+	if ( onShowPipeline )
+		onShowPipeline();
 }
 
 // Forwards to the onSaveGLTF callback, if the owner set one.
@@ -237,4 +284,11 @@ void ControlsPanel::handleSaveOBJClicked()
 {
 	if ( onSaveOBJ )
 		onSaveOBJ();
+}
+
+// Forwards to the onLoadScene callback, if the owner set one.
+void ControlsPanel::handleLoadSceneClicked()
+{
+	if ( onLoadScene )
+		onLoadScene();
 }

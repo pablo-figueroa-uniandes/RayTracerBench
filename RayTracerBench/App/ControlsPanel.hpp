@@ -41,9 +41,12 @@ class ControlsPanel
 
 		std::function<void()> onRenderCPU;
 		std::function<void()> onRenderGPU;
+		std::function<void()> onRenderRaster;
 		std::function<void()> onCompare;
+		std::function<void()> onShowPipeline;
 		std::function<void()> onSaveGLTF;
 		std::function<void()> onSaveOBJ;
+		std::function<void()> onLoadScene;
 
 		// Public so the capture-less click-callback trampolines in ControlsPanel.cpp (which can't
 		// hold a `this` closure) can reach them through a file-local pointer — same pattern as
@@ -56,12 +59,18 @@ class ControlsPanel
 		void handleRenderCPUClicked();
 		// Forwards to the onRenderGPU callback, if one is set.
 		void handleRenderGPUClicked();
+		// Forwards to the onRenderRaster callback, if one is set.
+		void handleRenderRasterClicked();
 		// Forwards to the onCompare callback, if one is set.
 		void handleCompareClicked();
+		// Forwards to the onShowPipeline callback, if one is set.
+		void handleShowPipelineClicked();
 		// Forwards to the onSaveGLTF callback, if one is set.
 		void handleSaveGLTFClicked();
 		// Forwards to the onSaveOBJ callback, if one is set.
 		void handleSaveOBJClicked();
+		// Forwards to the onLoadScene callback, if one is set.
+		void handleLoadSceneClicked();
 
 	private:
 		// Creates a non-editable, non-bezeled, transparent-background NS::TextField, used as a
@@ -88,7 +97,10 @@ class ControlsPanel
 		NS::Button* _pRandomizeSeedButton;
 		NS::Button* _pRenderCPUButton;
 		NS::Button* _pRenderGPUButton;
+		NS::Button* _pRenderRasterButton;
 		NS::Button* _pCompareButton;
+		NS::Button* _pShowPipelineButton;
 		NS::Button* _pSaveGLTFButton;
 		NS::Button* _pSaveOBJButton;
+		NS::Button* _pLoadSceneButton;
 };

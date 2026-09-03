@@ -49,6 +49,14 @@ namespace NS
 			// window opts in.
 			void				setAcceptsMouseMovedEvents( bool accepts );
 
+			// Needed for the pipeline-visualization secondary window: Cocoa's default for a
+			// programmatically-created NSWindow is YES, meaning close() (including via the user
+			// clicking its title-bar close button) deallocates the underlying object — leaving
+			// AppDelegate's NS::Window* pointer dangling for a later re-show. Passing false keeps
+			// the C++ wrapper's pointer valid across close/reopen, the same way every other
+			// long-lived AppKit object in this app is managed explicitly.
+			void				setReleasedWhenClosed( bool releasedWhenClosed );
+
 			void				close();
 	};
 
@@ -88,4 +96,9 @@ _NS_INLINE void NS::Window::close()
 _NS_INLINE void NS::Window::setAcceptsMouseMovedEvents( bool accepts )
 {
 	Object::sendMessage< void >( this, sel_registerName( "setAcceptsMouseMovedEvents:" ), accepts );
+}
+
+_NS_INLINE void NS::Window::setReleasedWhenClosed( bool releasedWhenClosed )
+{
+	Object::sendMessage< void >( this, sel_registerName( "setReleasedWhenClosed:" ), releasedWhenClosed );
 }
