@@ -1,8 +1,9 @@
 # RayTracerBench
 
-A native macOS app that renders the same scene with both a CPU ray tracer and a GPU (Metal
-compute) ray tracer and compares their performance — render time, GPU-only time, estimated
-rays/sec, and a labeled speedup ratio.
+A native macOS app that renders the same scene three ways — a CPU ray tracer, a GPU (Metal
+compute) ray tracer, and a GPU rasterizer using Metal's standard graphics pipeline — and compares
+their performance — render time, GPU-only time, estimated rays/sec (raster: triangle count), and a
+labeled speedup ratio for every pairwise comparison among whichever renderers have been run.
 
 Written in **pure C++ and Metal** via Apple's header-only [metal-cpp](https://developer.apple.com/metal/cpp/)
 and metal-cpp-extensions bindings, deliberately avoiding SwiftUI/Objective-C++. There are no
@@ -13,16 +14,31 @@ hand-written `.mm` files anywhere in this project.
 - Adjustable image width, samples-per-pixel, max depth, and scene seed (with a randomize-seed
   button), plus a CPU-threading toggle so the reported speedup number is never ambiguous about
   which CPU baseline it used.
+- Two primitives — spheres and square pyramids (in a spread of 3D orientations) — organized
+  ECS-style as Transform/Shape/Material component arrays rather than a polymorphic shape
+  hierarchy.
 - A **"Floating?" checkbox** — when checked, the small randomized-field spheres are placed at a
   random height instead of resting on the ground; the three large feature spheres (glass,
-  lambertian, metal) always stay grounded either way.
-- A **magnifying-glass loupe** — hovering the mouse over either the CPU or GPU preview zooms the
-  same normalized image location in *both* previews simultaneously, for directly comparing
-  per-pixel detail between the two renderers.
+  lambertian, metal) and all pyramids always stay grounded either way.
+- **Render CPU / Render GPU / Render Raster / Compare** — `Compare` runs all three renderers
+  against one freshly-built shared scene.
+- A **magnifying-glass loupe** — hovering the mouse over any of the three previews (CPU, GPU,
+  Raster) zooms the same normalized image location in *all three* simultaneously, for directly
+  comparing per-pixel detail across renderers.
 - **Save glTF / Save OBJ** — exports the current scene's geometry as either a self-contained
   `.gltf` or an `.obj`+`.mtl` pair, plus a same-named `.png` preview (a real CPU render at the
   current settings), all written to `SavedScenes/` next to the running executable with a filename
   that encodes the seed, image width, and Floating? state.
+- **Load Scene** — reconstructs a scene's entities/materials from a `.gltf`/`.obj` this app
+  previously exported, via an `NSOpenPanel`; every subsequent render/save then uses that loaded
+  geometry (with camera/render params always taken from the current controls) until another Load
+  Scene replaces it.
+- **Pipeline Steps** — an optional secondary window visualizing the four coordinate spaces a scene
+  passes through on the way to a rasterized image: Projective Matrix (world space, with sight
+  lines from the camera to a curated object proxy and its projection onto the image plane), Camera
+  Matrix (the scene after the view transform), Orthographic Matrix (after projection + perspective
+  divide, `[-1,1]`), and Viewport Matrix (the final rasterized image, reusing `Render Raster`'s own
+  output).
 
 ## Building
 
@@ -41,19 +57,30 @@ xcodebuild -project RayTracerBench.xcodeproj -scheme RayTracerBenchTests -config
 <path-to-built-binary>/RayTracerBenchTests
 ```
 
-It covers `Core/RayTraceCore.h`'s `hitSphere()` directly, and a deterministic CPU-vs-GPU pixel
-parity check (same seed, both renderers, diffed with a tolerance that accounts for expected
-chaotic floating-point branch divergence at low sample counts — see `CLAUDE.md`'s verification
-notes for why a strict per-pixel bound doesn't hold).
+It covers `Core/RayTraceCore.h`'s `hitSphere()`/`hitPyramid()`/`hitEntity()`, `Export/EntityMesh.hpp`'s
+mesh-winding correctness, a deterministic CPU-vs-GPU pixel parity check (same seed, both
+renderers, diffed with a tolerance that accounts for expected chaotic floating-point branch
+divergence at low sample counts — see `CLAUDE.md`'s verification notes for why a strict per-pixel
+bound doesn't hold), the `RasterRenderer`'s output, the glTF/OBJ export/import round trip, and the
+`PipelineStageRenderer`'s projection math and framing rules — 27 tests in all.
 
 ## Architecture
 
 `RayTraceCore.h`, `ShaderTypes.h`, and `Scene.hpp/.cpp` in `Core/` are shared, unmodified, between
-the CPU renderer (`CPU/CPURenderer.hpp/.cpp`, plain C++17) and the GPU renderer
+the CPU renderer (`CPU/CPURenderer.hpp/.cpp`, plain C++17) and the GPU compute ray tracer
 (`GPU/GPURenderer.hpp/.cpp` + `Shaders/Raytracer.metal`) — the same tagged-struct,
 switch-dispatched ray tracing algorithm runs on both, so the CPU/GPU comparison is apples-to-apples
-rather than two independently-written implementations that merely look similar. See `CLAUDE.md`
-for the full architecture writeup.
+rather than two independently-written implementations that merely look similar. Geometry is
+organized ECS-style: entities are plain array indices into parallel Transform/Shape/Material
+component arrays, not a polymorphic shape hierarchy.
+
+Two more render paths consume the same `SceneDescription`: `GPU/RasterRenderer.hpp/.cpp` +
+`Shaders/Raster.metal` draw it through Metal's standard graphics pipeline instead of a compute
+kernel, and `GPU/PipelineStageRenderer.hpp/.cpp` + `Shaders/Wireframe.metal` render the "Pipeline
+Steps" window's wireframe diagrams — both share camera-matrix math via `GPU/CameraMath.hpp`.
+`Export/` (`EntityMesh.hpp/.cpp`, `SceneExporter.hpp/.cpp`, `SceneImporter.hpp/.cpp`, `Base64.hpp/.cpp`,
+`ImageWriter.hpp/.cpp`) is a framework-free module that turns a scene's entities into glTF/OBJ mesh
+geometry (and back). See `CLAUDE.md` for the full architecture writeup.
 
 ## Attribution
 
